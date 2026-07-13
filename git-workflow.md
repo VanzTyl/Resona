@@ -1,6 +1,8 @@
-# Git Workflow
+# <span style="color:#2563eb;">Git Workflow</span>
 
-## Branch Strategy
+---
+
+## <span style="color:#16a34a;">Branch Strategy</span>
 
 ### Main Branches
 
@@ -38,7 +40,7 @@ refactor/auth-service
 
 ---
 
-## Branch Rules
+## <span style="color:#f59e0b;">Branch Rules</span>
 
 - Never commit directly to `main`.
 - All work should be developed in feature branches.
@@ -61,7 +63,7 @@ Release to main
 
 ---
 
-## Commit Standards
+## <span style="color:#8b5cf6;">Commit Standards</span>
 
 We use **Conventional Commits**.
 
@@ -107,7 +109,7 @@ chore(deps): update packages
 
 ---
 
-## Commit Rules
+## <span style="color:#dc2626;">Commit Rules</span>
 
 One commit should represent one logical change.
 
@@ -141,7 +143,7 @@ test(auth): add login tests
 
 ---
 
-## Pull Request Rules
+## <span style="color:#0f766e;">Pull Request Rules</span>
 
 Every Pull Request should:
 
