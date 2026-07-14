@@ -25,6 +25,11 @@ RUN echo "DirectoryIndex index.php" >> /etc/apache2/apache2.conf
 # === Enable .htaccess overrides (needed for URL rewriting) ===
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
+# === Pass Authorization header to PHP (Apache strips it by default) ===
+RUN echo "RewriteEngine On" >> /etc/apache2/apache2.conf \
+    && echo "RewriteCond %{HTTP:Authorization} ^(.+)$" >> /etc/apache2/apache2.conf \
+    && echo "RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]" >> /etc/apache2/apache2.conf
+
 # === Set proper permissions ===
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 

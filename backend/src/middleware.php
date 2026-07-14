@@ -63,7 +63,10 @@ function parseJsonBody(): array
  */
 function extractBearerToken(): ?string
 {
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION']
+        ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
+        ?? $_SERVER['Authorization']
+        ?? '';
 
     if ($authHeader === '') {
         return null;
