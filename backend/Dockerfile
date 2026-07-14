@@ -6,6 +6,9 @@
 
 FROM php:8.2-apache
 
+# === Install system dependencies (SSL certs for Spotify API calls) ===
+RUN apt-get update && apt-get install -y ca-certificates curl && rm -rf /var/lib/apt/lists/*
+
 # === Install required PHP extensions ===
 RUN docker-php-ext-install pdo pdo_mysql && docker-php-ext-enable pdo pdo_mysql
 
