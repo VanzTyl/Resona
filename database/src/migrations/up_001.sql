@@ -4,7 +4,7 @@
 -- Description: Initial schema creation
 -- ========================================
 
--- Users table
+-- Users table (no FK dependencies)
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     spotify_id VARCHAR(255) NOT NULL UNIQUE,
@@ -18,7 +18,18 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_users_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Spotify OAuth tokens
+-- Chat threads (FK -> users)
+CREATE TABLE IF NOT EXISTS chat_threads (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id_1 INT UNSIGNED NOT NULL,
+    user_id_2 INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id_1) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id_2) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_chat_pair (user_id_1, user_id_2)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Spotify OAuth tokens (FK -> users)
 CREATE TABLE IF NOT EXISTS spotify_tokens (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL UNIQUE,
@@ -31,7 +42,7 @@ CREATE TABLE IF NOT EXISTS spotify_tokens (
     INDEX idx_spotify_tokens_expires (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Friendships / Social graph
+-- Friendships (FK -> users)
 CREATE TABLE IF NOT EXISTS friendships (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     sender_id INT UNSIGNED NOT NULL,
@@ -47,7 +58,7 @@ CREATE TABLE IF NOT EXISTS friendships (
     INDEX idx_friendships_receiver (receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Listening events (playback history)
+-- Listening events (FK -> users)
 CREATE TABLE IF NOT EXISTS listening_events (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
@@ -66,7 +77,7 @@ CREATE TABLE IF NOT EXISTS listening_events (
     INDEX idx_listening_events_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- User artist tracking (for top artists)
+-- User artist tracking (FK -> users)
 CREATE TABLE IF NOT EXISTS user_artists (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
@@ -81,31 +92,7 @@ CREATE TABLE IF NOT EXISTS user_artists (
     INDEX idx_user_artists_playcount (play_count DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Emoji reactions on feed cards
-CREATE TABLE IF NOT EXISTS reactions (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    listening_event_id BIGINT UNSIGNED NOT NULL,
-    user_id INT UNSIGNED NOT NULL,
-    emoji VARCHAR(10) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (listening_event_id) REFERENCES listening_events(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_reaction (listening_event_id, user_id, emoji),
-    INDEX idx_reactions_event (listening_event_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Chat threads (peer-to-peer)
-CREATE TABLE IF NOT EXISTS chat_threads (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id_1 INT UNSIGNED NOT NULL,
-    user_id_2 INT UNSIGNED NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id_1) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id_2) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY uk_chat_pair (user_id_1, user_id_2)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Messages within chat threads
+-- Messages (FK -> chat_threads, users)
 CREATE TABLE IF NOT EXISTS messages (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     thread_id INT UNSIGNED NOT NULL,
@@ -117,4 +104,17 @@ CREATE TABLE IF NOT EXISTS messages (
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_messages_thread_time (thread_id, created_at),
     INDEX idx_messages_sender (sender_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Emoji reactions (FK -> listening_events, users) — last since it depends on most tables
+CREATE TABLE IF NOT EXISTS reactions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    listening_event_id BIGINT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    emoji VARCHAR(10) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (listening_event_id) REFERENCES listening_events(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_reaction (listening_event_id, user_id, emoji),
+    INDEX idx_reactions_event (listening_event_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
