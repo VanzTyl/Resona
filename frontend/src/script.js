@@ -126,7 +126,12 @@ async function handleRouteChange() {
 
     if (hash === '' || hash === '#') {
         const token = getAccessToken();
-        hash = token !== null ? '/feed' : '/login';
+        // Check if this is a callback URL with tokens (no hash, query params present)
+        if (window.location.search.includes('access_token=')) {
+            hash = '/callback';
+        } else {
+            hash = token !== null ? '/feed' : '/login';
+        }
     }
 
     const routeConfig = RESONA_ROUTES[hash];
