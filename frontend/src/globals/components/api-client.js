@@ -13,7 +13,7 @@ const RESONA_API_BASE_URL = (function () {
         return 'http://localhost:8000';
     }
 
-    return 'https://resona-api.onrender.com';
+    return 'https://resona-tdih.onrender.com';
 })();
 
 /**
