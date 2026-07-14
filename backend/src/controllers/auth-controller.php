@@ -209,9 +209,17 @@ function exchangeSpotifyCode(string $code, array $spotifyConfig): ?array
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    $curlErrno = curl_errno($ch);
     curl_close($ch);
 
     if ($response === false || $httpCode !== 200) {
+        error_log(sprintf(
+            '[Resona Token Exchange Failed] errno=%d error=%s httpCode=%d',
+            $curlErrno,
+            $curlError,
+            $httpCode
+        ));
         return null;
     }
 
@@ -247,13 +255,22 @@ function fetchSpotifyUserProfile(string $accessToken): ?array
             'Content-Type: application/json',
         ],
         CURLOPT_TIMEOUT        => 30,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    $curlErrno = curl_errno($ch);
     curl_close($ch);
 
     if ($response === false || $httpCode !== 200) {
+        error_log(sprintf(
+            '[Resona Spotify Profile Fetch Failed] errno=%d error=%s httpCode=%d',
+            $curlErrno,
+            $curlError,
+            $httpCode
+        ));
         return null;
     }
 
