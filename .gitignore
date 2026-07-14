@@ -1,0 +1,35 @@
+# === Environment Files (Rule 25 — No Hardcoded Secrets) ===
+# Keep .env.example, ignore actual .env files
+.env
+backend/.env
+frontend/.env
+database/.env
+
+# === Logs ===
+*.log
+backend/src/logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+tmp/
+*.tmp
+
+# Binaries
+*.exe
+*.exe~
+*.test
+*.out
+
+# Database
+*.db
+*.db-wal
+*.db-shm
