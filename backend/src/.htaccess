@@ -1,0 +1,33 @@
+# ========================================
+# Resona Backend — Apache URL Rewriting
+# Redirects all requests to index.php
+# ========================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect trailing slashes
+    RewriteRule ^(.+)/$ /$1 [L,R=301]
+
+    # Allow files and directories that exist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Rewrite all other requests to index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # CORS headers (overridden by PHP middleware for specific origin)
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "\.(env|md|json|log)$">
+    Require all denied
+</FilesMatch>
+
+# Deny directory listing
+Options -Indexes
