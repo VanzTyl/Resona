@@ -1,10 +1,10 @@
-# <span style="color:#2563eb;">Project Structure</span>
+# <span style="color: rgb(37, 99, 235);">Project Structure</span>
 
 A standardized project layout for organizing the frontend, backend, and database components.
 
 ---
 
-## <span style="color:#16a34a;">Root Directory</span>
+## <span style="color: rgb(22, 163, 74);">Root Directory</span>
 
 ```text
 project/
@@ -15,10 +15,11 @@ project/
 
 ---
 
-## <span style="color:#f59e0b;">Frontend Structure</span>
+## <span style="color: rgb(245, 158, 11);">Frontend Structure</span>
 
 ```text
 frontend/
+├── .env.example
 └── src/
     ├── pages/
     │   └── {page_name}/
@@ -39,7 +40,7 @@ frontend/
 ### Directory Purpose
 
 | Directory/File | Description |
-|----------------|-------------|
+| --- | --- |
 | `pages/` | Contains all application pages. |
 | `pages/{page_name}/styles/` | Page-specific stylesheets. |
 | `pages/{page_name}/anims/` | Page-specific animations. |
@@ -54,10 +55,11 @@ frontend/
 
 ---
 
-## <span style="color:#8b5cf6;">Backend Structure</span>
+## <span style="color: rgb(139, 92, 246);">Backend Structure</span>
 
 ```text
 backend/
+├── .env.example
 └── src/
     ├── models/
     ├── routers/
@@ -69,7 +71,7 @@ backend/
 ### Directory Purpose
 
 | Directory/File | Description |
-|----------------|-------------|
+| --- | --- |
 | `models/` | Database models and data access logic. |
 | `routers/` | API route definitions. |
 | `controllers/` | Request handling and business logic. |
@@ -78,10 +80,11 @@ backend/
 
 ---
 
-## <span style="color:#dc2626;">Database Structure</span>
+## <span style="color: rgb(220, 38, 38);">Database Structure</span>
 
 ```text
 database/
+├── .env.example
 └── src/
     ├── migrations/
     │   ├── up_{version}.sql
@@ -95,7 +98,7 @@ database/
 ### Directory Purpose
 
 | Directory/File | Description |
-|----------------|-------------|
+| --- | --- |
 | `migrations/` | Database migration scripts. |
 | `up_{version}.sql` | Applies a database migration. |
 | `down_{version}.sql` | Reverts a database migration. |
@@ -105,19 +108,22 @@ database/
 
 ---
 
-## <span style="color:#0f766e;">Structure Summary</span>
+## <span style="color: rgb(15, 118, 110);">Structure Summary</span>
 
 | Component | Main Directories | Documentation |
-|-----------|------------------|---------------|
+| --- | --- | --- |
 | Frontend | `pages`, `globals` | `schema.md`, `version.md` |
 | Backend | `models`, `routers`, `controllers` | `schema.md`, `version.md` |
 | Database | `migrations` | `schema.md`, `version.md` |
 
 ---
 
-## <span style="color:#2563eb;">Notes</span>
+## <span style="color: rgb(37, 99, 235);">Notes</span>
 
 - Every major component maintains its own `schema.md` for documentation.
 - Each component tracks its own release history using `version.md`.
 - Database schema changes should always be made through migration files.
 - Shared frontend assets belong in `globals`, while page-specific resources belong inside their respective page directories.
+- Each base component (`frontend`, `backend`, and `database`) must include a `.env.example` file documenting all required environment variables.
+- Actual `.env` files are environment-specific and must never be committed to version control.
+- Whenever a new environment variable is introduced, the corresponding `.env.example` file must be updated in the same commit.
