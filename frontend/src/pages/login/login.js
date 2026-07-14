@@ -74,5 +74,5 @@ function getApiBaseUrl() {
         return 'http://localhost:8000';
     }
 
-    return 'https://resona-api.onrender.com';
+    return 'https://resona-tdih.onrender.com';
 }
