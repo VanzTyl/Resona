@@ -72,16 +72,16 @@ function handlePollPlayback(array $params): void
             $accessToken = $newTokens['access_token'];
         }
 
-        // Fetch currently playing track.
-        $currentTrack = fetchCurrentTrack($accessToken);
+        // Fetch recently played tracks (works with free accounts).
+        $recentTracks = fetchRecentTracks($accessToken);
 
-        if ($currentTrack === null) {
+        if ($recentTracks === null) {
             $errors++;
             continue;
         }
 
-        if (isset($currentTrack['item'])) {
-            saveListeningEvent((int)$user['id'], $currentTrack);
+        foreach ($recentTracks as $track) {
+            saveListeningEvent((int)$user['id'], $track);
             $updated++;
         }
 
@@ -201,13 +201,13 @@ function getDecryptedTokens(int $userId): ?array
 }
 
 /**
- * Fetch the currently playing track from Spotify API.
+ * Fetch recently played tracks from Spotify API (works with free accounts).
  *
  * @param string $accessToken A valid Spotify access token.
  *
- * @return array|null The Spotify API response or null on failure.
+ * @return array|null Array of track items or null on failure.
  */
-function fetchCurrentTrack(string $accessToken): ?array
+function fetchRecentTracks(string $accessToken): ?array
 {
     $ch = curl_init();
 
@@ -216,7 +216,7 @@ function fetchCurrentTrack(string $accessToken): ?array
     }
 
     curl_setopt_array($ch, [
-        CURLOPT_URL            => SPOTIFY_API_BASE_URL . '/me/player/currently-playing',
+        CURLOPT_URL            => SPOTIFY_API_BASE_URL . '/me/player/recently-played?limit=50',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER     => [
             'Authorization: Bearer ' . $accessToken,
@@ -229,25 +229,17 @@ function fetchCurrentTrack(string $accessToken): ?array
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($response === false) {
-        return null;
-    }
-
-    if ($httpCode === 204) {
-        return ['item' => null];
-    }
-
-    if ($httpCode !== 200) {
+    if ($response === false || $httpCode !== 200) {
         return null;
     }
 
     $data = json_decode($response, true);
 
-    if (!is_array($data)) {
+    if (!is_array($data) || !isset($data['items'])) {
         return null;
     }
 
-    return $data;
+    return $data['items'];
 }
 
 /**
@@ -305,29 +297,31 @@ function refreshSpotifyToken(string $refreshToken): ?array
 }
 
 /**
- * Save a listening event to the database.
+ * Save a listening event to the database from recently-played data.
  *
  * @param int   $userId      The internal user ID.
- * @param array $trackData   The Spotify currently-playing response.
+ * @param array $trackData   A single item from the recently-played response.
  *
  * @return void
  */
 function saveListeningEvent(int $userId, array $trackData): void
 {
-    $item = $trackData['item'] ?? [];
+    $track = $trackData['track'] ?? [];
 
-    if (!isset($item['id'])) {
+    if (!isset($track['id'])) {
         return;
     }
 
-    $trackId = $item['id'];
-    $trackName = $item['name'] ?? 'Unknown Track';
-    $artistNames = implode(', ', array_column($item['artists'] ?? [], 'name'));
-    $albumName = $item['album']['name'] ?? '';
-    $albumArtUrl = $item['album']['images'][0]['url'] ?? '';
-    $trackDurationMs = $item['duration_ms'] ?? 0;
-    $isPlaying = $trackData['is_playing'] ?? false;
-    $progressMs = $trackData['progress_ms'] ?? 0;
+    $trackId = $track['id'];
+    $trackName = $track['name'] ?? 'Unknown Track';
+    $artistNames = implode(', ', array_column($track['artists'] ?? [], 'name'));
+    $albumName = $track['album']['name'] ?? '';
+    $albumArtUrl = $track['album']['images'][0]['url'] ?? '';
+    $trackDurationMs = $track['duration_ms'] ?? 0;
+
+    // Use Spotify's played_at timestamp if available.
+    $playedAt = $trackData['played_at'] ?? date('Y-m-d\TH:i:s\Z');
+    $playedAtDb = date('Y-m-d H:i:s', strtotime($playedAt));
 
     dbExecute(
         'INSERT INTO listening_events
@@ -335,7 +329,7 @@ function saveListeningEvent(int $userId, array $trackData): void
              album_art_url, track_duration_ms, is_playing, progress_ms, created_at)
          VALUES
             (:userId, :trackId, :trackName, :artistNames, :albumName,
-             :albumArt, :duration, :isPlaying, :progress, NOW())',
+             :albumArt, :duration, 0, 0, :playedAt)',
         [
             ':userId'    => $userId,
             ':trackId'   => $trackId,
@@ -344,13 +338,12 @@ function saveListeningEvent(int $userId, array $trackData): void
             ':albumName' => $albumName,
             ':albumArt'  => $albumArtUrl,
             ':duration'  => $trackDurationMs,
-            ':isPlaying' => $isPlaying ? 1 : 0,
-            ':progress'  => $progressMs,
+            ':playedAt'  => $playedAtDb,
         ]
     );
 
     // Update or insert into user_artists for top artist tracking.
-    $artists = $item['artists'] ?? [];
+    $artists = $track['artists'] ?? [];
 
     foreach ($artists as $artist) {
         $artistId = $artist['id'];
