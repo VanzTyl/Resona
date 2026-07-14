@@ -31,7 +31,7 @@ const AUTH_HEADER_NAME = 'Authorization';
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1';
-const SPOTIFY_SCOPES = 'user-read-currently-playing user-read-recently-played user-top-read';
+const SPOTIFY_SCOPES = 'user-read-recently-played user-top-read';
 
 // Database Constants
 const DEFAULT_PAGE_SIZE = 20;
