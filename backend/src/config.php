@@ -96,8 +96,8 @@ function getDatabaseConfig(): array
     return [
         'host'     => envString('DB_HOST', 'localhost'),
         'port'     => envInt('DB_PORT', 4000),
-        'name'     => envString('DB_NAME', 'resona'),
-        'user'     => envString('DB_USER', 'root'),
+        'name'     => envString('DB_NAME', envString('DB_DATABASE', 'resona')),
+        'user'     => envString('DB_USER', envString('DB_USERNAME', 'root')),
         'password' => envString('DB_PASSWORD', ''),
     ];
 }
