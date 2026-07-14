@@ -215,10 +215,11 @@ function exchangeSpotifyCode(string $code, array $spotifyConfig): ?array
 
     if ($response === false || $httpCode !== 200) {
         error_log(sprintf(
-            '[Resona Token Exchange Failed] errno=%d error=%s httpCode=%d',
+            '[Resona Token Exchange Failed] errno=%d error=%s httpCode=%d body=%s',
             $curlErrno,
             $curlError,
-            $httpCode
+            $httpCode,
+            $response !== false ? substr($response, 0, 500) : 'N/A'
         ));
         return null;
     }
@@ -266,10 +267,11 @@ function fetchSpotifyUserProfile(string $accessToken): ?array
 
     if ($response === false || $httpCode !== 200) {
         error_log(sprintf(
-            '[Resona Spotify Profile Fetch Failed] errno=%d error=%s httpCode=%d',
+            '[Resona Spotify Profile Fetch Failed] errno=%d error=%s httpCode=%d body=%s',
             $curlErrno,
             $curlError,
-            $httpCode
+            $httpCode,
+            $response !== false ? substr($response, 0, 500) : 'N/A'
         ));
         return null;
     }
