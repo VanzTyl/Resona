@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f1a">
+    <meta name="description" content="Resona — Connect through music. Share what you're listening to and discover your friends' musical world.">
+    <title>Resona</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- v1.1: Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="app-loading" class="app-loading">
+            <div class="app-loading__spinner"></div>
+            <p class="app-loading__text">Resona</p>
+        </div>
+    </div>
+    <!-- Component Library (order matters: utilities first, UI components second) -->
+    <!-- v1.1: Added icons.js + theme.js + now-playing.js to load order -->
+    <script src="globals/components/api-client.js"></script>
+    <script src="globals/components/icons.js"></script>
+    <script src="globals/components/theme.js"></script>
+    <script src="globals/components/now-playing.js"></script>
+    <script src="globals/components/button.js"></script>
+    <script src="globals/components/modal.js"></script>
+    <script src="globals/components/toast.js"></script>
+    <script src="globals/components/skeleton-loader.js"></script>
+    <script src="globals/components/feed-card.js"></script>
+    <!-- Main Application -->
+    <script src="script.js"></script>
+</body>
+</html>
