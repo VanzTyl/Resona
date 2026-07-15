@@ -54,7 +54,8 @@ function renderLoginPage() {
                 loginBtn.disabled = true;
                 loginBtn.querySelector('.rs-btn__label').textContent = 'Redirecting...';
 
-                window.location.href = getApiBaseUrl() + '/api/auth/spotify/login';
+                var baseUrl = (window.__ENV__ && window.__ENV__.VITE_API_BASE_URL) || 'http://localhost:8000';
+                window.location.href = baseUrl + '/api/auth/spotify/login';
             },
         });
 
@@ -62,17 +63,4 @@ function renderLoginPage() {
     }
 
     page.classList.add('page--active');
-}
-
-/**
- * Get the API base URL.
- *
- * @returns {string} The API base URL.
- */
-function getApiBaseUrl() {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8000';
-    }
-
-    return 'https://resona-tdih.onrender.com';
 }

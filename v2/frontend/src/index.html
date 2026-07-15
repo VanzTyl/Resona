@@ -22,6 +22,14 @@
             <p class="app-loading__text">Resona</p>
         </div>
     </div>
+    <!-- Environment Configuration — override window.__ENV__ at serve time for different environments -->
+    <!-- Variable names match frontend/.env.example (VITE_API_BASE_URL, VITE_APP_URL) -->
+    <script>
+        window.__ENV__ = window.__ENV__ || {
+            VITE_API_BASE_URL: 'http://localhost:8000',
+            VITE_APP_URL: window.location.origin,
+        };
+    </script>
     <!-- Component Library (order matters: utilities first, UI components second) -->
     <!-- v1.1: Added icons.js + theme.js + now-playing.js to load order -->
     <script src="globals/components/api-client.js"></script>

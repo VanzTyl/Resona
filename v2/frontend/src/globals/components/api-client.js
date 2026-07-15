@@ -7,14 +7,11 @@
  * @version 1.0.0
  */
 
-const RESONA_API_BASE_URL = (function () {
-    // In development, API might be localhost; in production, use backend URL.
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8000';
-    }
-
-    return 'https://resona-tdih.onrender.com';
-})();
+/**
+ * API base URL — sourced from window.__ENV__.VITE_API_BASE_URL set in index.html.
+ * Variable name matches frontend/.env.example.
+ */
+const RESONA_API_BASE_URL = (window.__ENV__ && window.__ENV__.VITE_API_BASE_URL) || 'http://localhost:8000';
 
 /**
  * Get the stored access token from sessionStorage.
