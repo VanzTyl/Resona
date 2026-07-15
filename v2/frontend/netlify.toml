@@ -6,7 +6,9 @@
   # Publish directory (where index.html lives)
   publish = "src"
 
-  # No build command needed — pure static HTML/CSS/JS
+  # Generate env-config.js from Netlify env vars at deploy time
+  # Set RESONA_API_URL and RESONA_APP_URL in Netlify UI → Environment variables
+  command = "echo \"window.__ENV__ = { RESONA_API_URL: '$RESONA_API_URL', RESONA_APP_URL: '$RESONA_APP_URL' };\" > src/env-config.js"
 
 # === Redirects for SPA support ===
 # Hash-based routing (#/feed, #/login) works without this,

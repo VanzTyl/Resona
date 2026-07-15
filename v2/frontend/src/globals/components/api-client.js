@@ -8,10 +8,10 @@
  */
 
 /**
- * API base URL — sourced from window.__ENV__.VITE_API_BASE_URL set in index.html.
+ * API base URL — sourced from window.__ENV__.RESONA_API_URL set in index.html.
  * Variable name matches frontend/.env.example.
  */
-const RESONA_API_BASE_URL = (window.__ENV__ && window.__ENV__.VITE_API_BASE_URL) || 'http://localhost:8000';
+const RESONA_API_BASE_URL = (window.__ENV__ && window.__ENV__.RESONA_API_URL) || 'http://localhost:8000';
 
 /**
  * Get the stored access token from sessionStorage.

@@ -54,7 +54,7 @@ function renderLoginPage() {
                 loginBtn.disabled = true;
                 loginBtn.querySelector('.rs-btn__label').textContent = 'Redirecting...';
 
-                var baseUrl = (window.__ENV__ && window.__ENV__.VITE_API_BASE_URL) || 'http://localhost:8000';
+                var baseUrl = (window.__ENV__ && window.__ENV__.RESONA_API_URL) || 'http://localhost:8000';
                 window.location.href = baseUrl + '/api/auth/spotify/login';
             },
         });
