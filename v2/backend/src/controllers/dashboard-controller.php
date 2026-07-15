@@ -96,7 +96,7 @@ function handleGetTopArtists(array $params): void
     }
 
     $dateCondition = '';
-    $queryParams = [':userId' => $userId, ':limitVal' => $limit];
+    $queryParams = [':userId' => $userId];
 
     if ($period === PERIOD_WEEK) {
         $dateCondition = 'AND ua.updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
@@ -104,13 +104,15 @@ function handleGetTopArtists(array $params): void
         $dateCondition = 'AND ua.updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
     }
 
+    // Note: LIMIT uses literal integer not a bound parameter
+    // because TiDB/MySQL rejects bound parameters in LIMIT clauses.
     $artists = dbQuery(
         "SELECT ua.artist_name, ua.artist_image_url, ua.play_count
          FROM user_artists ua
          WHERE ua.user_id = :userId
                {$dateCondition}
          ORDER BY ua.play_count DESC
-         LIMIT :limitVal",
+         LIMIT {$limit}",
         $queryParams
     );
 

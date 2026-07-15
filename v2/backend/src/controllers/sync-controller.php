@@ -119,6 +119,22 @@ function handleGetCurrentTrack(array $params): void
     $auth = requireAuth();
     $userId = $auth['userId'];
 
+    // First try: fetch live currently-playing from Spotify
+    $spotifyTokens = getDecryptedTokens($userId);
+
+    if ($spotifyTokens !== null && $spotifyTokens['access_token'] !== '') {
+        $liveTrack = fetchCurrentlyPlaying($spotifyTokens['access_token']);
+
+        if ($liveTrack !== null) {
+            sendJson([
+                'success' => true,
+                'data'    => $liveTrack,
+            ]);
+            return;
+        }
+    }
+
+    // Fallback: most recent listening event from database
     $latest = dbQueryOne(
         'SELECT track_name, artist_names, album_art_url, is_playing, progress_ms, track_duration_ms, created_at
          FROM listening_events
@@ -148,6 +164,68 @@ function handleGetCurrentTrack(array $params): void
             'lastUpdated'   => $latest['created_at'],
         ],
     ]);
+}
+
+/**
+ * Fetch the user's currently playing track from Spotify's live endpoint.
+ * Requires user-read-playback-state scope.
+ *
+ * @param string $accessToken A valid Spotify access token.
+ *
+ * @return array|null Track data or null if nothing playing / error.
+ */
+function fetchCurrentlyPlaying(string $accessToken): ?array
+{
+    $ch = curl_init();
+
+    if ($ch === false) {
+        return null;
+    }
+
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => SPOTIFY_API_BASE_URL . '/me/player/currently-playing',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: application/json',
+        ],
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // 204 = nothing playing, 401/403 = no scope or bad token
+    if ($response === false || $httpCode !== 200) {
+        return null;
+    }
+
+    $data = json_decode($response, true);
+
+    if (!is_array($data) || !isset($data['item'])) {
+        return null;
+    }
+
+    $track = $data['item'];
+    $artistNames = [];
+
+    if (isset($track['artists']) && is_array($track['artists'])) {
+        foreach ($track['artists'] as $artist) {
+            $artistNames[] = $artist['name'] ?? '';
+        }
+    }
+
+    return [
+        'trackName'      => $track['name'] ?? 'Unknown Track',
+        'artists'        => $artistNames,
+        'albumArt'       => $track['album']['images'][0]['url'] ?? '',
+        'isPlaying'      => true,
+        'progressMs'     => (int)($data['progress_ms'] ?? 0),
+        'trackDurationMs' => (int)($track['duration_ms'] ?? 0),
+        'lastUpdated'    => date('c'),
+    ];
 }
 
 /**
