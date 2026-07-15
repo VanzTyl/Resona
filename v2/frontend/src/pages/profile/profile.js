@@ -175,8 +175,8 @@ async function loadProfile() {
             // v1.1: Username
             '    <div class="form-group">' +
             '        <label class="form-group__label" for="profile-username">Username</label>' +
-            '        <input class="form-group__input" type="text" id="profile-username" value="' + escapeHtml(profile.username) + '" maxlength="20" pattern="[a-z0-9_]+" />' +
-            '        <span class="form-group__hint">3-20 characters, lowercase letters, numbers, and underscores. Can only be changed once every 30 days.</span>' +
+            '        <input class="form-group__input" type="text" id="profile-username" value="' + escapeHtml(profile.username) + '" maxlength="20" />' +
+            '        <span class="form-group__hint">3-20 characters. Will be lowercased automatically. Can only be changed once every 30 days.</span>' +
             '    </div>' +
 
             // v1.1: Bio
@@ -244,6 +244,16 @@ async function loadProfile() {
         if (bioInput !== null && bioCounter !== null) {
             bioInput.addEventListener('input', function () {
                 bioCounter.textContent = bioInput.value.length + '/200';
+            });
+        }
+
+        // Auto-lowercase username as user types
+        const usernameInput = document.getElementById('profile-username');
+        if (usernameInput !== null) {
+            usernameInput.addEventListener('input', function () {
+                var cursorPos = usernameInput.selectionStart;
+                usernameInput.value = usernameInput.value.toLowerCase();
+                usernameInput.setSelectionRange(cursorPos, cursorPos);
             });
         }
 

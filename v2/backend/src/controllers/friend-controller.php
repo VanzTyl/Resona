@@ -189,14 +189,12 @@ function handleListFriends(array $params): void
          WHERE (f.sender_id = :userId2 OR f.receiver_id = :userId3)
            AND f.status = :status
          ORDER BY u.display_name ASC
-         LIMIT :limitVal OFFSET :offsetVal',
+          LIMIT {$limit} OFFSET {$offset}',
         [
             ':userId'    => $userId,
             ':userId2'   => $userId,
             ':userId3'   => $userId,
             ':status'    => FRIEND_STATUS_ACCEPTED,
-            ':limitVal'  => $limit,
-            ':offsetVal' => $offset,
         ]
     );
 

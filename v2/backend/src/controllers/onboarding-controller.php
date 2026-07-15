@@ -113,17 +113,11 @@ function handleOnboardingStep(array $params): void
 
             // Validation
             if ($field === 'username') {
+                $value = strtolower($value);
                 if (strlen($value) < USERNAME_MIN_LENGTH || strlen($value) > USERNAME_MAX_LENGTH) {
                     sendJson([
                         'success' => false,
                         'error'   => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
-                    ], HTTP_BAD_REQUEST);
-                    return;
-                }
-                if (!preg_match(USERNAME_REGEX, $value)) {
-                    sendJson([
-                        'success' => false,
-                        'error'   => 'Username can only contain lowercase letters, numbers, and underscores',
                     ], HTTP_BAD_REQUEST);
                     return;
                 }

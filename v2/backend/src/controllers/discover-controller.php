@@ -44,8 +44,8 @@ function handleDiscoverRandom(array $params): void
          WHERE u.id NOT IN ({$excludePlaceholders})
            AND (u.privacy_level IS NULL OR u.privacy_level != 'private')
          ORDER BY RAND()
-         LIMIT :limitVal",
-        array_merge($excludeIds, [':limitVal' => $limit])
+         LIMIT {$limit}",
+        $excludeIds
     );
 
     $result = [];

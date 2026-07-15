@@ -26,14 +26,14 @@ function handlePollPlayback(array $params): void
     $updated = 0;
     $errors = 0;
 
+    $activeLimit = MAX_USERS_PER_SYNC_RUN;
     $activeUsers = dbQuery(
-        'SELECT u.id, u.spotify_id
+        "SELECT u.id, u.spotify_id
          FROM users u
          JOIN spotify_tokens st ON st.user_id = u.id
          WHERE st.expires_at > NOW()
          ORDER BY st.updated_at ASC
-         LIMIT :limit',
-        [':limit' => MAX_USERS_PER_SYNC_RUN]
+         LIMIT {$activeLimit}"
     );
 
     foreach ($activeUsers as $user) {

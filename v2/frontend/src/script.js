@@ -78,6 +78,8 @@ const RESONA_NAV_ITEMS = [
     { route: '/friends', label: 'Friends', icon: 'users' },
     { route: '/messages', label: 'Messages', icon: 'message-circle' },
     { route: '/dashboard', label: 'Stats', icon: 'bar-chart-3' },
+    // v1.1: Profile nav item
+    { route: '/profile', label: 'Profile', icon: 'user' },
 ];
 
 /* ========================================
@@ -335,6 +337,38 @@ function renderBottomNav(activeRoute) {
         nav.appendChild(navItem);
     });
 
+    // v1.1: Theme toggle button
+    const themeToggle = document.createElement('button');
+    themeToggle.className = 'theme-toggle';
+    themeToggle.setAttribute('aria-label', 'Toggle theme');
+    themeToggle.setAttribute('title', 'Toggle light/dark mode');
+
+    var currentTheme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+
+    if (typeof createIcon === 'function') {
+        var toggleIcon = createIcon(currentTheme === 'dark' ? 'sun' : 'moon', { size: 22 });
+        themeToggle.appendChild(toggleIcon);
+    } else {
+        themeToggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    themeToggle.addEventListener('click', function () {
+        toggleTheme();
+        // Update icon after toggle
+        var newTheme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+        themeToggle.innerHTML = '';
+        if (typeof createIcon === 'function') {
+            var newIcon = createIcon(newTheme === 'dark' ? 'sun' : 'moon', { size: 22 });
+            themeToggle.appendChild(newIcon);
+        } else {
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+        if (typeof initIcons === 'function') {
+            initIcons();
+        }
+    });
+
+    nav.appendChild(themeToggle);
     document.getElementById('app').appendChild(nav);
 
     // Initialize icons in nav (v1.1)

@@ -194,17 +194,15 @@ function handleGetMessages(array $params): void
     }
 
     $messages = dbQuery(
-        'SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
+        "SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
                 m.content, m.message_type, m.created_at
          FROM messages m
          JOIN users u ON u.id = m.sender_id
          WHERE m.thread_id = :threadId
          ORDER BY m.created_at DESC
-         LIMIT :limitVal OFFSET :offsetVal',
+         LIMIT {$limit} OFFSET {$offset}",
         [
             ':threadId' => $threadId,
-            ':limitVal' => $limit,
-            ':offsetVal' => $offset,
         ]
     );
 

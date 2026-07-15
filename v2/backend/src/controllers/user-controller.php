@@ -72,7 +72,7 @@ function handleUpdateProfile(array $params): void
     $displayName = trim($body['displayName'] ?? '');
     $avatarUrl = trim($body['avatarUrl'] ?? '');
     $bio = trim($body['bio'] ?? '');
-    $username = trim($body['username'] ?? '');
+    $username = strtolower(trim($body['username'] ?? ''));
     $privacyLevel = trim($body['privacyLevel'] ?? '');
     $interests = trim($body['interests'] ?? '');
     $favoriteGenres = trim($body['favoriteGenres'] ?? '');
@@ -127,14 +127,6 @@ function handleUpdateProfile(array $params): void
             sendJson([
                 'success' => false,
                 'error'   => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
-            ], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        if (!preg_match(USERNAME_REGEX, $username)) {
-            sendJson([
-                'success' => false,
-                'error'   => 'Username can only contain lowercase letters, numbers, and underscores',
             ], HTTP_BAD_REQUEST);
             return;
         }
@@ -279,14 +271,13 @@ function handleSearchUsers(array $params): void
     }
 
     $users = dbQuery(
-        'SELECT id, username, display_name, avatar_url FROM users
+        "SELECT id, username, display_name, avatar_url FROM users
          WHERE (username LIKE :query OR display_name LIKE :query)
            AND id != :userId
-         LIMIT :limitVal',
+         LIMIT {$limit}",
         [
             ':query'    => '%' . $query . '%',
             ':userId'   => $userId,
-            ':limitVal' => $limit,
         ]
     );
 
@@ -309,31 +300,20 @@ function handleCheckUsername(array $params): void
 {
     $auth = requireAuth();
     $userId = $auth['userId'];
-    $username = trim($_GET['username'] ?? '');
+    $username = strtolower(trim($_GET['username'] ?? ''));
 
     if ($username === '') {
         sendJson(['success' => false, 'error' => 'Username is required'], HTTP_BAD_REQUEST);
         return;
     }
 
-    // Validate format
+    // Validate length
     if (strlen($username) < USERNAME_MIN_LENGTH || strlen($username) > USERNAME_MAX_LENGTH) {
         sendJson([
             'success' => true,
             'data'    => [
                 'available' => false,
                 'reason'    => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
-            ],
-        ]);
-        return;
-    }
-
-    if (!preg_match(USERNAME_REGEX, $username)) {
-        sendJson([
-            'success' => true,
-            'data'    => [
-                'available' => false,
-                'reason'    => 'Username can only contain lowercase letters, numbers, and underscores',
             ],
         ]);
         return;

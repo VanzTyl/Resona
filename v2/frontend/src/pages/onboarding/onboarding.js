@@ -153,10 +153,10 @@ function renderStep1() {
         '<div class="form-group">' +
         '    <label class="form-group__label" for="onboarding-username">Username</label>' +
         '    <div class="username-check">' +
-        '        <input class="form-group__input" type="text" id="onboarding-username" value="' + escapeHtml(onboardingState.data.username) + '" maxlength="20" pattern="[a-z0-9_]+" placeholder="your_username" style="flex: 1;" />' +
+        '        <input class="form-group__input" type="text" id="onboarding-username" value="' + escapeHtml(onboardingState.data.username) + '" maxlength="20" placeholder="your_username" style="flex: 1;" />' +
         '        <span class="username-check__indicator" id="username-check-indicator"></span>' +
         '    </div>' +
-        '    <span class="form-group__hint">3-20 characters, lowercase letters, numbers, and underscores</span>' +
+        '    <span class="form-group__hint">3-20 characters. Will be lowercased automatically.</span>' +
         '</div>' +
         '<div class="onboarding__actions">' +
         '    <div id="onboarding-next-1"></div>' +
@@ -285,12 +285,6 @@ async function saveAndGoNext(step) {
         }
         if (!onboardingState.data.username || onboardingState.data.username.trim() === '') {
             showToast({ message: 'Username is required', type: 'error' });
-            return;
-        }
-        // Validate username format
-        const usernameRegex = /^[a-z0-9_]+$/;
-        if (!usernameRegex.test(onboardingState.data.username)) {
-            showToast({ message: 'Username can only contain lowercase letters, numbers, and underscores', type: 'error' });
             return;
         }
         if (onboardingState.data.username.length < 3 || onboardingState.data.username.length > 20) {
@@ -443,9 +437,12 @@ document.addEventListener('click', function (event) {
         renderStep(3);
     }
 
-    // Username check on input
+    // Username check on input (auto-lowercase as user types)
     const usernameInput = event.target.closest('#onboarding-username');
     if (usernameInput !== null) {
+        var cursorPos = usernameInput.selectionStart;
+        usernameInput.value = usernameInput.value.toLowerCase();
+        usernameInput.setSelectionRange(cursorPos, cursorPos);
         debouncedCheckUsername(usernameInput);
     }
 
