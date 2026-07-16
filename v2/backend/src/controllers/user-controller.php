@@ -270,16 +270,24 @@ function handleSearchUsers(array $params): void
         return;
     }
 
-    $users = dbQuery(
-        "SELECT id, username, display_name, avatar_url FROM users
-         WHERE (username LIKE :query OR display_name LIKE :query)
-           AND id != :userId
-         LIMIT {$limit}",
-        [
-            ':query'    => '%' . $query . '%',
-            ':userId'   => $userId,
-        ]
-    );
+    try {
+        $users = dbQuery(
+            "SELECT id, username, display_name, avatar_url FROM users
+             WHERE (username LIKE :query OR display_name LIKE :query)
+               AND id != :userId
+             LIMIT {$limit}",
+            [
+                ':query'    => '%' . $query . '%',
+                ':userId'   => $userId,
+            ]
+        );
+    } catch (\Throwable $e) {
+        sendJson([
+            'success' => false,
+            'error'   => 'Search failed: ' . $e->getMessage(),
+        ], HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 
     sendJson([
         'success' => true,

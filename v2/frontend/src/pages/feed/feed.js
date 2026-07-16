@@ -416,6 +416,30 @@ async function loadDiscoverSection() {
 
             const addBtnContainer = document.createElement('div');
             addBtnContainer.className = 'discover-card__add-btn';
+
+            // Add friend request button.
+            if (typeof createButton === 'function' && user.username) {
+                addBtnContainer.appendChild(createButton({
+                    label: 'Add Friend',
+                    variant: 'primary',
+                    size: 'small',
+                    onClick: function () {
+                        apiPost('/api/friends/request', { username: user.username })
+                            .then(function () {
+                                showToast({ message: 'Friend request sent!', type: 'success' });
+                                addBtnContainer.innerHTML = '';
+                                var sentLabel = document.createElement('span');
+                                sentLabel.className = 'discover-card__sent-label';
+                                sentLabel.textContent = 'Request Sent';
+                                addBtnContainer.appendChild(sentLabel);
+                            })
+                            .catch(function (error) {
+                                showToast({ message: error.message, type: 'error' });
+                            });
+                    },
+                }));
+            }
+
             card.appendChild(addBtnContainer);
 
             grid.appendChild(card);

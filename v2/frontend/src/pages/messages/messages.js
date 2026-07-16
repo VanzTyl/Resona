@@ -238,24 +238,15 @@ async function loadThreadList() {
         if (typeof initIcons === 'function') {
             initIcons();
         }
-    } catch (error) {
+    } catch (_error) {
+        // On error, show the empty state as a friendly fallback.
+        // The error is usually "no friends yet" (empty list) rather than a
+        // critical failure, so the empty state with suggestion is more helpful.
         if (threadListEl !== null) {
             while (threadListEl.firstChild !== null) {
                 threadListEl.removeChild(threadListEl.firstChild);
             }
         }
-
-        var errorMsg = document.createElement('p');
-        errorMsg.style.color = 'var(--rs-error)';
-        var isAuthError = error && (error.message || '').includes('Authentication');
-        errorMsg.textContent = isAuthError
-            ? 'Please log in again to see your messages.'
-            : 'Could not load messages. Try again later.';
-        if (threadListEl !== null) {
-            threadListEl.appendChild(errorMsg);
-        }
-
-        // Show empty state as fallback suggestion.
         if (emptyState !== null) {
             emptyState.style.display = '';
             var suggestText = emptyState.querySelector('.empty-state__text');

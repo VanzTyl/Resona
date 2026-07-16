@@ -23,6 +23,9 @@ function renderProfilePage() {
         }
 
         app.insertBefore(page, app.firstChild);
+
+        // Set up container references (must happen after DOM insertion).
+        setupProfileContainers();
     }
 
     page.classList.add('page--active');
@@ -105,10 +108,19 @@ function createProfilePageStructure() {
     main.appendChild(form);
     page.appendChild(main);
 
-    // Set up container references for sections.
-    document.getElementById('profile-top-artists').className = 'profile-section';
-
     return page;
+}
+
+/**
+ * Apply CSS classes after page is inserted into the DOM.
+ * Called from renderProfilePage() after app.insertBefore().
+ * @returns {void}
+ */
+function setupProfileContainers() {
+    var el = document.getElementById('profile-top-artists');
+    if (el !== null) {
+        el.className = 'profile-section';
+    }
 }
 
 /* Helper functions (createEl, createFormField, createTextField, etc.)

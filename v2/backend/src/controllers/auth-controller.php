@@ -345,15 +345,44 @@ function findOrCreateUser(
  */
 function generateUniqueUsername(string $displayName): string
 {
-    $base = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $displayName));
+    // Lowercase and strip non-alphanumeric characters (keep underscores).
+    $base = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', $displayName));
+    $base = preg_replace('/_{2,}/', '_', trim($base, '_'));
 
-    if ($base === '') {
+    if ($base === '' || strlen($base) < 3) {
         $base = 'user';
     }
 
-    $username = $base . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
+    // Truncate to max username length minus room for a suffix.
+    $base = substr($base, 0, USERNAME_MAX_LENGTH - 5);
 
-    return $username;
+    // Check if the base username is available.
+    $existing = dbQueryOne(
+        'SELECT id FROM users WHERE username = :username LIMIT 1',
+        [':username' => $base]
+    );
+
+    if ($existing === null) {
+        return $base;
+    }
+
+    // Base taken — append incremental numbers until we find a free one.
+    for ($suffix = 1; $suffix < 1000; $suffix++) {
+        $candidate = $base . $suffix;
+        $candidate = substr($candidate, 0, USERNAME_MAX_LENGTH);
+
+        $existing = dbQueryOne(
+            'SELECT id FROM users WHERE username = :username LIMIT 1',
+            [':username' => $candidate]
+        );
+
+        if ($existing === null) {
+            return $candidate;
+        }
+    }
+
+    // Last resort: append a short hex suffix.
+    return substr($base, 0, USERNAME_MAX_LENGTH - 9) . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
 }
 
 /**
