@@ -1572,15 +1572,7 @@ ul, ol {
         max-width: 750px;
     }
 
-    /* Hide bottom nav — tablet has enough room */
-    .bottom-nav {
-        display: none;
-    }
-
-    /* Remove bottom nav padding on pages */
-    .page {
-        padding-bottom: 0;
-    }
+    /* Keep bottom nav visible on tablet — sidebar only appears at 1024px+ */
 
     /* Bigger page content padding */
     .page__content {
@@ -2149,11 +2141,9 @@ ul, ol {
         transform: none;
     }
 
-    /* Toast centered in content area */
+    /* Toast centered in viewport (fixed position, unaffected by sidebar) */
     .rs-toast-container {
-        left: calc(240px + 50%);
-        transform: translateX(calc(-50% - 120px));
-        max-width: 480px;
+        max-width: 500px;
     }
 
     /* Bottom nav hidden on desktop */
