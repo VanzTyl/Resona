@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Resona</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-onboarding" class="page page--centered page--active">
+        <div class="onboarding" id="onboarding-content">
+            <!-- Progress dots -->
+            <div class="onboarding__progress" id="onboarding-progress">
+                <span class="onboarding__step-dot onboarding__step-dot--active"></span>
+                <span class="onboarding__step-dot"></span>
+                <span class="onboarding__step-dot"></span>
+                <span class="onboarding__step-dot"></span>
+            </div>
+            <!-- Step content will be rendered here by onboarding.js -->
+            <h1 class="onboarding__title" id="onboarding-title">Welcome to Resona!</h1>
+            <p class="onboarding__subtitle" id="onboarding-subtitle">Let's set up your profile.</p>
+            <div id="onboarding-step-content">
+                <!-- Step-specific form fields go here -->
+            </div>
+            <!-- Action buttons -->
+            <div class="onboarding__actions" id="onboarding-actions">
+                <div id="onboarding-back-btn"></div>
+                <div id="onboarding-next-btn"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../script.js"></script>
+    <script src="onboarding.js"></script>
+</body>
+</html>

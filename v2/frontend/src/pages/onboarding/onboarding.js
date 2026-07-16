@@ -2,12 +2,12 @@
  * Resona Onboarding Page Controller
  *
  * 4-step guided onboarding flow for first-time users.
- * v1.1: New page for REV-011.
+ * v2.1: Uses static HTML containers — renders steps within static containers.
  *
- * @version 1.1.0
+ * @version 2.1.0
  */
 
-let onboardingState = {
+var onboardingState = {
     currentStep: 1,
     totalSteps: 4,
     data: {
@@ -23,30 +23,25 @@ let onboardingState = {
 
 /**
  * Render the onboarding page.
+ * Queries existing static HTML container; no markup construction.
  *
  * @returns {void}
  */
 function renderOnboardingPage() {
-    const app = document.getElementById('app');
-
-    const existingPage = document.querySelector('.page--active');
+    var existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-onboarding');
+    var page = document.getElementById('page-onboarding');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-onboarding';
-        page.className = 'page page--centered';
-        app.insertBefore(page, app.firstChild);
+        return;
     }
 
     page.classList.add('page--active');
 
-    // Load existing profile data to pre-fill
     loadExistingProfile();
 }
 
@@ -57,7 +52,7 @@ function renderOnboardingPage() {
  */
 async function loadExistingProfile() {
     try {
-        const profile = await apiGet('/api/user/profile');
+        var profile = await apiGet('/api/user/profile');
 
         onboardingState.data.displayName = profile.display_name || '';
         onboardingState.data.username = profile.username || '';
@@ -75,7 +70,7 @@ async function loadExistingProfile() {
 }
 
 /**
- * Render a specific onboarding step.
+ * Render a specific onboarding step within static containers.
  *
  * @param {number} step - The step number (1-4).
  * @returns {void}
@@ -83,188 +78,306 @@ async function loadExistingProfile() {
 function renderStep(step) {
     onboardingState.currentStep = step;
 
-    const page = document.getElementById('page-onboarding');
-
-    if (page === null) {
-        return;
-    }
-
-    const stepTitles = {
-        1: { title: 'Welcome to Resona!', subtitle: 'Let\'s set up your profile.' },
-        2: { title: 'About You', subtitle: 'Tell us a bit about your music taste.' },
+    var stepTitles = {
+        1: { title: 'Welcome to Resona!', subtitle: "Let's set up your profile." },
+        2: { title: 'About You', subtitle: "Tell us a bit about your music taste." },
         3: { title: 'Privacy & Avatar', subtitle: 'Control your visibility and set your picture.' },
-        4: { title: 'You\'re All Set!', subtitle: 'Here\'s a quick summary of your profile.' },
+        4: { title: "You're All Set!", subtitle: "Here's a quick summary of your profile." },
     };
 
-    const current = stepTitles[step] || stepTitles[1];
+    var current = stepTitles[step] || stepTitles[1];
 
-    // Progress dots
-    let progressHtml = '<div class="onboarding__progress">';
-    for (let i = 1; i <= onboardingState.totalSteps; i++) {
-        const dotClass = i === step ? 'onboarding__step-dot onboarding__step-dot--active'
-            : i < step ? 'onboarding__step-dot onboarding__step-dot--completed'
-            : 'onboarding__step-dot';
-        progressHtml += '<span class="' + dotClass + '"></span>';
-    }
-    progressHtml += '</div>';
+    // Update progress dots.
+    var progressContainer = document.getElementById('onboarding-progress');
+    if (progressContainer !== null) {
+        while (progressContainer.firstChild !== null) {
+            progressContainer.removeChild(progressContainer.firstChild);
+        }
 
-    let stepContent = '';
-
-    switch (step) {
-        case 1:
-            stepContent = renderStep1();
-            break;
-        case 2:
-            stepContent = renderStep2();
-            break;
-        case 3:
-            stepContent = renderStep3();
-            break;
-        case 4:
-            stepContent = renderStep4();
-            break;
+        for (var i = 1; i <= onboardingState.totalSteps; i++) {
+            var dot = document.createElement('span');
+            dot.className = 'onboarding__step-dot';
+            if (i === step) {
+                dot.classList.add('onboarding__step-dot--active');
+            } else if (i < step) {
+                dot.classList.add('onboarding__step-dot--completed');
+            }
+            progressContainer.appendChild(dot);
+        }
     }
 
-    page.innerHTML = '' +
-        '<div class="onboarding">' +
-        progressHtml +
-        '<h1 class="onboarding__title">' + current.title + '</h1>' +
-        '<p class="onboarding__subtitle">' + current.subtitle + '</p>' +
-        stepContent +
-        '</div>';
+    // Update title and subtitle.
+    var titleEl = document.getElementById('onboarding-title');
+    if (titleEl !== null) {
+        titleEl.textContent = current.title;
+    }
 
-    // Initialize icons
+    var subtitleEl = document.getElementById('onboarding-subtitle');
+    if (subtitleEl !== null) {
+        subtitleEl.textContent = current.subtitle;
+    }
+
+    // Render step content.
+    var stepContent = document.getElementById('onboarding-step-content');
+    if (stepContent !== null) {
+        while (stepContent.firstChild !== null) {
+            stepContent.removeChild(stepContent.firstChild);
+        }
+
+        var contentHtml = '';
+        switch (step) {
+            case 1:
+                contentHtml = renderStep1Html();
+                break;
+            case 2:
+                contentHtml = renderStep2Html();
+                break;
+            case 3:
+                contentHtml = renderStep3Html();
+                break;
+            case 4:
+                contentHtml = renderStep4Html();
+                break;
+        }
+
+        stepContent.innerHTML = contentHtml;
+    }
+
+    // Render action buttons.
+    renderActionButtons();
+
+    // Set up event listeners for the current step.
+    setupStepEventListeners(step);
+
     if (typeof initIcons === 'function') {
         initIcons();
     }
 }
 
 /**
- * Render step 1: Identity (display name + username).
+ * Render step 1 HTML string.
  *
  * @returns {string} HTML content.
  */
-function renderStep1() {
-    return '' +
-        '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-display-name">Display Name</label>' +
-        '    <input class="form-group__input" type="text" id="onboarding-display-name" value="' + escapeHtml(onboardingState.data.displayName) + '" maxlength="100" placeholder="Your name" />' +
+function renderStep1Html() {
+    return '<div class="form-group">' +
+        '<label class="form-group__label" for="onboarding-display-name">Display Name</label>' +
+        '<input class="form-group__input" type="text" id="onboarding-display-name" value="' +
+        escapeHtml(onboardingState.data.displayName) + '" maxlength="100" placeholder="Your name" />' +
         '</div>' +
         '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-username">Username</label>' +
-        '    <div class="username-check">' +
-        '        <input class="form-group__input" type="text" id="onboarding-username" value="' + escapeHtml(onboardingState.data.username) + '" maxlength="20" placeholder="your_username" style="flex: 1;" />' +
-        '        <span class="username-check__indicator" id="username-check-indicator"></span>' +
-        '    </div>' +
-        '    <span class="form-group__hint">3-20 characters. Will be lowercased automatically.</span>' +
+        '<label class="form-group__label" for="onboarding-username">Username</label>' +
+        '<div class="username-check">' +
+        '<input class="form-group__input" type="text" id="onboarding-username" value="' +
+        escapeHtml(onboardingState.data.username) + '" maxlength="20" placeholder="your_username" style="flex: 1;" />' +
+        '<span class="username-check__indicator" id="username-check-indicator"></span>' +
         '</div>' +
-        '<div class="onboarding__actions">' +
-        '    <div id="onboarding-next-1"></div>' +
+        '<span class="form-group__hint">3-20 characters. Will be lowercased automatically.</span>' +
         '</div>';
 }
 
 /**
- * Render step 2: About you (bio, interests, genres).
+ * Render step 2 HTML string.
  *
  * @returns {string} HTML content.
  */
-function renderStep2() {
-    return '' +
-        '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-bio">Bio</label>' +
-        '    <textarea class="form-group__input form-group__input--textarea" id="onboarding-bio" maxlength="200" placeholder="Tell people about yourself...">' + escapeHtml(onboardingState.data.bio) + '</textarea>' +
-        '    <span class="character-counter" id="onboarding-bio-counter">' + onboardingState.data.bio.length + '/200</span>' +
+function renderStep2Html() {
+    return '<div class="form-group">' +
+        '<label class="form-group__label" for="onboarding-bio">Bio</label>' +
+        '<textarea class="form-group__input form-group__input--textarea" id="onboarding-bio" maxlength="200" placeholder="Tell people about yourself...">' +
+        escapeHtml(onboardingState.data.bio) + '</textarea>' +
+        '<span class="character-counter" id="onboarding-bio-counter">' +
+        onboardingState.data.bio.length + '/200</span>' +
         '</div>' +
         '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-interests">Interests</label>' +
-        '    <input class="form-group__input" type="text" id="onboarding-interests" value="' + escapeHtml(onboardingState.data.interests) + '" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />' +
+        '<label class="form-group__label" for="onboarding-interests">Interests</label>' +
+        '<input class="form-group__input" type="text" id="onboarding-interests" value="' +
+        escapeHtml(onboardingState.data.interests) + '" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />' +
         '</div>' +
         '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-genres">Favorite Genres</label>' +
-        '    <input class="form-group__input" type="text" id="onboarding-genres" value="' + escapeHtml(onboardingState.data.favoriteGenres) + '" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />' +
-        '</div>' +
-        '<div class="onboarding__actions">' +
-        '    <div id="onboarding-back-2"></div>' +
-        '    <div id="onboarding-next-2"></div>' +
+        '<label class="form-group__label" for="onboarding-genres">Favorite Genres</label>' +
+        '<input class="form-group__input" type="text" id="onboarding-genres" value="' +
+        escapeHtml(onboardingState.data.favoriteGenres) + '" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />' +
         '</div>';
 }
 
 /**
- * Render step 3: Privacy & Avatar.
+ * Render step 3 HTML string.
  *
  * @returns {string} HTML content.
  */
-function renderStep3() {
-    const privacy = onboardingState.data.privacyLevel || 'friends_only';
+function renderStep3Html() {
+    var privacy = onboardingState.data.privacyLevel || 'friends_only';
 
-    return '' +
-        '<div class="form-group">' +
-        '    <label class="form-group__label" for="onboarding-avatar">Avatar URL</label>' +
-        '    <input class="form-group__input" type="url" id="onboarding-avatar" value="' + escapeHtml(onboardingState.data.avatarUrl) + '" placeholder="https://..." maxlength="500" />' +
+    return '<div class="form-group">' +
+        '<label class="form-group__label" for="onboarding-avatar">Avatar URL</label>' +
+        '<input class="form-group__input" type="url" id="onboarding-avatar" value="' +
+        escapeHtml(onboardingState.data.avatarUrl) + '" placeholder="https://..." maxlength="500" />' +
         '</div>' +
         '<div class="form-group">' +
-        '    <label class="form-group__label">Privacy</label>' +
-        '    <div class="privacy-selector">' +
-        '        <label class="privacy-option ' + (privacy === 'public' ? 'privacy-option--selected' : '') + '">' +
-        '            <input type="radio" name="onboarding-privacy" value="public" ' + (privacy === 'public' ? 'checked' : '') + ' />' +
-        '            <div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>' +
-        '        </label>' +
-        '        <label class="privacy-option ' + (privacy === 'friends_only' ? 'privacy-option--selected' : '') + '">' +
-        '            <input type="radio" name="onboarding-privacy" value="friends_only" ' + (privacy === 'friends_only' ? 'checked' : '') + ' />' +
-        '            <div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>' +
-        '        </label>' +
-        '        <label class="privacy-option ' + (privacy === 'private' ? 'privacy-option--selected' : '') + '">' +
-        '            <input type="radio" name="onboarding-privacy" value="private" ' + (privacy === 'private' ? 'checked' : '') + ' />' +
-        '            <div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>' +
-        '        </label>' +
-        '    </div>' +
+        '<label class="form-group__label">Privacy</label>' +
+        '<div class="privacy-selector">' +
+        '<label class="privacy-option ' + (privacy === 'public' ? 'privacy-option--selected' : '') + '">' +
+        '<input type="radio" name="onboarding-privacy" value="public" ' + (privacy === 'public' ? 'checked' : '') + ' />' +
+        '<div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>' +
+        '</label>' +
+        '<label class="privacy-option ' + (privacy === 'friends_only' ? 'privacy-option--selected' : '') + '">' +
+        '<input type="radio" name="onboarding-privacy" value="friends_only" ' + (privacy === 'friends_only' ? 'checked' : '') + ' />' +
+        '<div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>' +
+        '</label>' +
+        '<label class="privacy-option ' + (privacy === 'private' ? 'privacy-option--selected' : '') + '">' +
+        '<input type="radio" name="onboarding-privacy" value="private" ' + (privacy === 'private' ? 'checked' : '') + ' />' +
+        '<div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>' +
+        '</label>' +
         '</div>' +
-        '<div class="onboarding__actions">' +
-        '    <div id="onboarding-back-3"></div>' +
-        '    <div id="onboarding-next-3"></div>' +
         '</div>';
 }
 
 /**
- * Render step 4: Summary & completion.
+ * Render step 4 HTML string.
  *
  * @returns {string} HTML content.
  */
-function renderStep4() {
-    const interestsTags = (onboardingState.data.interests || '')
+function renderStep4Html() {
+    var interestsTags = (onboardingState.data.interests || '')
         .split(',')
         .filter(function (t) { return t.trim() !== ''; })
         .map(function (t) { return '<span class="tag">#' + escapeHtml(t.trim()) + '</span>'; })
         .join('');
 
-    const genreTags = (onboardingState.data.favoriteGenres || '')
+    var genreTags = (onboardingState.data.favoriteGenres || '')
         .split(',')
         .filter(function (t) { return t.trim() !== ''; })
         .map(function (t) { return '<span class="tag tag--genre">' + escapeHtml(t.trim()) + '</span>'; })
         .join('');
 
-    const privacyLabel = {
-        'public': '🌍 Public',
-        'friends_only': '👥 Friends Only',
-        'private': '🔒 Private',
+    var privacyLabels = {
+        'public': 'Public',
+        'friends_only': 'Friends Only',
+        'private': 'Private',
     };
 
-    return '' +
-        '<div style="text-align: center;">' +
-        '    <div style="font-size: 64px; margin-bottom: var(--rs-space-4);">🎉</div>' +
-        '    <p style="margin-bottom: var(--rs-space-6); color: var(--rs-text-muted);">Your profile is ready!</p>' +
+    return '<div style="text-align: center;">' +
+        '<div data-lucide="party-popper" style="width: 64px; height: 64px; color: var(--rs-primary); margin: 0 auto var(--rs-space-4);"></div>' +
+        '<p style="margin-bottom: var(--rs-space-6); color: var(--rs-text-muted);">Your profile is ready!</p>' +
         '</div>' +
         '<div style="background: var(--rs-surface); border-radius: var(--rs-radius-lg); padding: var(--rs-space-4); margin-bottom: var(--rs-space-4);">' +
-        '    <p><strong>' + escapeHtml(onboardingState.data.displayName || 'Your Name') + '</strong> <span style="color: var(--rs-text-muted);">@' + escapeHtml(onboardingState.data.username) + '</span></p>' +
-        (onboardingState.data.bio ? '<p style="color: var(--rs-text-muted); font-size: var(--rs-font-size-sm); margin-top: var(--rs-space-2);">' + escapeHtml(onboardingState.data.bio) + '</p>' : '') +
+        '<p><strong>' + escapeHtml(onboardingState.data.displayName || 'Your Name') + '</strong> ' +
+        '<span style="color: var(--rs-text-muted);">@' + escapeHtml(onboardingState.data.username) + '</span></p>' +
+        (onboardingState.data.bio ? '<p style="color: var(--rs-text-muted); font-size: var(--rs-font-size-sm); margin-top: var(--rs-space-2);">' +
+        escapeHtml(onboardingState.data.bio) + '</p>' : '') +
         (interestsTags ? '<div class="tags-section" style="margin-top: var(--rs-space-2);">' + interestsTags + '</div>' : '') +
         (genreTags ? '<div class="tags-section">' + genreTags + '</div>' : '') +
-        '    <p style="margin-top: var(--rs-space-2); font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">' + (privacyLabel[onboardingState.data.privacyLevel] || '👥 Friends Only') + '</p>' +
-        '</div>' +
-        '<div class="onboarding__actions">' +
-        '    <div id="onboarding-back-4"></div>' +
-        '    <div id="onboarding-next-4"></div>' +
+        '<p style="margin-top: var(--rs-space-2); font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">' +
+        (privacyLabels[onboardingState.data.privacyLevel] || 'Friends Only') + '</p>' +
         '</div>';
+}
+
+/**
+ * Render the Next/Back action buttons.
+ *
+ * @returns {void}
+ */
+function renderActionButtons() {
+    var backContainer = document.getElementById('onboarding-back-btn');
+    var nextContainer = document.getElementById('onboarding-next-btn');
+
+    if (backContainer !== null) {
+        while (backContainer.firstChild !== null) {
+            backContainer.removeChild(backContainer.firstChild);
+        }
+    }
+
+    if (nextContainer !== null) {
+        while (nextContainer.firstChild !== null) {
+            nextContainer.removeChild(nextContainer.firstChild);
+        }
+    }
+
+    // Back button (not on step 1).
+    if (onboardingState.currentStep > 1) {
+        if (backContainer !== null) {
+            backContainer.appendChild(createButton({
+                label: 'Back',
+                variant: 'secondary',
+                onClick: function () {
+                    collectStepData(onboardingState.currentStep);
+                    renderStep(onboardingState.currentStep - 1);
+                },
+            }));
+        }
+    }
+
+    // Next / Complete button.
+    if (nextContainer !== null) {
+        var isLastStep = onboardingState.currentStep === onboardingState.totalSteps;
+
+        nextContainer.appendChild(createButton({
+            label: isLastStep ? 'Start Exploring' : 'Next',
+            variant: 'primary',
+            isFullWidth: !isLastStep,
+            onClick: function () {
+                if (isLastStep) {
+                    completeOnboarding();
+                } else {
+                    collectStepData(onboardingState.currentStep);
+                    saveAndGoNext(onboardingState.currentStep);
+                }
+            },
+        }));
+    }
+}
+
+/**
+ * Set up event listeners for the current step.
+ *
+ * @param {number} step - The current step number.
+ * @returns {void}
+ */
+function setupStepEventListeners(step) {
+    // Bio counter for step 2.
+    if (step === 2) {
+        var bioInput = document.getElementById('onboarding-bio');
+        var bioCounter = document.getElementById('onboarding-bio-counter');
+
+        if (bioInput !== null && bioCounter !== null) {
+            bioInput.addEventListener('input', function () {
+                bioCounter.textContent = bioInput.value.length + '/200';
+            });
+        }
+    }
+
+    // Username auto-lowercase + availability check (step 1).
+    if (step === 1) {
+        var usernameInput = document.getElementById('onboarding-username');
+        if (usernameInput !== null) {
+            usernameInput.addEventListener('input', function () {
+                var cursorPos = usernameInput.selectionStart;
+                usernameInput.value = usernameInput.value.toLowerCase();
+                usernameInput.setSelectionRange(cursorPos, cursorPos);
+                debouncedCheckUsername(usernameInput);
+            });
+        }
+    }
+
+    // Privacy selector styling (step 3).
+    if (step === 3) {
+        var privacyRadios = document.querySelectorAll('input[name="onboarding-privacy"]');
+        privacyRadios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                privacyRadios.forEach(function (r) {
+                    var label = r.closest('.privacy-option');
+                    if (label !== null) {
+                        label.classList.remove('privacy-option--selected');
+                    }
+                });
+                var label = radio.closest('.privacy-option');
+                if (label !== null) {
+                    label.classList.add('privacy-option--selected');
+                }
+            });
+        });
+    }
 }
 
 /**
@@ -274,10 +387,7 @@ function renderStep4() {
  * @returns {Promise<void>}
  */
 async function saveAndGoNext(step) {
-    // Collect data from current step
-    collectStepData(step);
-
-    // Validate step 1
+    // Validate step 1.
     if (step === 1) {
         if (!onboardingState.data.displayName || onboardingState.data.displayName.trim() === '') {
             showToast({ message: 'Display name is required', type: 'error' });
@@ -346,22 +456,22 @@ async function completeOnboarding() {
 function collectStepData(step) {
     switch (step) {
         case 1:
-            const dn = document.getElementById('onboarding-display-name');
-            const un = document.getElementById('onboarding-username');
+            var dn = document.getElementById('onboarding-display-name');
+            var un = document.getElementById('onboarding-username');
             if (dn !== null) onboardingState.data.displayName = dn.value.trim();
             if (un !== null) onboardingState.data.username = un.value.trim();
             break;
         case 2:
-            const bio = document.getElementById('onboarding-bio');
-            const interests = document.getElementById('onboarding-interests');
-            const genres = document.getElementById('onboarding-genres');
+            var bio = document.getElementById('onboarding-bio');
+            var interests = document.getElementById('onboarding-interests');
+            var genres = document.getElementById('onboarding-genres');
             if (bio !== null) onboardingState.data.bio = bio.value.trim();
             if (interests !== null) onboardingState.data.interests = interests.value.trim();
             if (genres !== null) onboardingState.data.favoriteGenres = genres.value.trim();
             break;
         case 3:
-            const avatar = document.getElementById('onboarding-avatar');
-            const privacy = document.querySelector('input[name="onboarding-privacy"]:checked');
+            var avatar = document.getElementById('onboarding-avatar');
+            var privacy = document.querySelector('input[name="onboarding-privacy"]:checked');
             if (avatar !== null) onboardingState.data.avatarUrl = avatar.value.trim();
             if (privacy !== null) onboardingState.data.privacyLevel = privacy.value;
             break;
@@ -397,85 +507,25 @@ function getStepDataPayload(step) {
     }
 }
 
-// Set up event delegation for onboarding actions (called after render)
-document.addEventListener('click', function (event) {
-    // Next buttons
-    if (event.target.closest('#onboarding-next-1')) {
-        const usernameInput = document.getElementById('onboarding-username');
-        if (usernameInput !== null) {
-            onboardingState.data.username = usernameInput.value.trim();
-        }
-        saveAndGoNext(1);
-    }
+/**
+ * Debounced username availability check.
+ */
+var usernameCheckTimeout = null;
 
-    if (event.target.closest('#onboarding-next-2')) {
-        collectStepData(2);
-        saveAndGoNext(2);
-    }
-
-    if (event.target.closest('#onboarding-next-3')) {
-        collectStepData(3);
-        saveAndGoNext(3);
-    }
-
-    if (event.target.closest('#onboarding-next-4')) {
-        completeOnboarding();
-    }
-
-    // Back buttons
-    if (event.target.closest('#onboarding-back-2')) {
-        collectStepData(2);
-        renderStep(1);
-    }
-
-    if (event.target.closest('#onboarding-back-3')) {
-        collectStepData(3);
-        renderStep(2);
-    }
-
-    if (event.target.closest('#onboarding-back-4')) {
-        renderStep(3);
-    }
-
-    // Username check on input (auto-lowercase as user types)
-    const usernameInput = event.target.closest('#onboarding-username');
-    if (usernameInput !== null) {
-        var cursorPos = usernameInput.selectionStart;
-        usernameInput.value = usernameInput.value.toLowerCase();
-        usernameInput.setSelectionRange(cursorPos, cursorPos);
-        debouncedCheckUsername(usernameInput);
-    }
-
-    // Bio counter
-    const bioInput = event.target.closest('#onboarding-bio');
-    if (bioInput !== null) {
-        const counter = document.getElementById('onboarding-bio-counter');
-        if (counter !== null) {
-            counter.textContent = bioInput.value.length + '/200';
-        }
-    }
-
-    // Privacy selector styling
-    const privacyRadio = event.target.closest('input[name="onboarding-privacy"]');
-    if (privacyRadio !== null) {
-        document.querySelectorAll('input[name="onboarding-privacy"]').forEach(function (r) {
-            r.closest('.privacy-option').classList.remove('privacy-option--selected');
-        });
-        privacyRadio.closest('.privacy-option').classList.add('privacy-option--selected');
-    }
-});
-
-// Debounced username availability check
-let usernameCheckTimeout = null;
-
+/**
+ * Check username availability with debouncing.
+ *
+ * @param {HTMLElement} input - The username input element.
+ * @returns {void}
+ */
 function debouncedCheckUsername(input) {
     if (usernameCheckTimeout !== null) {
         clearTimeout(usernameCheckTimeout);
     }
 
     usernameCheckTimeout = setTimeout(async function () {
-        const username = input.value.trim();
-        const indicator = document.getElementById('username-check-indicator');
+        var username = input.value.trim();
+        var indicator = document.getElementById('username-check-indicator');
 
         if (indicator === null) {
             return;
@@ -488,13 +538,13 @@ function debouncedCheckUsername(input) {
         }
 
         try {
-            const result = await apiGet('/api/user/check-username?username=' + encodeURIComponent(username));
+            var result = await apiGet('/api/user/check-username?username=' + encodeURIComponent(username));
 
             if (result.available) {
-                indicator.textContent = '✓';
+                indicator.textContent = '\u2713';
                 indicator.className = 'username-check__indicator username-check__indicator--valid';
             } else {
-                indicator.textContent = '✗';
+                indicator.textContent = '\u2717';
                 indicator.className = 'username-check__indicator username-check__indicator--invalid';
             }
         } catch (_e) {
@@ -503,115 +553,6 @@ function debouncedCheckUsername(input) {
         }
     }, 300);
 }
-
-// Render the next/back buttons after the HTML is in the DOM
-// These are re-invoked after each renderStep call
-function renderActionButtons() {
-    // Step 1: next only
-    const next1 = document.getElementById('onboarding-next-1');
-    if (next1 !== null) {
-        next1.innerHTML = '';
-        next1.appendChild(createButton({
-            label: 'Next',
-            variant: 'primary',
-            isFullWidth: true,
-            onClick: function () {
-                const usernameInput = document.getElementById('onboarding-username');
-                if (usernameInput !== null) {
-                    onboardingState.data.username = usernameInput.value.trim();
-                }
-                saveAndGoNext(1);
-            },
-        }));
-    }
-
-    // Step 2: back + next
-    const back2 = document.getElementById('onboarding-back-2');
-    if (back2 !== null) {
-        back2.innerHTML = '';
-        back2.appendChild(createButton({
-            label: 'Back',
-            variant: 'secondary',
-            onClick: function () {
-                collectStepData(2);
-                renderStep(1);
-            },
-        }));
-    }
-
-    const next2 = document.getElementById('onboarding-next-2');
-    if (next2 !== null) {
-        next2.innerHTML = '';
-        next2.appendChild(createButton({
-            label: 'Next',
-            variant: 'primary',
-            onClick: function () {
-                collectStepData(2);
-                saveAndGoNext(2);
-            },
-        }));
-    }
-
-    // Step 3: back + next
-    const back3 = document.getElementById('onboarding-back-3');
-    if (back3 !== null) {
-        back3.innerHTML = '';
-        back3.appendChild(createButton({
-            label: 'Back',
-            variant: 'secondary',
-            onClick: function () {
-                collectStepData(3);
-                renderStep(2);
-            },
-        }));
-    }
-
-    const next3 = document.getElementById('onboarding-next-3');
-    if (next3 !== null) {
-        next3.innerHTML = '';
-        next3.appendChild(createButton({
-            label: 'Next',
-            variant: 'primary',
-            onClick: function () {
-                collectStepData(3);
-                saveAndGoNext(3);
-            },
-        }));
-    }
-
-    // Step 4: back + start
-    const back4 = document.getElementById('onboarding-back-4');
-    if (back4 !== null) {
-        back4.innerHTML = '';
-        back4.appendChild(createButton({
-            label: 'Back',
-            variant: 'secondary',
-            onClick: function () {
-                renderStep(3);
-            },
-        }));
-    }
-
-    const next4 = document.getElementById('onboarding-next-4');
-    if (next4 !== null) {
-        next4.innerHTML = '';
-        next4.appendChild(createButton({
-            label: 'Start Exploring',
-            variant: 'primary',
-            onClick: function () {
-                completeOnboarding();
-            },
-        }));
-    }
-}
-
-// Override the default renderStep to also render action buttons
-const originalRenderStep = renderStep;
-renderStep = function (step) {
-    originalRenderStep(step);
-    // Render action buttons after content is in DOM
-    setTimeout(renderActionButtons, 0);
-};
 
 /**
  * Escape HTML special characters.

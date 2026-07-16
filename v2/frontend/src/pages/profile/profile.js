@@ -2,41 +2,28 @@
  * Resona Profile Page Controller
  *
  * Displays and allows editing user profile settings.
- * Implements UI-C-011.
- * v1.1: Added bio, username editing, privacy selector, interests, genres,
- *       about me section, top artists display, stats summary, logout button.
+ * v2.1: Uses static HTML containers — populates form fields and appends sections.
  *
- * @version 1.1.0
+ * @version 2.1.0
  */
 
 /**
  * Render the profile page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderProfilePage() {
-    const app = document.getElementById('app');
-
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-profile');
+    const page = document.getElementById('page-profile');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-profile';
-        page.className = 'page';
-
-        page.innerHTML = '' +
-            '<div class="page__header">' +
-            '    <h1 class="page__title">Profile</h1>' +
-            '</div>' +
-            '<div class="page__content" id="profile-content"></div>';
-
-        app.insertBefore(page, app.firstChild);
+        return;
     }
 
     page.classList.add('page--active');
@@ -45,252 +32,297 @@ function renderProfilePage() {
 }
 
 /**
- * Load the user's profile data.
+ * Load the user's profile data and populate static form fields.
  *
  * @returns {Promise<void>}
  */
 async function loadProfile() {
-    const content = document.getElementById('profile-content');
-
-    if (content === null) {
-        return;
-    }
-
-    content.innerHTML = '<p style="color: var(--rs-text-dim);">Loading profile...</p>';
-
     try {
         const profile = await apiGet('/api/user/profile');
 
-        // v1.1: Load stats and top artists in parallel
+        // Load stats and top artists in parallel.
         let stats = null;
         let topArtists = null;
 
         try {
             stats = await apiGet('/api/user/stats');
         } catch (_e) {
-            // Non-critical
+            // Non-critical.
         }
 
         try {
             topArtists = await apiGet('/api/dashboard/top-artists?period=all&limit=5');
         } catch (_e) {
-            // Non-critical
+            // Non-critical.
         }
 
-        // Bio display
-        const bioHtml = profile.bio
-            ? '<p class="profile-header__bio">' + escapeHtml(profile.bio) + '</p>'
-            : '';
+        // Populate profile header.
+        const profileHeader = document.getElementById('profile-header');
+        if (profileHeader !== null) {
+            while (profileHeader.firstChild !== null) {
+                profileHeader.removeChild(profileHeader.firstChild);
+            }
 
-        // v1.1: Stats row
-        let statsHtml = '';
-        if (stats !== null) {
-            statsHtml = '' +
-                '<div class="stats-row">' +
-                '    <div class="stat-card">' +
-                '        <div class="stat-card__value">' + (stats.totalTracksPlayed || 0) + '</div>' +
-                '        <div class="stat-card__label">Tracks Played</div>' +
-                '    </div>' +
-                '    <div class="stat-card">' +
-                '        <div class="stat-card__value">' + (stats.uniqueArtists || 0) + '</div>' +
-                '        <div class="stat-card__label">Artists</div>' +
-                '    </div>' +
-                '    <div class="stat-card">' +
-                '        <div class="stat-card__value">' + escapeHtml(stats.topGenre || '—') + '</div>' +
-                '        <div class="stat-card__label">Top Genre</div>' +
-                '    </div>' +
-                '</div>';
+            const avatar = document.createElement('img');
+            avatar.className = 'profile-header__avatar';
+            avatar.src = profile.avatar_url || 'assets/default-avatar.svg';
+            avatar.alt = 'Profile picture';
+            profileHeader.appendChild(avatar);
+
+            const name = document.createElement('h2');
+            name.className = 'profile-header__name';
+            name.textContent = profile.display_name;
+            profileHeader.appendChild(name);
+
+            const username = document.createElement('p');
+            username.className = 'profile-header__username';
+            username.textContent = '@' + profile.username;
+            profileHeader.appendChild(username);
+
+            if (profile.bio) {
+                const bio = document.createElement('p');
+                bio.className = 'profile-header__bio';
+                bio.textContent = profile.bio;
+                profileHeader.appendChild(bio);
+            }
         }
 
-        // v1.1: Top artists section
-        let topArtistsHtml = '';
-        if (topArtists !== null && topArtists.length > 0) {
-            topArtistsHtml = '' +
-                '<div class="profile-section">' +
-                '    <h3 class="profile-section__title">My Top Artists</h3>' +
-                '    <div class="artist-list">';
+        // Populate stats row.
+        const statsRow = document.getElementById('profile-stats-row');
+        if (statsRow !== null && stats !== null) {
+            while (statsRow.firstChild !== null) {
+                statsRow.removeChild(statsRow.firstChild);
+            }
 
-            topArtists.forEach(function (artist, index) {
-                topArtistsHtml += '' +
-                    '<div class="artist-item">' +
-                    '    <div class="artist-item__rank">' + (index + 1) + '</div>' +
-                    '    <div class="artist-item__name">' + escapeHtml(artist.artist_name) + '</div>' +
-                    '    <div class="artist-item__count">' + artist.play_count + ' plays</div>' +
-                    '</div>';
-            });
+            var statCards = [
+                { value: stats.totalTracksPlayed || 0, label: 'Tracks Played' },
+                { value: stats.uniqueArtists || 0, label: 'Artists' },
+                { value: stats.topGenre || '\u2014', label: 'Top Genre' },
+            ];
 
-            topArtistsHtml += '    </div></div>';
-        } else {
-            topArtistsHtml = '' +
-                '<div class="profile-section">' +
-                '    <h3 class="profile-section__title">My Top Artists</h3>' +
-                '    <p style="color: var(--rs-text-dim); font-size: var(--rs-font-size-sm);">No artist data yet. Keep listening!</p>' +
-                '</div>';
-        }
+            statCards.forEach(function (s) {
+                var card = document.createElement('div');
+                card.className = 'stat-card';
 
-        // v1.1: Tags (interests, genres, about me)
-        const interestsTags = (profile.interests || '')
-            .split(',')
-            .filter(function (t) { return t.trim() !== ''; })
-            .map(function (t) { return '<span class="tag">#' + escapeHtml(t.trim()) + '</span>'; })
-            .join('');
+                var val = document.createElement('div');
+                val.className = 'stat-card__value';
+                val.textContent = s.value;
+                card.appendChild(val);
 
-        const genreTags = (profile.favorite_genres || '')
-            .split(',')
-            .filter(function (t) { return t.trim() !== ''; })
-            .map(function (t) { return '<span class="tag tag--genre">' + escapeHtml(t.trim()) + '</span>'; })
-            .join('');
+                var lbl = document.createElement('div');
+                lbl.className = 'stat-card__label';
+                lbl.textContent = s.label;
+                card.appendChild(lbl);
 
-        const aboutHtml = profile.about_me
-            ? '<div class="profile-section"><div class="about-section">' + escapeHtml(profile.about_me) + '</div></div>'
-            : '';
-
-        content.innerHTML = '' +
-            '<div class="profile-header">' +
-            '    <img class="profile-header__avatar" src="' + (profile.avatar_url || 'assets/default-avatar.svg') + '" alt="Profile picture" />' +
-            '    <h2 class="profile-header__name">' + escapeHtml(profile.display_name) + '</h2>' +
-            '    <p class="profile-header__username">@' + escapeHtml(profile.username) + '</p>' +
-            bioHtml +
-            '</div>' +
-            statsHtml +
-            (interestsTags ? '<div class="tags-section">' + interestsTags + '</div>' : '') +
-            (genreTags ? '<div class="tags-section">' + genreTags + '</div>' : '') +
-            aboutHtml +
-            topArtistsHtml +
-            '<div class="profile-form" id="profile-form">' +
-            '    <h3 class="profile-section__title">Edit Profile</h3>' +
-
-            // Display Name
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-display-name">Display Name</label>' +
-            '        <input class="form-group__input" type="text" id="profile-display-name" value="' + escapeHtml(profile.display_name) + '" maxlength="100" />' +
-            '    </div>' +
-
-            // Avatar URL
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-avatar-url">Avatar URL</label>' +
-            '        <input class="form-group__input" type="url" id="profile-avatar-url" value="' + escapeHtml(profile.avatar_url) + '" maxlength="500" />' +
-            '    </div>' +
-
-            // v1.1: Username
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-username">Username</label>' +
-            '        <input class="form-group__input" type="text" id="profile-username" value="' + escapeHtml(profile.username) + '" maxlength="20" />' +
-            '        <span class="form-group__hint">3-20 characters. Will be lowercased automatically. Can only be changed once every 30 days.</span>' +
-            '    </div>' +
-
-            // v1.1: Bio
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-bio">Bio</label>' +
-            '        <textarea class="form-group__input form-group__input--textarea" id="profile-bio" maxlength="200">' + escapeHtml(profile.bio || '') + '</textarea>' +
-            '        <span class="character-counter" id="bio-counter">' + (profile.bio ? profile.bio.length : 0) + '/200</span>' +
-            '    </div>' +
-
-            // v1.1: Interests
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-interests">Interests</label>' +
-            '        <input class="form-group__input" type="text" id="profile-interests" value="' + escapeHtml(profile.interests || '') + '" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />' +
-            '    </div>' +
-
-            // v1.1: Favorite Genres
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-favorite-genres">Favorite Genres</label>' +
-            '        <input class="form-group__input" type="text" id="profile-favorite-genres" value="' + escapeHtml(profile.favorite_genres || '') + '" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />' +
-            '    </div>' +
-
-            // v1.1: About Me
-            '    <div class="form-group">' +
-            '        <label class="form-group__label" for="profile-about-me">About Me</label>' +
-            '        <textarea class="form-group__input form-group__input--textarea" id="profile-about-me" maxlength="500">' + escapeHtml(profile.about_me || '') + '</textarea>' +
-            '    </div>' +
-
-            // v1.1: Privacy selector
-            '    <div class="form-group">' +
-            '        <label class="form-group__label">Privacy</label>' +
-            '        <div class="privacy-selector" id="profile-privacy-selector">' +
-            '            <label class="privacy-option ' + (profile.privacy_level === 'public' ? 'privacy-option--selected' : '') + '">' +
-            '                <input type="radio" name="privacy" value="public" ' + (profile.privacy_level === 'public' ? 'checked' : '') + ' />' +
-            '                <div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>' +
-            '            </label>' +
-            '            <label class="privacy-option ' + (profile.privacy_level === 'friends_only' || !profile.privacy_level ? 'privacy-option--selected' : '') + '">' +
-            '                <input type="radio" name="privacy" value="friends_only" ' + (profile.privacy_level === 'friends_only' || !profile.privacy_level ? 'checked' : '') + ' />' +
-            '                <div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>' +
-            '            </label>' +
-            '            <label class="privacy-option ' + (profile.privacy_level === 'private' ? 'privacy-option--selected' : '') + '">' +
-            '                <input type="radio" name="privacy" value="private" ' + (profile.privacy_level === 'private' ? 'checked' : '') + ' />' +
-            '                <div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>' +
-            '            </label>' +
-            '        </div>' +
-            '    </div>' +
-
-            // Spotify status
-            '    <div class="form-group">' +
-            '        <label class="form-group__label">Spotify Connected</label>' +
-            '        <p style="color: ' + (profile.spotify_connected ? 'var(--rs-success)' : 'var(--rs-text-dim)') + '; padding: 8px 0;">' +
-            (profile.spotify_connected ? '✅ Connected' : '❌ Not connected') +
-            '        </p>' +
-            '    </div>' +
-
-            // Save button
-            '    <div id="profile-save-container"></div>' +
-            // v1.1: Logout button
-            '    <div id="profile-logout-container" style="margin-top: var(--rs-space-2);"></div>' +
-            '</div>';
-
-        // Set up bio character counter
-        const bioInput = document.getElementById('profile-bio');
-        const bioCounter = document.getElementById('bio-counter');
-
-        if (bioInput !== null && bioCounter !== null) {
-            bioInput.addEventListener('input', function () {
-                bioCounter.textContent = bioInput.value.length + '/200';
+                statsRow.appendChild(card);
             });
         }
 
-        // Auto-lowercase username as user types
-        const usernameInput = document.getElementById('profile-username');
-        if (usernameInput !== null) {
-            usernameInput.addEventListener('input', function () {
-                var cursorPos = usernameInput.selectionStart;
-                usernameInput.value = usernameInput.value.toLowerCase();
-                usernameInput.setSelectionRange(cursorPos, cursorPos);
-            });
-        }
+        // Populate interests tags.
+        var interestsContainer = document.getElementById('profile-interests-tags');
+        if (interestsContainer !== null) {
+            while (interestsContainer.firstChild !== null) {
+                interestsContainer.removeChild(interestsContainer.firstChild);
+            }
 
-        // Set up privacy selector styling
-        const privacyOptions = document.querySelectorAll('.privacy-option');
-        privacyOptions.forEach(function (opt) {
-            const radio = opt.querySelector('input[type="radio"]');
-            if (radio !== null) {
-                radio.addEventListener('change', function () {
-                    privacyOptions.forEach(function (o) {
-                        o.classList.remove('privacy-option--selected');
-                    });
-                    opt.classList.add('privacy-option--selected');
+            if (profile.interests) {
+                profile.interests.split(',').filter(function (t) {
+                    return t.trim() !== '';
+                }).forEach(function (tag) {
+                    var tagEl = document.createElement('span');
+                    tagEl.className = 'tag';
+                    tagEl.textContent = '#' + tag.trim();
+                    interestsContainer.appendChild(tagEl);
                 });
+            }
+        }
+
+        // Populate genre tags.
+        var genresContainer = document.getElementById('profile-genre-tags');
+        if (genresContainer !== null) {
+            while (genresContainer.firstChild !== null) {
+                genresContainer.removeChild(genresContainer.firstChild);
+            }
+
+            if (profile.favorite_genres) {
+                profile.favorite_genres.split(',').filter(function (t) {
+                    return t.trim() !== '';
+                }).forEach(function (tag) {
+                    var tagEl = document.createElement('span');
+                    tagEl.className = 'tag tag--genre';
+                    tagEl.textContent = tag.trim();
+                    genresContainer.appendChild(tagEl);
+                });
+            }
+        }
+
+        // Populate about section.
+        var aboutSection = document.getElementById('profile-about-section');
+        if (aboutSection !== null) {
+            while (aboutSection.firstChild !== null) {
+                aboutSection.removeChild(aboutSection.firstChild);
+            }
+
+            if (profile.about_me) {
+                var section = document.createElement('div');
+                section.className = 'profile-section';
+
+                var aboutDiv = document.createElement('div');
+                aboutDiv.className = 'about-section';
+                aboutDiv.textContent = profile.about_me;
+                section.appendChild(aboutDiv);
+
+                aboutSection.appendChild(section);
+            }
+        }
+
+        // Populate top artists.
+        var topArtistsSection = document.getElementById('profile-top-artists');
+        if (topArtistsSection !== null) {
+            while (topArtistsSection.firstChild !== null) {
+                topArtistsSection.removeChild(topArtistsSection.firstChild);
+            }
+
+            var sectionTitle = document.createElement('h3');
+            sectionTitle.className = 'profile-section__title';
+            sectionTitle.textContent = 'My Top Artists';
+            topArtistsSection.appendChild(sectionTitle);
+
+            var list = document.createElement('div');
+            list.className = 'artist-list';
+
+            if (topArtists !== null && topArtists.length > 0) {
+                topArtists.forEach(function (artist, index) {
+                    var item = document.createElement('div');
+                    item.className = 'artist-item';
+
+                    var rank = document.createElement('div');
+                    rank.className = 'artist-item__rank';
+                    rank.textContent = (index + 1);
+                    item.appendChild(rank);
+
+                    var name = document.createElement('div');
+                    name.className = 'artist-item__name';
+                    name.textContent = artist.artist_name;
+                    item.appendChild(name);
+
+                    var count = document.createElement('div');
+                    count.className = 'artist-item__count';
+                    count.textContent = artist.play_count + ' plays';
+                    item.appendChild(count);
+
+                    list.appendChild(item);
+                });
+            } else {
+                var emptyMsg = document.createElement('p');
+                emptyMsg.style.color = 'var(--rs-text-dim)';
+                emptyMsg.style.fontSize = 'var(--rs-font-size-sm)';
+                emptyMsg.textContent = 'No artist data yet. Keep listening!';
+                list.appendChild(emptyMsg);
+            }
+
+            topArtistsSection.appendChild(list);
+        }
+
+        // Populate form fields.
+        var displayNameInput = document.getElementById('profile-display-name');
+        if (displayNameInput !== null) {
+            displayNameInput.value = profile.display_name || '';
+        }
+
+        var avatarUrlInput = document.getElementById('profile-avatar-url');
+        if (avatarUrlInput !== null) {
+            avatarUrlInput.value = profile.avatar_url || '';
+        }
+
+        var usernameInput = document.getElementById('profile-username');
+        if (usernameInput !== null) {
+            usernameInput.value = profile.username || '';
+        }
+
+        var bioInput = document.getElementById('profile-bio');
+        if (bioInput !== null) {
+            bioInput.value = profile.bio || '';
+        }
+
+        var bioCounter = document.getElementById('bio-counter');
+        if (bioCounter !== null) {
+            bioCounter.textContent = (profile.bio ? profile.bio.length : 0) + '/200';
+        }
+
+        var interestsInput = document.getElementById('profile-interests');
+        if (interestsInput !== null) {
+            interestsInput.value = profile.interests || '';
+        }
+
+        var genresInput = document.getElementById('profile-favorite-genres');
+        if (genresInput !== null) {
+            genresInput.value = profile.favorite_genres || '';
+        }
+
+        var aboutMeInput = document.getElementById('profile-about-me');
+        if (aboutMeInput !== null) {
+            aboutMeInput.value = profile.about_me || '';
+        }
+
+        // Set privacy level.
+        var privacyLevel = profile.privacy_level || 'friends_only';
+        var privacyRadios = document.querySelectorAll('input[name="privacy"]');
+        privacyRadios.forEach(function (radio) {
+            radio.checked = radio.value === privacyLevel;
+            var label = radio.closest('.privacy-option');
+            if (label !== null) {
+                if (radio.value === privacyLevel) {
+                    label.classList.add('privacy-option--selected');
+                } else {
+                    label.classList.remove('privacy-option--selected');
+                }
             }
         });
 
-        // Save button
-        const saveContainer = document.getElementById('profile-save-container');
+        // Spotify status.
+        var spotifyStatus = document.getElementById('profile-spotify-status');
+        if (spotifyStatus !== null) {
+            spotifyStatus.innerHTML = '';
+            var statusIcon = document.createElement('span');
+            statusIcon.setAttribute('data-lucide', profile.spotify_connected ? 'check-circle' : 'x-circle');
+            statusIcon.className = 'rs-icon';
+            spotifyStatus.appendChild(statusIcon);
+            var statusText = document.createTextNode(
+                profile.spotify_connected ? ' Connected' : ' Not connected'
+            );
+            spotifyStatus.appendChild(statusText);
+            spotifyStatus.style.color = profile.spotify_connected
+                ? 'var(--rs-success)' : 'var(--rs-text-dim)';
+        }
 
+        // Set up event listeners (only once).
+        setupProfileEventListeners();
+
+        // Append save button.
+        var saveContainer = document.getElementById('profile-save-container');
         if (saveContainer !== null) {
-            const saveBtn = createButton({
+            while (saveContainer.firstChild !== null) {
+                saveContainer.removeChild(saveContainer.firstChild);
+            }
+
+            saveContainer.appendChild(createButton({
                 label: 'Save Changes',
                 variant: 'primary',
                 isFullWidth: true,
                 onClick: function () {
                     saveProfile();
                 },
-            });
-
-            saveContainer.appendChild(saveBtn);
+            }));
         }
 
-        // v1.1: Logout button
-        const logoutContainer = document.getElementById('profile-logout-container');
-
+        // Append logout button.
+        var logoutContainer = document.getElementById('profile-logout-container');
         if (logoutContainer !== null) {
+            while (logoutContainer.firstChild !== null) {
+                logoutContainer.removeChild(logoutContainer.firstChild);
+            }
+
             logoutContainer.appendChild(createButton({
                 label: 'Log Out',
                 variant: 'danger',
@@ -305,9 +337,69 @@ async function loadProfile() {
                 },
             }));
         }
+
+        if (typeof initIcons === 'function') {
+            initIcons();
+        }
     } catch (error) {
-        content.innerHTML = '<p style="color: var(--rs-error);">Failed to load profile: ' + escapeHtml(error.message) + '</p>';
+        var content = document.getElementById('profile-content');
+        if (content !== null) {
+            while (content.firstChild !== null) {
+                content.removeChild(content.firstChild);
+            }
+
+            var errorMsg = document.createElement('p');
+            errorMsg.style.color = 'var(--rs-error)';
+            errorMsg.textContent = 'Failed to load profile: ' + error.message;
+            content.appendChild(errorMsg);
+        }
     }
+}
+
+/**
+ * Set up profile form event listeners (once only).
+ *
+ * @returns {void}
+ */
+function setupProfileEventListeners() {
+    var bioInput = document.getElementById('profile-bio');
+    var bioCounter = document.getElementById('bio-counter');
+
+    if (bioInput !== null && bioCounter !== null
+        && bioInput.getAttribute('data-listener') === null) {
+        bioInput.setAttribute('data-listener', 'true');
+        bioInput.addEventListener('input', function () {
+            bioCounter.textContent = bioInput.value.length + '/200';
+        });
+    }
+
+    var usernameInput = document.getElementById('profile-username');
+    if (usernameInput !== null
+        && usernameInput.getAttribute('data-listener') === null) {
+        usernameInput.setAttribute('data-listener', 'true');
+        usernameInput.addEventListener('input', function () {
+            var cursorPos = usernameInput.selectionStart;
+            usernameInput.value = usernameInput.value.toLowerCase();
+            usernameInput.setSelectionRange(cursorPos, cursorPos);
+        });
+    }
+
+    // Privacy selector styling.
+    var privacyOptions = document.querySelectorAll('.privacy-option');
+    privacyOptions.forEach(function (opt) {
+        if (opt.getAttribute('data-listener') === null) {
+            opt.setAttribute('data-listener', 'true');
+            var radio = opt.querySelector('input[type="radio"]');
+            if (radio !== null) {
+                radio.addEventListener('change', function () {
+                    privacyOptions.forEach(function (o) {
+                        o.classList.remove('privacy-option--selected');
+                    });
+                    opt.classList.add('privacy-option--selected');
+                });
+            }
+        }
+    });
 }
 
 /**
@@ -316,21 +408,21 @@ async function loadProfile() {
  * @returns {Promise<void>}
  */
 async function saveProfile() {
-    const displayNameInput = document.getElementById('profile-display-name');
-    const avatarUrlInput = document.getElementById('profile-avatar-url');
+    var displayNameInput = document.getElementById('profile-display-name');
+    var avatarUrlInput = document.getElementById('profile-avatar-url');
 
     if (displayNameInput === null || avatarUrlInput === null) {
         return;
     }
 
-    const payload = {};
+    var payload = {};
 
-    const displayName = displayNameInput.value.trim();
+    var displayName = displayNameInput.value.trim();
     if (displayName !== '') {
         payload.displayName = displayName;
     }
 
-    const avatarUrl = avatarUrlInput.value.trim();
+    var avatarUrl = avatarUrlInput.value.trim();
     if (avatarUrl !== '') {
         if (!isValidUrl(avatarUrl)) {
             showToast({
@@ -342,41 +434,35 @@ async function saveProfile() {
         payload.avatarUrl = avatarUrl;
     }
 
-    // v1.1: Username
-    const usernameInput = document.getElementById('profile-username');
+    var usernameInput = document.getElementById('profile-username');
     if (usernameInput !== null) {
-        const username = usernameInput.value.trim();
+        var username = usernameInput.value.trim();
         if (username !== '') {
             payload.username = username;
         }
     }
 
-    // v1.1: Bio
-    const bioInput = document.getElementById('profile-bio');
+    var bioInput = document.getElementById('profile-bio');
     if (bioInput !== null) {
         payload.bio = bioInput.value.trim();
     }
 
-    // v1.1: Interests
-    const interestsInput = document.getElementById('profile-interests');
+    var interestsInput = document.getElementById('profile-interests');
     if (interestsInput !== null) {
         payload.interests = interestsInput.value.trim();
     }
 
-    // v1.1: Favorite Genres
-    const genresInput = document.getElementById('profile-favorite-genres');
+    var genresInput = document.getElementById('profile-favorite-genres');
     if (genresInput !== null) {
         payload.favoriteGenres = genresInput.value.trim();
     }
 
-    // v1.1: About Me
-    const aboutMeInput = document.getElementById('profile-about-me');
+    var aboutMeInput = document.getElementById('profile-about-me');
     if (aboutMeInput !== null) {
         payload.aboutMe = aboutMeInput.value.trim();
     }
 
-    // v1.1: Privacy level
-    const selectedPrivacy = document.querySelector('input[name="privacy"]:checked');
+    var selectedPrivacy = document.querySelector('input[name="privacy"]:checked');
     if (selectedPrivacy !== null) {
         payload.privacyLevel = selectedPrivacy.value;
     }
@@ -397,7 +483,6 @@ async function saveProfile() {
             type: 'success',
         });
 
-        // Reload profile to reflect changes.
         loadProfile();
     } catch (error) {
         showToast({

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Connecting</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-callback" class="page page--centered page--active">
+        <div class="login-page" id="callback-content">
+            <!-- Loading state -->
+            <div id="callback-loading">
+                <div class="app-loading__spinner"></div>
+                <p class="login-page__subtitle">Connecting your Spotify account...</p>
+            </div>
+            <!-- Error state -->
+            <div id="callback-error" style="display: none;">
+                <div data-lucide="alert-circle" style="width: 64px; height: 64px; color: var(--rs-error); margin: 0 auto;"></div>
+                <h1 class="login-page__title">Connection Failed</h1>
+                <p class="login-page__subtitle" id="callback-error-message"></p>
+                <div id="callback-retry-container"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../script.js"></script>
+    <script src="callback.js"></script>
+</body>
+</html>

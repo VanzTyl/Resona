@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Feed</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-feed" class="page page--active">
+        <header class="page__header">
+            <h1 class="page__title">Feed</h1>
+        </header>
+        <main class="page__content" id="feed-content">
+            <!-- Feed cards will be appended here by feed.js -->
+            <div id="feed-container"></div>
+            <!-- Skeleton loading state (visible before JS executes) -->
+            <div id="feed-skeleton-container" class="rs-skeleton">
+                <div class="feed-card feed-card--skeleton">
+                    <div class="feed-card__header">
+                        <div class="rs-skeleton__item rs-skeleton__item--circle" style="width: 40px; height: 40px;"></div>
+                        <div class="rs-skeleton__group">
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                    <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 200px;"></div>
+                    <div style="padding: 16px;">
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 50%; margin-top: 8px;"></div>
+                    </div>
+                </div>
+                <div class="feed-card feed-card--skeleton">
+                    <div class="feed-card__header">
+                        <div class="rs-skeleton__item rs-skeleton__item--circle" style="width: 40px; height: 40px;"></div>
+                        <div class="rs-skeleton__group">
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                    <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 200px;"></div>
+                    <div style="padding: 16px;">
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 50%; margin-top: 8px;"></div>
+                    </div>
+                </div>
+                <div class="feed-card feed-card--skeleton">
+                    <div class="feed-card__header">
+                        <div class="rs-skeleton__item rs-skeleton__item--circle" style="width: 40px; height: 40px;"></div>
+                        <div class="rs-skeleton__group">
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                            <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                    <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 200px;"></div>
+                    <div style="padding: 16px;">
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 50%; margin-top: 8px;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Empty state (visible when no feed data) -->
+            <div id="feed-empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state__icon" data-lucide="music"></div>
+                <h2 class="empty-state__title">No activity yet</h2>
+                <p class="empty-state__text">Add friends to see what they're listening to!</p>
+            </div>
+            <!-- Discover section placeholder -->
+            <div id="feed-discover-section" style="display: none;"></div>
+            <!-- Infinite scroll sentinel -->
+            <div id="feed-sentinel" style="height: 1px;"></div>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../globals/components/feed-card.js"></script>
+    <script src="../../script.js"></script>
+    <script src="feed.js"></script>
+</body>
+</html>

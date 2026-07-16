@@ -2,41 +2,30 @@
  * Resona Dashboard Page Controller
  *
  * Displays personal listening statistics and top artists.
- * Implements UI-C-010.
+ * v2.1: Uses static HTML containers — appends stats and artists via appendChild.
  *
- * @version 1.0.0
+ * @version 2.1.0
  */
 
 let dashboardPeriod = 'all';
 
 /**
  * Render the dashboard page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderDashboardPage() {
-    const app = document.getElementById('app');
-
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-dashboard');
+    const page = document.getElementById('page-dashboard');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-dashboard';
-        page.className = 'page';
-
-        page.innerHTML = '' +
-            '<div class="page__header">' +
-            '    <h1 class="page__title">Dashboard</h1>' +
-            '</div>' +
-            '<div class="page__content" id="dashboard-content"></div>';
-
-        app.insertBefore(page, app.firstChild);
+        return;
     }
 
     page.classList.add('page--active');
@@ -58,103 +47,110 @@ async function loadDashboard() {
         return;
     }
 
-    content.innerHTML = '' +
-        '<div class="rs-skeleton">' +
-        '    <div class="stats-grid">' +
-        '        <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 100px;"></div>' +
-        '        <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 100px;"></div>' +
-        '        <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 100px;"></div>' +
-        '        <div class="rs-skeleton__item rs-skeleton__item--rectangle" style="height: 100px;"></div>' +
-        '    </div>' +
-        '    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin-top: 16px;"></div>' +
-        '</div>';
-
     try {
         const [stats, topArtists] = await Promise.all([
             apiGet('/api/dashboard/stats'),
             apiGet('/api/dashboard/top-artists?period=' + dashboardPeriod + '&limit=10'),
         ]);
 
-        content.innerHTML = '';
-
-        // Stats grid.
-        const statsGrid = document.createElement('div');
-        statsGrid.className = 'stats-grid';
-
-        const statItems = [
-            { value: stats.totalTracksPlayed || 0, label: 'Tracks Played' },
-            { value: stats.uniqueArtists || 0, label: 'Unique Artists' },
-            { value: Math.round(stats.listeningTimeMinutes || 0), label: 'Min Listened' },
-            { value: stats.periodDays || 0, label: 'Days Active' },
-        ];
-
-        statItems.forEach(function (item) {
-            const card = document.createElement('div');
-            card.className = 'stat-card';
-
-            card.innerHTML = '' +
-                '<div class="stat-card__value">' + item.value + '</div>' +
-                '<div class="stat-card__label">' + item.label + '</div>';
-
-            statsGrid.appendChild(card);
-        });
-
-        content.appendChild(statsGrid);
-
-        // Period filter.
-        const filter = document.createElement('div');
-        filter.className = 'period-filter';
-
-        ['all', 'month', 'week'].forEach(function (period) {
-            const btn = document.createElement('button');
-            btn.className = 'period-btn';
-
-            if (period === dashboardPeriod) {
-                btn.classList.add('period-btn--active');
+        // Update stats grid.
+        const statsGrid = document.getElementById('dashboard-stats-grid');
+        if (statsGrid !== null) {
+            while (statsGrid.firstChild !== null) {
+                statsGrid.removeChild(statsGrid.firstChild);
             }
 
-            btn.textContent = period.charAt(0).toUpperCase() + period.slice(1);
+            const statItems = [
+                { value: stats.totalTracksPlayed || 0, label: 'Tracks Played' },
+                { value: stats.uniqueArtists || 0, label: 'Unique Artists' },
+                { value: Math.round(stats.listeningTimeMinutes || 0), label: 'Min Listened' },
+                { value: stats.periodDays || 0, label: 'Days Active' },
+            ];
 
-            btn.addEventListener('click', function () {
-                dashboardPeriod = period;
-                loadDashboard();
+            statItems.forEach(function (item) {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+
+                const valueEl = document.createElement('div');
+                valueEl.className = 'stat-card__value';
+                valueEl.textContent = item.value;
+                card.appendChild(valueEl);
+
+                const labelEl = document.createElement('div');
+                labelEl.className = 'stat-card__label';
+                labelEl.textContent = item.label;
+                card.appendChild(labelEl);
+
+                statsGrid.appendChild(card);
             });
-
-            filter.appendChild(btn);
-        });
-
-        content.appendChild(filter);
-
-        // Top artists section.
-        const sectionTitle = document.createElement('h2');
-        sectionTitle.className = 'page__title';
-        sectionTitle.style.marginBottom = '12px';
-        sectionTitle.textContent = 'Top Artists';
-        content.appendChild(sectionTitle);
-
-        if (topArtists.length === 0) {
-            content.innerHTML += '<p style="color: var(--rs-text-dim);">No artist data yet. Keep listening!</p>';
-            return;
         }
 
-        const artistList = document.createElement('div');
-        artistList.className = 'artist-list';
+        // Update period filter.
+        const filterContainer = document.getElementById('dashboard-period-filter');
+        if (filterContainer !== null) {
+            while (filterContainer.firstChild !== null) {
+                filterContainer.removeChild(filterContainer.firstChild);
+            }
 
-        topArtists.forEach(function (artist, index) {
-            const item = document.createElement('div');
-            item.className = 'artist-item';
+            ['all', 'month', 'week'].forEach(function (period) {
+                const btn = document.createElement('button');
+                btn.className = 'period-btn';
+                if (period === dashboardPeriod) {
+                    btn.classList.add('period-btn--active');
+                }
+                btn.textContent = period.charAt(0).toUpperCase() + period.slice(1);
 
-            item.innerHTML = '' +
-                '<div class="artist-item__rank">' + (index + 1) + '</div>' +
-                '<div class="artist-item__name">' + escapeHtml(artist.artist_name) + '</div>' +
-                '<div class="artist-item__count">' + artist.play_count + ' plays</div>';
+                btn.addEventListener('click', function () {
+                    dashboardPeriod = period;
+                    loadDashboard();
+                });
 
-            artistList.appendChild(item);
-        });
+                filterContainer.appendChild(btn);
+            });
+        }
 
-        content.appendChild(artistList);
+        // Update artist list.
+        const artistList = document.getElementById('dashboard-artist-list');
+        if (artistList !== null) {
+            while (artistList.firstChild !== null) {
+                artistList.removeChild(artistList.firstChild);
+            }
+
+            if (topArtists.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.style.color = 'var(--rs-text-dim)';
+                emptyMsg.textContent = 'No artist data yet. Keep listening!';
+                artistList.appendChild(emptyMsg);
+                return;
+            }
+
+            topArtists.forEach(function (artist, index) {
+                const item = document.createElement('div');
+                item.className = 'artist-item';
+
+                const rank = document.createElement('div');
+                rank.className = 'artist-item__rank';
+                rank.textContent = (index + 1);
+                item.appendChild(rank);
+
+                const name = document.createElement('div');
+                name.className = 'artist-item__name';
+                name.textContent = artist.artist_name;
+                item.appendChild(name);
+
+                const count = document.createElement('div');
+                count.className = 'artist-item__count';
+                count.textContent = artist.play_count + ' plays';
+                item.appendChild(count);
+
+                artistList.appendChild(item);
+            });
+        }
     } catch (error) {
-        content.innerHTML = '<p style="color: var(--rs-error);">Failed to load dashboard: ' + escapeHtml(error.message) + '</p>';
+        const errorMsg = document.createElement('p');
+        errorMsg.style.color = 'var(--rs-error)';
+        errorMsg.textContent = 'Failed to load dashboard: ' + error.message;
+        content.appendChild(errorMsg);
     }
 }
 

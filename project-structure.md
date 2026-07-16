@@ -23,7 +23,9 @@ frontend/
 └── src/
     ├── pages/
     │   └── {page_name}/
+    │       ├── {page_name}.html
     │       ├── styles/
+    │       ├── scripts/
     │       └── anims/
     │
     ├── globals/
@@ -42,8 +44,10 @@ frontend/
 | Directory/File | Description |
 | --- | --- |
 | `pages/` | Contains all application pages. |
+| `pages/{page_name}/{page_name}.html` | Contains the html format |
 | `pages/{page_name}/styles/` | Page-specific stylesheets. |
 | `pages/{page_name}/anims/` | Page-specific animations. |
+| `pages/{page_name}/scripts/` | Contains all the functions / data types needed for an api request in both response and return |
 | `globals/` | Shared resources used across all pages. |
 | `globals/styles/` | Global styles and reusable CSS. |
 | `globals/anims/` | Shared animations. |

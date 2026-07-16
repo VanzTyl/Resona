@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Profile</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-profile" class="page page--active">
+        <header class="page__header">
+            <h1 class="page__title">Profile</h1>
+        </header>
+        <main class="page__content" id="profile-content">
+            <!-- Profile header -->
+            <div id="profile-header" class="profile-header">
+                <div class="rs-skeleton__item rs-skeleton__item--circle" style="width: 96px; height: 96px; margin: 0 auto;"></div>
+                <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 50%; margin: 0 auto;"></div>
+                <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 30%; margin: 0 auto;"></div>
+            </div>
+            <!-- Stats row -->
+            <div id="profile-stats-row" class="stats-row">
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 70%; margin: 8px auto 0;"></div>
+                </div>
+            </div>
+            <!-- Tags sections -->
+            <div id="profile-interests-tags" class="tags-section"></div>
+            <div id="profile-genre-tags" class="tags-section"></div>
+            <!-- About section -->
+            <div id="profile-about-section"></div>
+            <!-- Top artists section -->
+            <div id="profile-top-artists" class="profile-section">
+                <h3 class="profile-section__title">My Top Artists</h3>
+                <div class="artist-list">
+                    <div class="artist-item">
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                    </div>
+                    <div class="artist-item">
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                        <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile edit form -->
+            <div id="profile-form" class="profile-form">
+                <h3 class="profile-section__title">Edit Profile</h3>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-display-name">Display Name</label>
+                    <input class="form-group__input" type="text" id="profile-display-name" maxlength="100" />
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-avatar-url">Avatar URL</label>
+                    <input class="form-group__input" type="url" id="profile-avatar-url" maxlength="500" />
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-username">Username</label>
+                    <input class="form-group__input" type="text" id="profile-username" maxlength="20" />
+                    <span class="form-group__hint">3-20 characters. Will be lowercased automatically. Can only be changed once every 30 days.</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-bio">Bio</label>
+                    <textarea class="form-group__input form-group__input--textarea" id="profile-bio" maxlength="200"></textarea>
+                    <span class="character-counter" id="bio-counter">0/200</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-interests">Interests</label>
+                    <input class="form-group__input" type="text" id="profile-interests" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-favorite-genres">Favorite Genres</label>
+                    <input class="form-group__input" type="text" id="profile-favorite-genres" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label" for="profile-about-me">About Me</label>
+                    <textarea class="form-group__input form-group__input--textarea" id="profile-about-me" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label">Privacy</label>
+                    <div class="privacy-selector" id="profile-privacy-selector">
+                        <label class="privacy-option" id="privacy-public">
+                            <input type="radio" name="privacy" value="public" />
+                            <div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>
+                        </label>
+                        <label class="privacy-option privacy-option--selected" id="privacy-friends">
+                            <input type="radio" name="privacy" value="friends_only" checked />
+                            <div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>
+                        </label>
+                        <label class="privacy-option" id="privacy-private">
+                            <input type="radio" name="privacy" value="private" />
+                            <div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-group__label">Spotify Connected</label>
+                    <p id="profile-spotify-status" style="padding: 8px 0; color: var(--rs-text-dim);">Checking...</p>
+                </div>
+                <div id="profile-save-container"></div>
+                <div id="profile-logout-container" style="margin-top: var(--rs-space-2);"></div>
+            </div>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../script.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>

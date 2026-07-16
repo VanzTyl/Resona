@@ -2,70 +2,62 @@
  * Resona Friend Discovery Page Controller
  *
  * Handles user search, send/accept/reject friend requests.
- * Implements UI-C-006, UI-C-007.
+ * v2.1: Uses static HTML containers — appends search results via appendChild.
  *
- * @version 1.0.0
+ * @version 2.1.0
  */
 
 let searchTimeout = null;
 
 /**
  * Render the friends page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderFriendsPage() {
-    const app = document.getElementById('app');
-
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-friends');
+    const page = document.getElementById('page-friends');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-friends';
-        page.className = 'page';
-
-        page.innerHTML = '' +
-            '<div class="page__header">' +
-            '    <h1 class="page__title">Find Friends</h1>' +
-            '</div>' +
-            '<div class="page__content">' +
-            '    <input type="text" id="friend-search-input" class="search-input" placeholder="Search by username..." autocomplete="off" />' +
-            '    <div id="search-results" style="margin-top: 16px;"></div>' +
-            '    <div id="pending-requests-section" style="margin-top: 24px;"></div>' +
-            '</div>';
-
-        app.insertBefore(page, app.firstChild);
-
-        // Set up search input.
-        const searchInput = document.getElementById('friend-search-input');
-
-        if (searchInput !== null) {
-            searchInput.addEventListener('input', function () {
-                if (searchTimeout !== null) {
-                    clearTimeout(searchTimeout);
-                }
-
-                const query = searchInput.value.trim();
-
-                if (query.length < 2) {
-                    document.getElementById('search-results').innerHTML = '';
-                    return;
-                }
-
-                searchTimeout = setTimeout(function () {
-                    performSearch(query);
-                }, 300);
-            });
-        }
+        return;
     }
 
     page.classList.add('page--active');
+
+    // Set up search input event (only once).
+    const searchInput = document.getElementById('friend-search-input');
+
+    if (searchInput !== null && searchInput.getAttribute('data-listener') === null) {
+        searchInput.setAttribute('data-listener', 'true');
+        searchInput.addEventListener('input', function () {
+            if (searchTimeout !== null) {
+                clearTimeout(searchTimeout);
+            }
+
+            const query = searchInput.value.trim();
+
+            if (query.length < 2) {
+                // Clear search results container.
+                const results = document.getElementById('search-results');
+                if (results !== null) {
+                    while (results.firstChild !== null) {
+                        results.removeChild(results.firstChild);
+                    }
+                }
+                return;
+            }
+
+            searchTimeout = setTimeout(function () {
+                performSearch(query);
+            }, 300);
+        });
+    }
 
     loadPendingRequests();
 }
@@ -83,15 +75,31 @@ async function performSearch(query) {
         return;
     }
 
-    resultsContainer.innerHTML = '<p style="color: var(--rs-text-dim);">Searching...</p>';
+    // Clear container.
+    while (resultsContainer.firstChild !== null) {
+        resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+
+    // Show loading indicator.
+    const loadingMsg = document.createElement('p');
+    loadingMsg.style.color = 'var(--rs-text-dim)';
+    loadingMsg.textContent = 'Searching...';
+    resultsContainer.appendChild(loadingMsg);
 
     try {
         const users = await apiGet('/api/user/search?q=' + encodeURIComponent(query) + '&limit=10');
 
-        resultsContainer.innerHTML = '';
+        // Clear loading message.
+        while (resultsContainer.firstChild !== null) {
+            resultsContainer.removeChild(resultsContainer.firstChild);
+        }
 
         if (users.length === 0) {
-            resultsContainer.innerHTML = '<p style="color: var(--rs-text-dim); padding: 12px 0;">No users found.</p>';
+            const noResults = document.createElement('p');
+            noResults.style.color = 'var(--rs-text-dim)';
+            noResults.style.padding = '12px 0';
+            noResults.textContent = 'No users found.';
+            resultsContainer.appendChild(noResults);
             return;
         }
 
@@ -99,12 +107,26 @@ async function performSearch(query) {
             const item = document.createElement('div');
             item.className = 'search-result-item';
 
-            item.innerHTML = '' +
-                '<img class="search-result-item__avatar" src="' + (user.avatar_url || 'assets/default-avatar.svg') + '" alt="" />' +
-                '<div class="search-result-item__info">' +
-                '    <div class="search-result-item__name">' + escapeHtml(user.display_name) + '</div>' +
-                '    <div class="search-result-item__username">@' + escapeHtml(user.username) + '</div>' +
-                '</div>';
+            const avatar = document.createElement('img');
+            avatar.className = 'search-result-item__avatar';
+            avatar.src = user.avatar_url || 'assets/default-avatar.svg';
+            avatar.alt = '';
+            item.appendChild(avatar);
+
+            const info = document.createElement('div');
+            info.className = 'search-result-item__info';
+
+            const name = document.createElement('div');
+            name.className = 'search-result-item__name';
+            name.textContent = user.display_name;
+            info.appendChild(name);
+
+            const username = document.createElement('div');
+            username.className = 'search-result-item__username';
+            username.textContent = '@' + user.username;
+            info.appendChild(username);
+
+            item.appendChild(info);
 
             const addBtn = createButton({
                 label: 'Add Friend',
@@ -119,7 +141,14 @@ async function performSearch(query) {
             resultsContainer.appendChild(item);
         });
     } catch (error) {
-        resultsContainer.innerHTML = '<p style="color: var(--rs-error);">Error searching: ' + escapeHtml(error.message) + '</p>';
+        while (resultsContainer.firstChild !== null) {
+            resultsContainer.removeChild(resultsContainer.firstChild);
+        }
+
+        const errorMsg = document.createElement('p');
+        errorMsg.style.color = 'var(--rs-error)';
+        errorMsg.textContent = 'Error searching: ' + error.message;
+        resultsContainer.appendChild(errorMsg);
     }
 }
 
@@ -159,11 +188,12 @@ async function loadPendingRequests() {
 
     try {
         const friends = await apiGet('/api/friends?limit=50');
-
-        // Filter logic would need a dedicated endpoint for pending requests.
-        section.innerHTML = '';
+        // Pending requests display uses same container.
+        while (section.firstChild !== null) {
+            section.removeChild(section.firstChild);
+        }
     } catch (_error) {
-        // Silently handle â€” not critical.
+        // Silently handle — not critical.
     }
 }
 

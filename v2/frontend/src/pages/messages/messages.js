@@ -2,39 +2,28 @@
  * Resona Messages Page Controller
  *
  * Displays chat thread list with unread badges.
- * Implements UI-C-008.
+ * v2.1: Uses static HTML containers — appends thread items via appendChild.
  *
- * @version 1.0.0
+ * @version 2.1.0
  */
 
 /**
  * Render the messages page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderMessagesPage() {
-    const app = document.getElementById('app');
-
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-messages');
+    const page = document.getElementById('page-messages');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-messages';
-        page.className = 'page';
-
-        page.innerHTML = '' +
-            '<div class="page__header">' +
-            '    <h1 class="page__title">Messages</h1>' +
-            '</div>' +
-            '<div class="page__content" id="messages-content"></div>';
-
-        app.insertBefore(page, app.firstChild);
+        return;
     }
 
     page.classList.add('page--active');
@@ -54,21 +43,53 @@ async function loadThreadList() {
         return;
     }
 
-    content.innerHTML = '<p style="color: var(--rs-text-dim); padding: 24px 0;">Loading conversations...</p>';
+    // Hide chat pane on initial load.
+    const chatPane = document.getElementById('messages-chat-pane');
+    if (chatPane !== null) {
+        chatPane.style.display = 'none';
+    }
+
+    // Show thread list.
+    const threadList = document.getElementById('messages-thread-list');
+    if (threadList !== null) {
+        threadList.style.display = '';
+    }
+
+    // Show loading indicator.
+    const emptyState = document.getElementById('messages-empty-state');
+    if (emptyState !== null) {
+        emptyState.style.display = 'none';
+    }
+
+    const loadingMsg = document.createElement('p');
+    loadingMsg.id = 'messages-loading';
+    loadingMsg.style.color = 'var(--rs-text-dim)';
+    loadingMsg.style.padding = '24px 0';
+    loadingMsg.textContent = 'Loading conversations...';
+
+    const threadListEl = document.getElementById('messages-thread-list');
+    if (threadListEl !== null) {
+        // Clear and show loading.
+        while (threadListEl.firstChild !== null) {
+            threadListEl.removeChild(threadListEl.firstChild);
+        }
+        threadListEl.appendChild(loadingMsg);
+    }
 
     try {
         const friends = await apiGet('/api/friends?limit=50');
 
-        content.innerHTML = '';
+        // Clear loading.
+        if (threadListEl !== null) {
+            while (threadListEl.firstChild !== null) {
+                threadListEl.removeChild(threadListEl.firstChild);
+            }
+        }
 
         if (friends.length === 0) {
-            content.innerHTML = '' +
-                '<div class="empty-state">' +
-                '    <div class="empty-state__icon">ðŸ’¬</div>' +
-                '    <h2 class="empty-state__title">No conversations yet</h2>' +
-                '    <p class="empty-state__text">React to a friend\'s music to start a conversation!</p>' +
-                '</div>';
-
+            if (emptyState !== null) {
+                emptyState.style.display = '';
+            }
             return;
         }
 
@@ -77,14 +98,28 @@ async function loadThreadList() {
             threadItem.className = 'search-result-item';
             threadItem.style.cursor = 'pointer';
 
-            threadItem.innerHTML = '' +
-                '<img class="search-result-item__avatar" src="' + (friend.avatar_url || 'assets/default-avatar.svg') + '" alt="" />' +
-                '<div class="search-result-item__info">' +
-                '    <div class="search-result-item__name">' + escapeHtml(friend.display_name) + '</div>' +
-                '    <div class="search-result-item__username">' +
-                (friend.currently_playing_track ? 'ðŸŽµ ' + escapeHtml(friend.currently_playing_track) : '') +
-                '    </div>' +
-                '</div>';
+            const avatar = document.createElement('img');
+            avatar.className = 'search-result-item__avatar';
+            avatar.src = friend.avatar_url || 'assets/default-avatar.svg';
+            avatar.alt = '';
+            threadItem.appendChild(avatar);
+
+            const info = document.createElement('div');
+            info.className = 'search-result-item__info';
+
+            const name = document.createElement('div');
+            name.className = 'search-result-item__name';
+            name.textContent = friend.display_name;
+            info.appendChild(name);
+
+            const status = document.createElement('div');
+            status.className = 'search-result-item__username';
+            status.textContent = friend.currently_playing_track
+                ? '\uD83C\uDFB5 ' + friend.currently_playing_track
+                : '';
+            info.appendChild(status);
+
+            threadItem.appendChild(info);
 
             const unreadCount = friend.unread_count || 0;
 
@@ -100,10 +135,27 @@ async function loadThreadList() {
                 navigateToChat(friend.id, friend.display_name);
             });
 
-            content.appendChild(threadItem);
+            if (threadListEl !== null) {
+                threadListEl.appendChild(threadItem);
+            }
         });
+
+        if (typeof initIcons === 'function') {
+            initIcons();
+        }
     } catch (error) {
-        content.innerHTML = '<p style="color: var(--rs-error);">Failed to load messages.</p>';
+        if (threadListEl !== null) {
+            while (threadListEl.firstChild !== null) {
+                threadListEl.removeChild(threadListEl.firstChild);
+            }
+        }
+
+        const errorMsg = document.createElement('p');
+        errorMsg.style.color = 'var(--rs-error)';
+        errorMsg.textContent = 'Failed to load messages.';
+        if (threadListEl !== null) {
+            threadListEl.appendChild(errorMsg);
+        }
     }
 }
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Dashboard</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-dashboard" class="page page--active">
+        <header class="page__header">
+            <h1 class="page__title">Dashboard</h1>
+        </header>
+        <main class="page__content" id="dashboard-content">
+            <!-- Stats grid skeleton (visible before JS loads) -->
+            <div id="dashboard-stats-grid" class="stats-grid">
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+            </div>
+            <!-- Period filter container -->
+            <div id="dashboard-period-filter" class="period-filter"></div>
+            <!-- Top artists section -->
+            <h2 class="page__title" style="margin-bottom: 12px;">Top Artists</h2>
+            <div id="dashboard-artist-list" class="artist-list">
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

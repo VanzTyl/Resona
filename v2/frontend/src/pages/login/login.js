@@ -2,48 +2,39 @@
  * Resona Login Page Controller
  *
  * Renders the Spotify login page and initiates OAuth flow.
- * Implements UI-C-001.
+ * v2.1: Uses static HTML containers — appends login button via appendChild.
  *
- * @version 1.0.0
+ * @version 2.1.0
  */
 
 /**
  * Render the login page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderLoginPage() {
-    const app = document.getElementById('app');
-
-    // Remove existing page content.
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-login');
+    const page = document.getElementById('page-login');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-login';
-        page.className = 'page page--centered';
-
-        page.innerHTML = '' +
-            '<div class="login-page">' +
-            '    <div class="login-page__logo">ðŸŽµ</div>' +
-            '    <h1 class="login-page__title">Resona</h1>' +
-            '    <p class="login-page__subtitle">Connect through music. See what your friends are listening to in real time.</p>' +
-            '    <div id="login-btn-container"></div>' +
-            '</div>';
-
-        app.insertBefore(page, app.firstChild);
+        return;
     }
+
+    page.classList.add('page--active');
 
     const btnContainer = document.getElementById('login-btn-container');
 
     if (btnContainer !== null) {
-        btnContainer.innerHTML = '';
+        // Clear any previous buttons.
+        while (btnContainer.firstChild !== null) {
+            btnContainer.removeChild(btnContainer.firstChild);
+        }
 
         const loginBtn = createButton({
             label: 'Connect with Spotify',
@@ -62,5 +53,8 @@ function renderLoginPage() {
         btnContainer.appendChild(loginBtn);
     }
 
-    page.classList.add('page--active');
+    // Initialize Lucide icons.
+    if (typeof initIcons === 'function') {
+        initIcons();
+    }
 }

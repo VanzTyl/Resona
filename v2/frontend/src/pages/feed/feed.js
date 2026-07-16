@@ -2,10 +2,9 @@
  * Resona Feed Page Controller
  *
  * Renders the infinite-scroll friend activity feed.
- * Implements UI-C-003, UI-C-004, UI-C-005.
- * v1.1: Added discover section for empty/end-of-feed state (REV-009).
+ * v2.1: Uses static HTML containers — appends feed cards via appendChild.
  *
- * @version 1.1.0
+ * @version 2.1.0
  */
 
 let feedState = {
@@ -18,33 +17,21 @@ let feedState = {
 
 /**
  * Render the feed page.
+ * Queries existing static HTML containers; no markup construction.
  *
  * @returns {void}
  */
 function renderFeedPage() {
-    const app = document.getElementById('app');
-
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
         existingPage.classList.remove('page--active');
     }
 
-    let page = document.getElementById('page-feed');
+    const page = document.getElementById('page-feed');
 
     if (page === null) {
-        page = document.createElement('div');
-        page.id = 'page-feed';
-        page.className = 'page';
-
-        page.innerHTML = '' +
-            '<div class="page__header">' +
-            '    <h1 class="page__title">Feed</h1>' +
-            '</div>' +
-            '<div class="page__content" id="feed-container"></div>' +
-            '<div id="feed-skeleton-container"></div>';
-
-        app.insertBefore(page, app.firstChild);
+        return;
     }
 
     page.classList.add('page--active');
@@ -57,12 +44,21 @@ function renderFeedPage() {
     const container = document.getElementById('feed-container');
 
     if (container !== null) {
+        // Clear any previous content (children only, not the container itself).
+        while (container.firstChild !== null) {
+            container.removeChild(container.firstChild);
+        }
+
         // Show skeleton loading.
-        container.innerHTML = '';
         const skeletonContainer = document.getElementById('feed-skeleton-container');
 
         if (skeletonContainer !== null) {
-            skeletonContainer.innerHTML = '';
+            skeletonContainer.style.display = '';
+
+            // Clear existing skeleton children.
+            while (skeletonContainer.firstChild !== null) {
+                skeletonContainer.removeChild(skeletonContainer.firstChild);
+            }
 
             for (let i = 0; i < 3; i++) {
                 skeletonContainer.appendChild(createSkeletonCard());
@@ -104,15 +100,17 @@ async function loadFeedCards() {
         const skeletonContainer = document.getElementById('feed-skeleton-container');
 
         if (skeletonContainer !== null) {
-            skeletonContainer.innerHTML = '';
+            skeletonContainer.style.display = 'none';
+            while (skeletonContainer.firstChild !== null) {
+                skeletonContainer.removeChild(skeletonContainer.firstChild);
+            }
         }
 
         renderFeedCards(data.cards);
 
         if (!feedState.hasMore) {
-            // v1.1: Load discover section at end of feed
             if (feedState.cards.length === 0) {
-                loadDiscoverSection();
+                showEmptyFeed();
             } else {
                 showEndOfFeed();
             }
@@ -128,7 +126,23 @@ async function loadFeedCards() {
 }
 
 /**
- * Render feed cards into the container.
+ * Show empty feed state using existing static HTML.
+ *
+ * @returns {void}
+ */
+function showEmptyFeed() {
+    const emptyState = document.getElementById('feed-empty-state');
+
+    if (emptyState !== null) {
+        emptyState.style.display = '';
+    }
+
+    // Load discover section below empty state.
+    loadDiscoverSection();
+}
+
+/**
+ * Render feed cards into the container using appendChild.
  *
  * @param {Array} cards - Array of card data objects.
  * @returns {void}
@@ -141,13 +155,7 @@ function renderFeedCards(cards) {
     }
 
     if (cards.length === 0 && feedState.cards.length === 0) {
-        container.innerHTML = '' +
-            '<div class="empty-state">' +
-            '    <div class="empty-state__icon">🎵</div>' +
-            '    <h2 class="empty-state__title">No activity yet</h2>' +
-            '    <p class="empty-state__text">Add friends to see what they\'re listening to!</p>' +
-            '</div>';
-
+        showEmptyFeed();
         return;
     }
 
@@ -156,7 +164,7 @@ function renderFeedCards(cards) {
         container.appendChild(card);
     });
 
-    // Initialize icons for the new cards (v1.1)
+    // Initialize icons for the new cards.
     if (typeof initIcons === 'function') {
         initIcons();
     }
@@ -195,14 +203,10 @@ async function handleReaction(cardId, emoji) {
  * @returns {void}
  */
 function setupInfiniteScroll() {
-    const sentinel = document.createElement('div');
-    sentinel.id = 'feed-sentinel';
-    sentinel.style.height = '1px';
+    const sentinel = document.getElementById('feed-sentinel');
 
-    const container = document.getElementById('feed-container');
-
-    if (container !== null) {
-        container.parentNode.appendChild(sentinel);
+    if (sentinel === null) {
+        return;
     }
 
     const observer = new IntersectionObserver(function (entries) {
@@ -235,112 +239,110 @@ function showEndOfFeed() {
     endMarker.style.padding = '24px';
     endMarker.style.color = 'var(--rs-text-dim)';
     endMarker.style.fontSize = 'var(--rs-font-size-sm)';
-    endMarker.textContent = 'You\'re all caught up!';
+    endMarker.textContent = "You're all caught up!";
 
     container.appendChild(endMarker);
 }
 
 /**
  * Load the discover section for finding new people.
- * v1.1: New function for REV-009.
  *
  * @returns {Promise<void>}
  */
 async function loadDiscoverSection() {
-    const container = document.getElementById('feed-container');
+    const section = document.getElementById('feed-discover-section');
 
-    if (container === null) {
+    if (section === null) {
         return;
     }
 
     try {
         const users = await apiGet('/api/discover/random?limit=5');
 
+        section.style.display = '';
+
+        // Clear previous content.
+        while (section.firstChild !== null) {
+            section.removeChild(section.firstChild);
+        }
+
         if (users.length === 0) {
-            // No discoverable users either
             const noOneMsg = document.createElement('p');
             noOneMsg.style.textAlign = 'center';
             noOneMsg.style.padding = '24px';
             noOneMsg.style.color = 'var(--rs-text-dim)';
             noOneMsg.style.fontSize = 'var(--rs-font-size-sm)';
             noOneMsg.textContent = 'No one to discover yet — invite your friends!';
-            container.appendChild(noOneMsg);
+            section.appendChild(noOneMsg);
             return;
         }
 
-        // Section header
-        const section = document.createElement('div');
-        section.className = 'discover-section';
+        // Section header.
+        const sectionTitle = document.createElement('h2');
+        sectionTitle.className = 'discover-section__title';
+        sectionTitle.textContent = 'Discover People';
+        section.appendChild(sectionTitle);
 
-        section.innerHTML = '' +
-            '<h2 class="discover-section__title">Discover People</h2>' +
-            '<p class="discover-section__subtitle">Connect with fellow music lovers</p>' +
-            '<div class="discover-grid" id="discover-grid"></div>';
+        const sectionSubtitle = document.createElement('p');
+        sectionSubtitle.className = 'discover-section__subtitle';
+        sectionSubtitle.textContent = 'Connect with fellow music lovers';
+        section.appendChild(sectionSubtitle);
 
-        container.appendChild(section);
-
-        const grid = document.getElementById('discover-grid');
+        const grid = document.createElement('div');
+        grid.className = 'discover-grid';
+        grid.id = 'discover-grid';
+        section.appendChild(grid);
 
         users.forEach(function (user) {
             const card = document.createElement('div');
             card.className = 'discover-card';
 
-            const tagsHtml = (user.interests || '')
-                .split(',')
-                .filter(function (t) { return t.trim() !== ''; })
-                .map(function (t) { return '<span class="tag">#' + escapeHtml(t.trim()) + '</span>'; })
-                .join('');
+            const avatar = document.createElement('img');
+            avatar.className = 'discover-card__avatar';
+            avatar.src = user.avatarUrl || 'assets/default-avatar.svg';
+            avatar.alt = '';
+            avatar.loading = 'lazy';
+            card.appendChild(avatar);
 
-            const trackHtml = user.recentTrack
-                ? '<div class="discover-card__track">Into: ' + escapeHtml(user.recentTrack.trackName) + '</div>'
-                : '';
+            const nameEl = document.createElement('div');
+            nameEl.className = 'discover-card__name';
+            nameEl.textContent = user.displayName;
+            card.appendChild(nameEl);
 
-            card.innerHTML = '' +
-                '<img class="discover-card__avatar" src="' + (user.avatarUrl || 'assets/default-avatar.svg') + '" alt="" loading="lazy" />' +
-                '<div class="discover-card__name">' + escapeHtml(user.displayName) + '</div>' +
-                (tagsHtml ? '<div class="discover-card__tags">' + tagsHtml + '</div>' : '') +
-                trackHtml +
-                '<div class="discover-card__add-btn"></div>';
-
-            const addBtnContainer = card.querySelector('.discover-card__add-btn');
-
-            if (addBtnContainer !== null) {
-                addBtnContainer.appendChild(createButton({
-                    label: 'Add Friend',
-                    variant: 'secondary',
-                    size: 'small',
-                    onClick: function () {
-                        sendFriendRequest(user.username);
-                    },
-                }));
+            if (user.interests) {
+                const tagsContainer = document.createElement('div');
+                tagsContainer.className = 'discover-card__tags';
+                user.interests.split(',').filter(function (t) {
+                    return t.trim() !== '';
+                }).forEach(function (tag) {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'tag';
+                    tagEl.textContent = '#' + tag.trim();
+                    tagsContainer.appendChild(tagEl);
+                });
+                card.appendChild(tagsContainer);
             }
+
+            if (user.recentTrack) {
+                const trackEl = document.createElement('div');
+                trackEl.className = 'discover-card__track';
+                trackEl.textContent = 'Into: ' + user.recentTrack.trackName;
+                card.appendChild(trackEl);
+            }
+
+            const addBtnContainer = document.createElement('div');
+            addBtnContainer.className = 'discover-card__add-btn';
+            card.appendChild(addBtnContainer);
 
             grid.appendChild(card);
         });
+
+        // Initialize icons in discover section.
+        if (typeof initIcons === 'function') {
+            initIcons();
+        }
     } catch (_error) {
-        // Silently fail — discover section is non-critical
-    }
-}
-
-/**
- * Send a friend request (used by discover section).
- *
- * @param {string} username - The target username.
- * @returns {Promise<void>}
- */
-async function sendFriendRequest(username) {
-    try {
-        await apiPost('/api/friends/request', { username: username });
-
-        showToast({
-            message: 'Friend request sent!',
-            type: 'success',
-        });
-    } catch (error) {
-        showToast({
-            message: error.message,
-            type: 'error',
-        });
+        // Silently fail — discover section is non-critical.
     }
 }
 

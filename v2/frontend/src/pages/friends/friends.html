@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Find Friends</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="page-friends" class="page page--active">
+        <header class="page__header">
+            <h1 class="page__title">Find Friends</h1>
+        </header>
+        <main class="page__content">
+            <input type="text" id="friend-search-input" class="search-input"
+                   placeholder="Search by username..." autocomplete="off" />
+            <div id="search-results" style="margin-top: 16px;">
+                <!-- Search results will be appended here by friends.js -->
+                <div class="empty-state" id="search-empty-state">
+                    <div class="empty-state__icon" data-lucide="search"></div>
+                    <h2 class="empty-state__title">Search for friends</h2>
+                    <p class="empty-state__text">Type a username above to find music lovers to connect with.</p>
+                </div>
+            </div>
+            <div id="pending-requests-section" style="margin-top: 24px;">
+                <!-- Pending requests will be appended here by friends.js -->
+            </div>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../script.js"></script>
+    <script src="friends.js"></script>
+</body>
+</html>
