@@ -9,7 +9,7 @@
 
 /**
  * Render the auth callback page.
- * Uses the existing static HTML structure; show/hides states with display.
+ * Creates page structure via createElement/appendChild if not in DOM.
  *
  * @returns {void}
  */
@@ -20,10 +20,17 @@ function renderCallbackPage() {
         existingPage.classList.remove('page--active');
     }
 
-    const page = document.getElementById('page-callback');
+    let page = document.getElementById('page-callback');
 
     if (page === null) {
-        return;
+        page = createCallbackPageStructure();
+        const app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -145,6 +152,60 @@ async function checkOnboardingAndRedirect() {
     } catch (_e) {
         navigateTo('/feed');
     }
+}
+
+/**
+ * Create the callback page DOM structure using createElement/appendChild.
+ *
+ * @returns {HTMLElement} The page element.
+ */
+function createCallbackPageStructure() {
+    const page = document.createElement('div');
+    page.id = 'page-callback';
+    page.className = 'page page--centered';
+
+    const loginPage = document.createElement('div');
+    loginPage.className = 'login-page';
+    loginPage.id = 'callback-content';
+
+    // Loading state.
+    const loading = document.createElement('div');
+    loading.id = 'callback-loading';
+
+    const spinner = document.createElement('div');
+    spinner.className = 'app-loading__spinner';
+    loading.appendChild(spinner);
+
+    const loadingText = document.createElement('p');
+    loadingText.className = 'login-page__subtitle';
+    loadingText.textContent = 'Connecting your Spotify account...';
+    loading.appendChild(loadingText);
+
+    loginPage.appendChild(loading);
+
+    // Error state (hidden).
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'callback-error';
+    errorDiv.style.display = 'none';
+
+    const errorTitle = document.createElement('h1');
+    errorTitle.className = 'login-page__title';
+    errorTitle.textContent = 'Connection Failed';
+    errorDiv.appendChild(errorTitle);
+
+    const errorMsg = document.createElement('p');
+    errorMsg.className = 'login-page__subtitle';
+    errorMsg.id = 'callback-error-message';
+    errorDiv.appendChild(errorMsg);
+
+    const retryContainer = document.createElement('div');
+    retryContainer.id = 'callback-retry-container';
+    errorDiv.appendChild(retryContainer);
+
+    loginPage.appendChild(errorDiv);
+    page.appendChild(loginPage);
+
+    return page;
 }
 
 /**

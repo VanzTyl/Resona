@@ -1,9 +1,6 @@
 /**
  * Resona Onboarding Page Controller
- *
- * 4-step guided onboarding flow for first-time users.
- * v2.1: Uses static HTML containers — renders steps within static containers.
- *
+ * 4-step guided onboarding flow. v2.1: static HTML containers with dynamic step content.
  * @version 2.1.0
  */
 
@@ -21,12 +18,7 @@ var onboardingState = {
     },
 };
 
-/**
- * Render the onboarding page.
- * Queries existing static HTML container; no markup construction.
- *
- * @returns {void}
- */
+/** Render the onboarding page. */
 function renderOnboardingPage() {
     var existingPage = document.querySelector('.page--active');
 
@@ -37,7 +29,14 @@ function renderOnboardingPage() {
     var page = document.getElementById('page-onboarding');
 
     if (page === null) {
-        return;
+        page = createOnboardingPageStructure();
+        var app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -45,11 +44,61 @@ function renderOnboardingPage() {
     loadExistingProfile();
 }
 
-/**
- * Load existing profile data to pre-fill onboarding fields.
- *
- * @returns {Promise<void>}
- */
+/** Create onboarding page DOM structure. @returns {HTMLElement} */
+function createOnboardingPageStructure() {
+    var page = document.createElement('div');
+    page.id = 'page-onboarding';
+    page.className = 'page page--centered';
+
+    var container = document.createElement('div');
+    container.className = 'onboarding';
+    container.id = 'onboarding-content';
+
+    // Progress dots.
+    var progress = document.createElement('div');
+    progress.className = 'onboarding__progress';
+    progress.id = 'onboarding-progress';
+    container.appendChild(progress);
+
+    // Title.
+    var title = document.createElement('h1');
+    title.className = 'onboarding__title';
+    title.id = 'onboarding-title';
+    title.textContent = 'Welcome to Resona!';
+    container.appendChild(title);
+
+    // Subtitle.
+    var subtitle = document.createElement('p');
+    subtitle.className = 'onboarding__subtitle';
+    subtitle.id = 'onboarding-subtitle';
+    subtitle.textContent = "Let's set up your profile.";
+    container.appendChild(subtitle);
+
+    // Step content area.
+    var stepContent = document.createElement('div');
+    stepContent.id = 'onboarding-step-content';
+    container.appendChild(stepContent);
+
+    // Action buttons.
+    var actions = document.createElement('div');
+    actions.className = 'onboarding__actions';
+    actions.id = 'onboarding-actions';
+
+    var backBtn = document.createElement('div');
+    backBtn.id = 'onboarding-back-btn';
+    actions.appendChild(backBtn);
+
+    var nextBtn = document.createElement('div');
+    nextBtn.id = 'onboarding-next-btn';
+    actions.appendChild(nextBtn);
+
+    container.appendChild(actions);
+    page.appendChild(container);
+
+    return page;
+}
+
+/** Load existing profile data to pre-fill onboarding. */
 async function loadExistingProfile() {
     try {
         var profile = await apiGet('/api/user/profile');
@@ -69,12 +118,7 @@ async function loadExistingProfile() {
     }
 }
 
-/**
- * Render a specific onboarding step within static containers.
- *
- * @param {number} step - The step number (1-4).
- * @returns {void}
- */
+/** Render a specific onboarding step. @param {number} step 1-4. */
 function renderStep(step) {
     onboardingState.currentStep = step;
 
@@ -154,130 +198,10 @@ function renderStep(step) {
     }
 }
 
-/**
- * Render step 1 HTML string.
- *
- * @returns {string} HTML content.
- */
-function renderStep1Html() {
-    return '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-display-name">Display Name</label>' +
-        '<input class="form-group__input" type="text" id="onboarding-display-name" value="' +
-        escapeHtml(onboardingState.data.displayName) + '" maxlength="100" placeholder="Your name" />' +
-        '</div>' +
-        '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-username">Username</label>' +
-        '<div class="username-check">' +
-        '<input class="form-group__input" type="text" id="onboarding-username" value="' +
-        escapeHtml(onboardingState.data.username) + '" maxlength="20" placeholder="your_username" style="flex: 1;" />' +
-        '<span class="username-check__indicator" id="username-check-indicator"></span>' +
-        '</div>' +
-        '<span class="form-group__hint">3-20 characters. Will be lowercased automatically.</span>' +
-        '</div>';
-}
+/* renderStep1Html, renderStep2Html, renderStep3Html, renderStep4Html, escapeHtml
+   are now in onboarding-helpers.js -- loaded via script tag in onboarding.html. */
 
-/**
- * Render step 2 HTML string.
- *
- * @returns {string} HTML content.
- */
-function renderStep2Html() {
-    return '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-bio">Bio</label>' +
-        '<textarea class="form-group__input form-group__input--textarea" id="onboarding-bio" maxlength="200" placeholder="Tell people about yourself...">' +
-        escapeHtml(onboardingState.data.bio) + '</textarea>' +
-        '<span class="character-counter" id="onboarding-bio-counter">' +
-        onboardingState.data.bio.length + '/200</span>' +
-        '</div>' +
-        '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-interests">Interests</label>' +
-        '<input class="form-group__input" type="text" id="onboarding-interests" value="' +
-        escapeHtml(onboardingState.data.interests) + '" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />' +
-        '</div>' +
-        '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-genres">Favorite Genres</label>' +
-        '<input class="form-group__input" type="text" id="onboarding-genres" value="' +
-        escapeHtml(onboardingState.data.favoriteGenres) + '" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />' +
-        '</div>';
-}
-
-/**
- * Render step 3 HTML string.
- *
- * @returns {string} HTML content.
- */
-function renderStep3Html() {
-    var privacy = onboardingState.data.privacyLevel || 'friends_only';
-
-    return '<div class="form-group">' +
-        '<label class="form-group__label" for="onboarding-avatar">Avatar URL</label>' +
-        '<input class="form-group__input" type="url" id="onboarding-avatar" value="' +
-        escapeHtml(onboardingState.data.avatarUrl) + '" placeholder="https://..." maxlength="500" />' +
-        '</div>' +
-        '<div class="form-group">' +
-        '<label class="form-group__label">Privacy</label>' +
-        '<div class="privacy-selector">' +
-        '<label class="privacy-option ' + (privacy === 'public' ? 'privacy-option--selected' : '') + '">' +
-        '<input type="radio" name="onboarding-privacy" value="public" ' + (privacy === 'public' ? 'checked' : '') + ' />' +
-        '<div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>' +
-        '</label>' +
-        '<label class="privacy-option ' + (privacy === 'friends_only' ? 'privacy-option--selected' : '') + '">' +
-        '<input type="radio" name="onboarding-privacy" value="friends_only" ' + (privacy === 'friends_only' ? 'checked' : '') + ' />' +
-        '<div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>' +
-        '</label>' +
-        '<label class="privacy-option ' + (privacy === 'private' ? 'privacy-option--selected' : '') + '">' +
-        '<input type="radio" name="onboarding-privacy" value="private" ' + (privacy === 'private' ? 'checked' : '') + ' />' +
-        '<div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>' +
-        '</label>' +
-        '</div>' +
-        '</div>';
-}
-
-/**
- * Render step 4 HTML string.
- *
- * @returns {string} HTML content.
- */
-function renderStep4Html() {
-    var interestsTags = (onboardingState.data.interests || '')
-        .split(',')
-        .filter(function (t) { return t.trim() !== ''; })
-        .map(function (t) { return '<span class="tag">#' + escapeHtml(t.trim()) + '</span>'; })
-        .join('');
-
-    var genreTags = (onboardingState.data.favoriteGenres || '')
-        .split(',')
-        .filter(function (t) { return t.trim() !== ''; })
-        .map(function (t) { return '<span class="tag tag--genre">' + escapeHtml(t.trim()) + '</span>'; })
-        .join('');
-
-    var privacyLabels = {
-        'public': 'Public',
-        'friends_only': 'Friends Only',
-        'private': 'Private',
-    };
-
-    return '<div style="text-align: center;">' +
-        '<div data-lucide="party-popper" style="width: 64px; height: 64px; color: var(--rs-primary); margin: 0 auto var(--rs-space-4);"></div>' +
-        '<p style="margin-bottom: var(--rs-space-6); color: var(--rs-text-muted);">Your profile is ready!</p>' +
-        '</div>' +
-        '<div style="background: var(--rs-surface); border-radius: var(--rs-radius-lg); padding: var(--rs-space-4); margin-bottom: var(--rs-space-4);">' +
-        '<p><strong>' + escapeHtml(onboardingState.data.displayName || 'Your Name') + '</strong> ' +
-        '<span style="color: var(--rs-text-muted);">@' + escapeHtml(onboardingState.data.username) + '</span></p>' +
-        (onboardingState.data.bio ? '<p style="color: var(--rs-text-muted); font-size: var(--rs-font-size-sm); margin-top: var(--rs-space-2);">' +
-        escapeHtml(onboardingState.data.bio) + '</p>' : '') +
-        (interestsTags ? '<div class="tags-section" style="margin-top: var(--rs-space-2);">' + interestsTags + '</div>' : '') +
-        (genreTags ? '<div class="tags-section">' + genreTags + '</div>' : '') +
-        '<p style="margin-top: var(--rs-space-2); font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">' +
-        (privacyLabels[onboardingState.data.privacyLevel] || 'Friends Only') + '</p>' +
-        '</div>';
-}
-
-/**
- * Render the Next/Back action buttons.
- *
- * @returns {void}
- */
+/** Render the Next/Back action buttons. */
 function renderActionButtons() {
     var backContainer = document.getElementById('onboarding-back-btn');
     var nextContainer = document.getElementById('onboarding-next-btn');
@@ -328,12 +252,7 @@ function renderActionButtons() {
     }
 }
 
-/**
- * Set up event listeners for the current step.
- *
- * @param {number} step - The current step number.
- * @returns {void}
- */
+/** Set up event listeners for the current step. @param {number} step. */
 function setupStepEventListeners(step) {
     // Bio counter for step 2.
     if (step === 2) {
@@ -380,12 +299,7 @@ function setupStepEventListeners(step) {
     }
 }
 
-/**
- * Save current step data and navigate to next step.
- *
- * @param {number} step - The step to save.
- * @returns {Promise<void>}
- */
+/** Save step data and navigate forward. @param {number} step. */
 async function saveAndGoNext(step) {
     // Validate step 1.
     if (step === 1) {
@@ -420,11 +334,7 @@ async function saveAndGoNext(step) {
     }
 }
 
-/**
- * Mark onboarding as complete and redirect to feed.
- *
- * @returns {Promise<void>}
- */
+/** Mark onboarding complete and redirect to feed. */
 async function completeOnboarding() {
     try {
         await apiPost('/api/user/onboarding/step', {
@@ -447,12 +357,7 @@ async function completeOnboarding() {
     }
 }
 
-/**
- * Collect form data from the current step into state.
- *
- * @param {number} step - Current step number.
- * @returns {void}
- */
+/** Collect form data from the current step into state. @param {number} step. */
 function collectStepData(step) {
     switch (step) {
         case 1:
@@ -478,12 +383,7 @@ function collectStepData(step) {
     }
 }
 
-/**
- * Get the data payload for the current step's API call.
- *
- * @param {number} step - Current step number.
- * @returns {object} The data payload.
- */
+/** Get API payload for current step. @param {number} step @returns {object} */
 function getStepDataPayload(step) {
     switch (step) {
         case 1:
@@ -507,17 +407,9 @@ function getStepDataPayload(step) {
     }
 }
 
-/**
- * Debounced username availability check.
- */
 var usernameCheckTimeout = null;
 
-/**
- * Check username availability with debouncing.
- *
- * @param {HTMLElement} input - The username input element.
- * @returns {void}
- */
+/** Check username availability with debouncing. @param {HTMLElement} input */
 function debouncedCheckUsername(input) {
     if (usernameCheckTimeout !== null) {
         clearTimeout(usernameCheckTimeout);
@@ -554,17 +446,4 @@ function debouncedCheckUsername(input) {
     }, 300);
 }
 
-/**
- * Escape HTML special characters.
- *
- * @param {string} unsafe - The unsafe string.
- * @returns {string} The escaped string.
- */
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
+

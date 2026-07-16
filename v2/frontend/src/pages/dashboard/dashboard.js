@@ -11,7 +11,7 @@ let dashboardPeriod = 'all';
 
 /**
  * Render the dashboard page.
- * Queries existing static HTML containers; no markup construction.
+ * Creates page structure via createElement/appendChild if not in DOM.
  *
  * @returns {void}
  */
@@ -22,10 +22,17 @@ function renderDashboardPage() {
         existingPage.classList.remove('page--active');
     }
 
-    const page = document.getElementById('page-dashboard');
+    let page = document.getElementById('page-dashboard');
 
     if (page === null) {
-        return;
+        page = createDashboardPageStructure();
+        const app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -33,6 +40,97 @@ function renderDashboardPage() {
     dashboardPeriod = 'all';
 
     loadDashboard();
+}
+
+/**
+ * Create the dashboard page DOM structure using createElement/appendChild.
+ *
+ * @returns {HTMLElement} The page element.
+ */
+function createDashboardPageStructure() {
+    const page = document.createElement('div');
+    page.id = 'page-dashboard';
+    page.className = 'page';
+
+    const header = document.createElement('header');
+    header.className = 'page__header';
+
+    const title = document.createElement('h1');
+    title.className = 'page__title';
+    title.textContent = 'Dashboard';
+    header.appendChild(title);
+    page.appendChild(header);
+
+    const main = document.createElement('main');
+    main.className = 'page__content';
+    main.id = 'dashboard-content';
+
+    const statsGrid = document.createElement('div');
+    statsGrid.id = 'dashboard-stats-grid';
+    statsGrid.className = 'stats-grid';
+
+    // Add 4 skeleton stat cards.
+    for (var i = 0; i < 4; i++) {
+        var card = document.createElement('div');
+        card.className = 'stat-card';
+
+        var val = document.createElement('div');
+        val.className = 'stat-card__value';
+        val.textContent = '--';
+        card.appendChild(val);
+
+        var lbl = document.createElement('div');
+        lbl.className = 'stat-card__label';
+        lbl.textContent = 'Loading...';
+        card.appendChild(lbl);
+
+        statsGrid.appendChild(card);
+    }
+
+    main.appendChild(statsGrid);
+
+    const filter = document.createElement('div');
+    filter.id = 'dashboard-period-filter';
+    filter.className = 'period-filter';
+    main.appendChild(filter);
+
+    const artistsTitle = document.createElement('h2');
+    artistsTitle.className = 'page__title';
+    artistsTitle.style.marginBottom = '12px';
+    artistsTitle.textContent = 'Top Artists';
+    main.appendChild(artistsTitle);
+
+    const artistList = document.createElement('div');
+    artistList.id = 'dashboard-artist-list';
+    artistList.className = 'artist-list';
+
+    // Add 3 skeleton artist items.
+    for (var j = 0; j < 3; j++) {
+        var item = document.createElement('div');
+        item.className = 'artist-item';
+
+        var rank = document.createElement('div');
+        rank.className = 'artist-item__rank';
+        rank.textContent = (j + 1).toString();
+        item.appendChild(rank);
+
+        var name = document.createElement('div');
+        name.className = 'artist-item__name';
+        name.textContent = '...';
+        item.appendChild(name);
+
+        var count = document.createElement('div');
+        count.className = 'artist-item__count';
+        count.textContent = '-- plays';
+        item.appendChild(count);
+
+        artistList.appendChild(item);
+    }
+
+    main.appendChild(artistList);
+    page.appendChild(main);
+
+    return page;
 }
 
 /**

@@ -17,7 +17,8 @@ let feedState = {
 
 /**
  * Render the feed page.
- * Queries existing static HTML containers; no markup construction.
+ * Creates page structure via createElement/appendChild if not in DOM
+ * (supports both standalone .html viewing and SPA hash routing).
  *
  * @returns {void}
  */
@@ -28,10 +29,18 @@ function renderFeedPage() {
         existingPage.classList.remove('page--active');
     }
 
-    const page = document.getElementById('page-feed');
+    let page = document.getElementById('page-feed');
 
     if (page === null) {
-        return;
+        // Create page structure using createElement/appendChild (no innerHTML).
+        page = createFeedPageStructure();
+        const app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -55,7 +64,6 @@ function renderFeedPage() {
         if (skeletonContainer !== null) {
             skeletonContainer.style.display = '';
 
-            // Clear existing skeleton children.
             while (skeletonContainer.firstChild !== null) {
                 skeletonContainer.removeChild(skeletonContainer.firstChild);
             }
@@ -71,6 +79,82 @@ function renderFeedPage() {
 
     // Set up infinite scroll.
     setupInfiniteScroll();
+}
+
+/**
+ * Create the feed page DOM structure using createElement/appendChild.
+ *
+ * @returns {HTMLElement} The page element.
+ */
+function createFeedPageStructure() {
+    const page = document.createElement('div');
+    page.id = 'page-feed';
+    page.className = 'page';
+
+    // Header.
+    const header = document.createElement('header');
+    header.className = 'page__header';
+
+    const title = document.createElement('h1');
+    title.className = 'page__title';
+    title.textContent = 'Feed';
+    header.appendChild(title);
+    page.appendChild(header);
+
+    // Main content.
+    const main = document.createElement('main');
+    main.className = 'page__content';
+    main.id = 'feed-content';
+
+    // Feed container (cards go here).
+    const feedContainer = document.createElement('div');
+    feedContainer.id = 'feed-container';
+    main.appendChild(feedContainer);
+
+    // Skeleton container.
+    const skeletonContainer = document.createElement('div');
+    skeletonContainer.id = 'feed-skeleton-container';
+    skeletonContainer.className = 'rs-skeleton';
+    main.appendChild(skeletonContainer);
+
+    // Empty state (hidden by default).
+    const emptyState = document.createElement('div');
+    emptyState.id = 'feed-empty-state';
+    emptyState.className = 'empty-state';
+    emptyState.style.display = 'none';
+
+    const emptyIcon = document.createElement('div');
+    emptyIcon.className = 'empty-state__icon';
+    emptyIcon.setAttribute('data-lucide', 'music');
+    emptyState.appendChild(emptyIcon);
+
+    const emptyTitle = document.createElement('h2');
+    emptyTitle.className = 'empty-state__title';
+    emptyTitle.textContent = 'No activity yet';
+    emptyState.appendChild(emptyTitle);
+
+    const emptyText = document.createElement('p');
+    emptyText.className = 'empty-state__text';
+    emptyText.textContent = "Add friends to see what they're listening to!";
+    emptyState.appendChild(emptyText);
+
+    main.appendChild(emptyState);
+
+    // Discover section (hidden by default).
+    const discoverSection = document.createElement('div');
+    discoverSection.id = 'feed-discover-section';
+    discoverSection.style.display = 'none';
+    main.appendChild(discoverSection);
+
+    // Infinite scroll sentinel.
+    const sentinel = document.createElement('div');
+    sentinel.id = 'feed-sentinel';
+    sentinel.style.height = '1px';
+    main.appendChild(sentinel);
+
+    page.appendChild(main);
+
+    return page;
 }
 
 /**

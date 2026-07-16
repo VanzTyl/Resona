@@ -1,18 +1,10 @@
 /**
  * Resona Profile Page Controller
- *
- * Displays and allows editing user profile settings.
- * v2.1: Uses static HTML containers — populates form fields and appends sections.
- *
+ * v2.1: createElement/appendChild fallback for page structure.
  * @version 2.1.0
  */
 
-/**
- * Render the profile page.
- * Queries existing static HTML containers; no markup construction.
- *
- * @returns {void}
- */
+/** Render the profile page. */
 function renderProfilePage() {
     const existingPage = document.querySelector('.page--active');
 
@@ -20,10 +12,17 @@ function renderProfilePage() {
         existingPage.classList.remove('page--active');
     }
 
-    const page = document.getElementById('page-profile');
+    let page = document.getElementById('page-profile');
 
     if (page === null) {
-        return;
+        page = createProfilePageStructure();
+        const app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -31,11 +30,91 @@ function renderProfilePage() {
     loadProfile();
 }
 
-/**
- * Load the user's profile data and populate static form fields.
- *
- * @returns {Promise<void>}
- */
+/** Create the profile page DOM structure. @returns {HTMLElement} */
+function createProfilePageStructure() {
+    var page = createEl('div', { id: 'page-profile', className: 'page' });
+    var header = createEl('header', { className: 'page__header' });
+    header.appendChild(createEl('h1', { className: 'page__title', text: 'Profile' }));
+    page.appendChild(header);
+
+    var main = createEl('main', { className: 'page__content', id: 'profile-content' });
+    var sectionIds = [
+        'profile-header', 'profile-stats-row', 'profile-interests-tags',
+        'profile-genre-tags', 'profile-about-section', 'profile-top-artists',
+    ];
+
+    sectionIds.forEach(function (id) {
+        main.appendChild(createEl('div', { id: id }));
+    });
+
+    // Form.
+    var form = createEl('div', { id: 'profile-form', className: 'profile-form' });
+    form.appendChild(createEl('h3', {
+        className: 'profile-section__title',
+        text: 'Edit Profile',
+    }));
+
+    // Text input fields.
+    var textFields = [
+        { id: 'profile-display-name', label: 'Display Name', type: 'text', maxl: '100' },
+        { id: 'profile-avatar-url', label: 'Avatar URL', type: 'url', maxl: '500' },
+        { id: 'profile-username', label: 'Username', type: 'text', maxl: '20',
+            hint: '3-20 characters. Will be lowercased. Can be changed once every 30 days.' },
+    ];
+    textFields.forEach(function (f) {
+        form.appendChild(createFormField(f));
+    });
+
+    // Bio textarea.
+    form.appendChild(createTextareaField('profile-bio', 'Bio', '200', 'bio-counter', '0/200'));
+
+    // Interests.
+    form.appendChild(createTextField('profile-interests', 'Interests',
+        'e.g. indie, vinyl collecting, concert photography', '500'));
+
+    // Favorite Genres.
+    form.appendChild(createTextField('profile-favorite-genres', 'Favorite Genres',
+        'e.g. Indie Rock, Jazz, Hip Hop', '300'));
+
+    // About Me textarea.
+    form.appendChild(createTextareaField('profile-about-me', 'About Me', '500'));
+
+    // Privacy.
+    form.appendChild(createPrivacySelector());
+
+    // Spotify status.
+    var spotifyGroup = createEl('div', { className: 'form-group' });
+    spotifyGroup.appendChild(createEl('label', {
+        className: 'form-group__label',
+        text: 'Spotify Connected',
+    }));
+    var spotifyStatus = createEl('p', {
+        id: 'profile-spotify-status',
+        text: 'Checking...',
+    });
+    spotifyStatus.style.padding = '8px 0';
+    spotifyStatus.style.color = 'var(--rs-text-dim)';
+    spotifyGroup.appendChild(spotifyStatus);
+    form.appendChild(spotifyGroup);
+
+    form.appendChild(createEl('div', { id: 'profile-save-container' }));
+    var logoutContainer = createEl('div', { id: 'profile-logout-container' });
+    logoutContainer.style.marginTop = 'var(--rs-space-2)';
+    form.appendChild(logoutContainer);
+
+    main.appendChild(form);
+    page.appendChild(main);
+
+    // Set up container references for sections.
+    document.getElementById('profile-top-artists').className = 'profile-section';
+
+    return page;
+}
+
+/* Helper functions (createEl, createFormField, createTextField, etc.)
+   are now in profile-helpers.js -- loaded via script tag in profile.html. */
+
+/** Load profile and populate form fields. */
 async function loadProfile() {
     try {
         const profile = await apiGet('/api/user/profile');
@@ -356,11 +435,7 @@ async function loadProfile() {
     }
 }
 
-/**
- * Set up profile form event listeners (once only).
- *
- * @returns {void}
- */
+/** Set up form listeners (once only). */
 function setupProfileEventListeners() {
     var bioInput = document.getElementById('profile-bio');
     var bioCounter = document.getElementById('bio-counter');
@@ -402,11 +477,7 @@ function setupProfileEventListeners() {
     });
 }
 
-/**
- * Save profile changes.
- *
- * @returns {Promise<void>}
- */
+/** Save profile changes. */
 async function saveProfile() {
     var displayNameInput = document.getElementById('profile-display-name');
     var avatarUrlInput = document.getElementById('profile-avatar-url');
@@ -492,12 +563,7 @@ async function saveProfile() {
     }
 }
 
-/**
- * Validate a URL string.
- *
- * @param {string} url - The URL to validate.
- * @returns {boolean} True if valid.
- */
+/** Validate URL string. @param {string} url @returns {boolean} */
 function isValidUrl(url) {
     try {
         new URL(url);
@@ -507,17 +573,4 @@ function isValidUrl(url) {
     }
 }
 
-/**
- * Escape HTML special characters.
- *
- * @param {string} unsafe - The unsafe string.
- * @returns {string} The escaped string.
- */
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
+

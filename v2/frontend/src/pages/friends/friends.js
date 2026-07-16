@@ -11,7 +11,7 @@ let searchTimeout = null;
 
 /**
  * Render the friends page.
- * Queries existing static HTML containers; no markup construction.
+ * Creates page structure via createElement/appendChild if not in DOM.
  *
  * @returns {void}
  */
@@ -22,10 +22,17 @@ function renderFriendsPage() {
         existingPage.classList.remove('page--active');
     }
 
-    const page = document.getElementById('page-friends');
+    let page = document.getElementById('page-friends');
 
     if (page === null) {
-        return;
+        page = createFriendsPageStructure();
+        const app = document.getElementById('app');
+
+        if (app === null) {
+            return;
+        }
+
+        app.insertBefore(page, app.firstChild);
     }
 
     page.classList.add('page--active');
@@ -43,8 +50,8 @@ function renderFriendsPage() {
             const query = searchInput.value.trim();
 
             if (query.length < 2) {
-                // Clear search results container.
                 const results = document.getElementById('search-results');
+
                 if (results !== null) {
                     while (results.firstChild !== null) {
                         results.removeChild(results.firstChild);
@@ -60,6 +67,51 @@ function renderFriendsPage() {
     }
 
     loadPendingRequests();
+}
+
+/**
+ * Create the friends page DOM structure using createElement/appendChild.
+ *
+ * @returns {HTMLElement} The page element.
+ */
+function createFriendsPageStructure() {
+    const page = document.createElement('div');
+    page.id = 'page-friends';
+    page.className = 'page';
+
+    const header = document.createElement('header');
+    header.className = 'page__header';
+
+    const title = document.createElement('h1');
+    title.className = 'page__title';
+    title.textContent = 'Find Friends';
+    header.appendChild(title);
+    page.appendChild(header);
+
+    const main = document.createElement('main');
+    main.className = 'page__content';
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.id = 'friend-search-input';
+    searchInput.className = 'search-input';
+    searchInput.placeholder = 'Search by username...';
+    searchInput.autocomplete = 'off';
+    main.appendChild(searchInput);
+
+    const searchResults = document.createElement('div');
+    searchResults.id = 'search-results';
+    searchResults.style.marginTop = '16px';
+    main.appendChild(searchResults);
+
+    const pendingSection = document.createElement('div');
+    pendingSection.id = 'pending-requests-section';
+    pendingSection.style.marginTop = '24px';
+    main.appendChild(pendingSection);
+
+    page.appendChild(main);
+
+    return page;
 }
 
 /**
