@@ -1547,7 +1547,7 @@ ul, ol {
     border-radius: var(--rs-radius-full);
 }
 
-/* ----- Responsive ----- */
+/* ----- Small Mobiles (<= 480px) ----- */
 @media (max-width: 480px) {
     .discover-grid {
         grid-template-columns: 1fr;
@@ -1570,25 +1570,104 @@ ul, ol {
 /* ----- Tablet (768px – 1023px) ----- */
 @media (min-width: 768px) {
     #app {
-        max-width: 720px;
+        max-width: 750px;
     }
 
-    /* Feed: 2-column card grid */
+    /* Hide bottom nav — tablet has enough room */
+    .bottom-nav {
+        display: none;
+    }
+
+    /* Remove bottom nav padding on pages */
+    .page {
+        padding-bottom: 0;
+    }
+
+    /* Bigger page content padding */
+    .page__content {
+        padding: var(--rs-space-5) var(--rs-space-6);
+    }
+
+    .page__header {
+        padding: var(--rs-space-5) var(--rs-space-6) var(--rs-space-3);
+    }
+
+    .page__title {
+        font-size: var(--rs-font-size-xl);
+    }
+
+    /* Feed: 2-column card grid with capped column width */
     #feed-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-4);
+        max-width: 700px;
+        margin: 0 auto;
     }
 
-    /* Feed skeleton: 2-column */
     #feed-skeleton-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-4);
+        max-width: 700px;
+        margin: 0 auto;
     }
 
     .feed-card {
         margin-bottom: 0;
+    }
+
+    /* Friends: 2-column grid for results */
+    #page-friends .page__content {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    #search-results {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+        margin-top: var(--rs-space-4) !important;
+    }
+
+    #pending-requests-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+        margin-top: var(--rs-space-6) !important;
+    }
+
+    /* Messages: split-pane on tablet too */
+    #messages-content {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: var(--rs-space-4);
+        height: calc(100dvh - var(--rs-space-10));
+        max-width: 100%;
+    }
+
+    #messages-thread-list {
+        border-right: 1px solid var(--rs-border);
+        overflow-y: auto;
+        padding-right: var(--rs-space-3);
+    }
+
+    #messages-empty-state {
+        grid-column: 1 / -1;
+    }
+
+    #messages-chat-pane {
+        display: flex !important;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    #messages-chat-pane[style*="display: none"] {
+        display: none !important;
+    }
+
+    .chat-input {
+        position: relative;
     }
 
     /* Discover: 3-column grid */
@@ -1601,35 +1680,63 @@ ul, ol {
         grid-template-columns: repeat(4, 1fr);
     }
 
-    /* Chat input positioning */
-    .chat-input {
-        position: relative;
+    /* Dashboard: wider layout */
+    #dashboard-content {
+        max-width: 700px;
+        margin: 0 auto;
     }
 
-    /* Wider containers */
-    .page__content {
-        max-width: 100%;
+    /* Dashboard artist list: 2 columns */
+    #dashboard-artist-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-2);
     }
 
-    /* Now playing bar adjusts */
+    /* Profile: wider spacing */
+    #profile-content {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    .profile-header__avatar {
+        width: 120px;
+        height: 120px;
+    }
+
+    /* Onboarding: tighter */
+    .onboarding {
+        max-width: 440px;
+    }
+
+    /* Now playing bar wider on tablet */
     .now-playing {
-        max-width: 720px;
+        max-width: 750px;
+    }
+
+    /* Toast wider */
+    .rs-toast-container {
+        max-width: 500px;
     }
 }
 
 /* ----- Desktop (>= 1024px) ----- */
 @media (min-width: 1024px) {
-    /* App becomes grid layout: sidebar + main */
+    /* Sidebar is position: fixed, so #app is a simple block container.
+       Pages offset themselves with margin-left: 240px to clear the sidebar. */
     #app {
         max-width: 100%;
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        grid-template-rows: 1fr;
         min-height: 100dvh;
         margin: 0;
     }
 
-    /* Sidebar */
+    /* ================================
+       Sidebar
+       ================================ */
     .desktop-sidebar {
         position: fixed;
         top: 0;
@@ -1818,51 +1925,90 @@ ul, ol {
         --rs-icon-size: 18px;
     }
 
-    /* Main content area */
+    /* ================================
+       Main Content Area
+       ================================ */
     .page {
         margin-left: 240px;
-        padding-bottom: var(--rs-space-4);
+        padding-bottom: 0;
     }
 
     .page--centered {
         margin-left: 240px;
     }
 
-    /* Hide bottom nav on desktop */
-    .bottom-nav {
-        display: none;
+    /* Bigger padding for desktop */
+    .page__content {
+        padding: var(--rs-space-6) var(--rs-space-8);
+        max-width: 960px;
     }
 
-    /* Now playing bar adjusts for sidebar */
-    .now-playing {
-        left: 240px;
-        max-width: calc(100% - 240px);
-        bottom: 0;
+    .page__header {
+        padding: var(--rs-space-6) var(--rs-space-8) var(--rs-space-4);
+        position: static;
     }
 
-    /* Feed: 2-column or 3-column grid */
+    .page__title {
+        font-size: var(--rs-font-size-2xl);
+    }
+
+    /* ================================
+       Feed
+       ================================ */
     #feed-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: var(--rs-space-4);
+        gap: var(--rs-space-5);
+        max-width: 760px;
+        margin: 0 auto;
     }
 
     #feed-skeleton-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: var(--rs-space-4);
+        gap: var(--rs-space-5);
+        max-width: 760px;
+        margin: 0 auto;
     }
 
     .feed-card {
         margin-bottom: 0;
+        max-width: 380px;
+        justify-self: center;
+        width: 100%;
     }
 
-    /* Messages: split-pane */
+    /* ================================
+       Friends
+       ================================ */
+    #page-friends .page__content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    #search-results {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: var(--rs-space-4);
+        margin-top: var(--rs-space-5) !important;
+    }
+
+    #pending-requests-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: var(--rs-space-4);
+        margin-top: var(--rs-space-8) !important;
+    }
+
+    /* ================================
+       Messages (split-pane)
+       ================================ */
     #messages-content {
         display: grid;
         grid-template-columns: 320px 1fr;
-        gap: var(--rs-space-4);
-        height: calc(100dvh - var(--rs-header-height) - var(--rs-space-8));
+        gap: var(--rs-space-5);
+        height: calc(100dvh - var(--rs-space-12));
+        max-width: 100%;
     }
 
     #messages-thread-list {
@@ -1885,17 +2031,42 @@ ul, ol {
         display: none !important;
     }
 
-    /* Dashboard: expanded */
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
+    /* ================================
+       Dashboard
+       ================================ */
+    #dashboard-content {
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    /* Profile: two-column for desktop */
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--rs-space-4);
+    }
+
+    .stat-card {
+        padding: var(--rs-space-5) var(--rs-space-4);
+    }
+
+    .stat-card__value {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    #dashboard-artist-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+    }
+
+    /* ================================
+       Profile
+       ================================ */
     #profile-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-6);
-        max-width: 900px;
+        max-width: 860px;
+        margin: 0 auto;
     }
 
     #profile-header {
@@ -1904,6 +2075,9 @@ ul, ol {
 
     #profile-stats-row {
         grid-column: 1 / -1;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     #profile-interests-tags {
@@ -1926,7 +2100,9 @@ ul, ol {
         grid-column: 1 / -1;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: var(--rs-space-4);
+        gap: var(--rs-space-5);
+        max-width: 700px;
+        margin: 0 auto;
     }
 
     #profile-form h3 {
@@ -1939,9 +2115,111 @@ ul, ol {
         grid-column: 1 / -1;
     }
 
-    /* Discover section: 3-column */
+    .profile-header__avatar {
+        width: 128px;
+        height: 128px;
+    }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    /* ================================
+       Discover
+       ================================ */
     .discover-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: var(--rs-space-4);
+    }
+
+    /* ================================
+       Global Overlays
+       ================================ */
+
+    /* Now playing bar spans content area */
+    .now-playing {
+        left: 240px;
+        max-width: calc(100% - 240px);
+        bottom: 0;
+        transform: none;
+    }
+
+    /* Toast centered in content area */
+    .rs-toast-container {
+        left: calc(240px + 50%);
+        transform: translateX(calc(-50% - 120px));
+        max-width: 480px;
+    }
+
+    /* Bottom nav hidden on desktop */
+    .bottom-nav {
+        display: none;
+    }
+
+    /* ================================
+       Login / Callback / Onboarding
+       ================================ */
+    .login-page {
+        padding: var(--rs-space-12) var(--rs-space-4);
+    }
+
+    .onboarding {
+        max-width: 420px;
+        padding: var(--rs-space-8) var(--rs-space-4);
+    }
+}
+
+/* ----- Wide Desktop (> 1400px) ----- */
+@media (min-width: 1400px) {
+    .page__content {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Feed: 3-column grid on wide screens */
+    #feed-container {
         grid-template-columns: 1fr 1fr 1fr;
+        max-width: 1100px;
+    }
+
+    #feed-skeleton-container {
+        grid-template-columns: 1fr 1fr 1fr;
+        max-width: 1100px;
+    }
+
+    .feed-card {
+        max-width: 360px;
+    }
+
+    /* Messages: wider thread list */
+    #messages-content {
+        grid-template-columns: 360px 1fr;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Dashboard: more spacing */
+    #dashboard-content {
+        max-width: 960px;
+    }
+
+    /* Friends: 4-column on wide */
+    #search-results {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    #pending-requests-section {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    /* Profile: wider two-column */
+    #profile-content {
+        max-width: 1000px;
+    }
+
+    /* Discover: 5-column */
+    .discover-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     }
 }
 
