@@ -900,6 +900,24 @@ ul, ol {
     color: var(--rs-text-muted);
 }
 
+.search-result-item__actions {
+    display: flex;
+    gap: var(--rs-space-2);
+    flex-shrink: 0;
+}
+
+/* ----- Friends page sections ----- */
+.friends-section {
+    margin-bottom: var(--rs-space-6);
+}
+
+.friends-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-3);
+    color: var(--rs-text);
+}
+
 /* ----- Stats / Dashboard ----- */
 .stats-grid {
     display: grid;
@@ -1559,6 +1577,16 @@ ul, ol {
 
     .stat-card {
         padding: var(--rs-space-2);
+    }
+
+    .search-result-item {
+        flex-wrap: wrap;
+    }
+
+    .search-result-item__actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: var(--rs-space-1);
     }
 }
 

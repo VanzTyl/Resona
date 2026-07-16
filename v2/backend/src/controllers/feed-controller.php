@@ -61,13 +61,16 @@ function handleGetFeed(array $params): void
         return;
     }
 
-    $placeholders = implode(', ', array_fill(0, count($filteredFriendIds), '?'));
+    $friendCount = count($filteredFriendIds);
+    $placeholders = implode(', ', array_fill(0, $friendCount, '?'));
     $params_list = $filteredFriendIds;
     $cursorCondition = '';
 
     if ($cursor !== '') {
-        $cursorCondition = ' AND le.created_at < :cursor';
-        $params_list[':cursor'] = $cursor;
+        // Use positional placeholder (?) consistently — PDO rejects mixing
+        // ? and :name placeholders in the same statement.
+        $cursorCondition = ' AND le.created_at < ?';
+        $params_list[] = $cursor;
     }
 
     $sql = "SELECT le.id, le.user_id, le.track_name, le.artist_names, le.album_name,

@@ -230,20 +230,17 @@ function handleGetUnreadCount(array $params): void
     $auth = requireAuth();
     $userId = $auth['userId'];
 
+    // Count messages from other users in each thread.
+    // True unread tracking (last_read_at) is not yet implemented —
+    // this returns all messages where the current user is not the sender.
     $unreadData = dbQuery(
         'SELECT ct.id AS thread_id, COUNT(m.id) AS unread_count
          FROM chat_threads ct
          LEFT JOIN messages m ON m.thread_id = ct.id
          WHERE (ct.user_id_1 = :userId OR ct.user_id_2 = :userId)
            AND m.sender_id != :userId
-           AND (m.created_at IS NULL OR m.created_at > COALESCE(
-               (SELECT MAX(last_read_at) FROM (
-                   SELECT :userId2 AS uid, NOW() AS last_read_at
-               ) AS dummy), 
-               DATE_SUB(NOW(), INTERVAL 30 DAY)
-           ))
          GROUP BY ct.id',
-        [':userId' => $userId, ':userId2' => $userId]
+        [':userId' => $userId]
     );
 
     $totalUnread = 0;

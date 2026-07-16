@@ -63,10 +63,25 @@ function parseJsonBody(): array
  */
 function extractBearerToken(): ?string
 {
+    // Try standard $_SERVER keys first (Apache mod_php, some CGI setups).
     $authHeader = $_SERVER['HTTP_AUTHORIZATION']
         ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
         ?? $_SERVER['Authorization']
         ?? '';
+
+    // Fallback: getallheaders() works across all PHP SAPIs
+    // (mod_php, FastCGI, PHP-FPM, etc.) and is not stripped by Apache.
+    if ($authHeader === '' && function_exists('getallheaders')) {
+        $allHeaders = getallheaders();
+
+        if (is_array($allHeaders)) {
+            // HTTP header names are case-insensitive.
+            $authHeader = $allHeaders['Authorization']
+                ?? $allHeaders['authorization']
+                ?? $allHeaders['AUTHORIZATION']
+                ?? '';
+        }
+    }
 
     if ($authHeader === '') {
         return null;

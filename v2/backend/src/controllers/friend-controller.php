@@ -175,7 +175,7 @@ function handleListFriends(array $params): void
     $offset = ($page - 1) * $limit;
 
     $friends = dbQuery(
-        'SELECT u.id, u.username, u.display_name, u.avatar_url,
+        "SELECT u.id, u.username, u.display_name, u.avatar_url,
                 le.track_name AS currently_playing_track,
                 le.artist_names AS currently_playing_artist,
                 le.album_art_url,
@@ -189,7 +189,7 @@ function handleListFriends(array $params): void
          WHERE (f.sender_id = :userId2 OR f.receiver_id = :userId3)
            AND f.status = :status
          ORDER BY u.display_name ASC
-          LIMIT {$limit} OFFSET {$offset}',
+          LIMIT {$limit} OFFSET {$offset}",
         [
             ':userId'    => $userId,
             ':userId2'   => $userId,
@@ -201,6 +201,38 @@ function handleListFriends(array $params): void
     sendJson([
         'success' => true,
         'data'    => $friends,
+    ]);
+}
+
+/**
+ * List pending incoming friend requests for the authenticated user.
+ * Maps to: GET /api/friends/requests/pending
+ * Implements C-007 (partial: read side of friend requests).
+ *
+ * @param array $params Route parameters (unused).
+ *
+ * @return void
+ */
+function handlePendingRequests(array $params): void
+{
+    $auth = requireAuth();
+    $userId = $auth['userId'];
+
+    $requests = dbQuery(
+        'SELECT f.id, f.sender_id, u.username, u.display_name, u.avatar_url, f.created_at
+         FROM friendships f
+         JOIN users u ON u.id = f.sender_id
+         WHERE f.receiver_id = :userId AND f.status = :status
+         ORDER BY f.created_at DESC',
+        [
+            ':userId' => $userId,
+            ':status' => FRIEND_STATUS_PENDING,
+        ]
+    );
+
+    sendJson([
+        'success' => true,
+        'data'    => $requests,
     ]);
 }
 

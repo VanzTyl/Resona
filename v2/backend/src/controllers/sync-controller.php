@@ -126,6 +126,9 @@ function handleGetCurrentTrack(array $params): void
         $liveTrack = fetchCurrentlyPlaying($spotifyTokens['access_token']);
 
         if ($liveTrack !== null) {
+            // Save the live track to listening_events for stats/feed tracking.
+            saveCurrentlyPlayingEvent((int)$userId, $liveTrack);
+
             sendJson([
                 'success' => true,
                 'data'    => $liveTrack,
@@ -226,6 +229,120 @@ function fetchCurrentlyPlaying(string $accessToken): ?array
         'trackDurationMs' => (int)($track['duration_ms'] ?? 0),
         'lastUpdated'    => date('c'),
     ];
+}
+
+/**
+ * Save a currently-playing track to listening_events for stats tracking.
+ * Skips saving if the same track ID is already the most recent event
+ * (avoids duplicates from the 30-second polling interval).
+ *
+ * @param int   $userId    The internal user ID.
+ * @param array $trackData The track data from fetchCurrentlyPlaying().
+ *
+ * @return void
+ */
+function saveCurrentlyPlayingEvent(int $userId, array $trackData): void
+{
+    // Derive a stable track identity from track name + first artist.
+    $trackFingerprint = ($trackData['trackName'] ?? '') . '|'
+                      . ($trackData['artists'][0] ?? '');
+
+    // Check if this track is already the most recent event.
+    $latest = dbQueryOne(
+        'SELECT track_name, artist_names FROM listening_events
+         WHERE user_id = :userId
+         ORDER BY created_at DESC LIMIT 1',
+        [':userId' => $userId]
+    );
+
+    if ($latest !== null) {
+        $latestFp = ($latest['track_name'] ?? '') . '|'
+                  . explode(', ', $latest['artist_names'] ?? '')[0];
+
+        if ($latestFp === $trackFingerprint) {
+            // Same track still playing — update progress only.
+            dbExecute(
+                'UPDATE listening_events
+                 SET progress_ms = :progress, is_playing = 1
+                 WHERE id = (
+                     SELECT id FROM (
+                         SELECT id FROM listening_events
+                         WHERE user_id = :uid
+                         ORDER BY created_at DESC LIMIT 1
+                     ) AS sub
+                 )',
+                [
+                    ':progress' => $trackData['progressMs'] ?? 0,
+                    ':uid'      => $userId,
+                ]
+            );
+            return;
+        }
+    }
+
+    // New track — insert a fresh listening event.
+    $artistNames = implode(', ', $trackData['artists'] ?? []);
+    $trackName = $trackData['trackName'] ?? 'Unknown Track';
+    $albumArt = $trackData['albumArt'] ?? '';
+
+    dbExecute(
+        'INSERT INTO listening_events
+            (user_id, spotify_track_id, track_name, artist_names, album_name,
+             album_art_url, track_duration_ms, is_playing, progress_ms, created_at)
+         VALUES
+            (:userId, :trackId, :trackName, :artistNames, :albumName,
+             :albumArt, :duration, 1, :progress, NOW())',
+        [
+            ':userId'      => $userId,
+            ':trackId'     => 'live_' . md5($trackFingerprint),
+            ':trackName'   => $trackName,
+            ':artistNames' => $artistNames,
+            ':albumName'   => '',
+            ':albumArt'    => $albumArt,
+            ':duration'    => $trackData['trackDurationMs'] ?? 0,
+            ':progress'    => $trackData['progressMs'] ?? 0,
+        ]
+    );
+
+    // Update or insert into user_artists for top artist tracking.
+    // Only count play if this is a different track from the latest event.
+    $artists = $trackData['artists'] ?? [];
+
+    foreach ($artists as $artistName) {
+        if ($artistName === '') {
+            continue;
+        }
+
+        $existing = dbQueryOne(
+            'SELECT id, play_count FROM user_artists
+             WHERE user_id = :userId AND artist_name = :artistName
+             LIMIT 1',
+            [':userId' => $userId, ':artistName' => $artistName]
+        );
+
+        if ($existing === null) {
+            dbExecute(
+                'INSERT INTO user_artists
+                    (user_id, spotify_artist_id, artist_name, artist_image_url,
+                     play_count, created_at)
+                 VALUES
+                    (:userId, :artistId, :artistName, :imageUrl, 1, NOW())',
+                [
+                    ':userId'    => $userId,
+                    ':artistId'  => 'live_' . md5($artistName),
+                    ':artistName' => $artistName,
+                    ':imageUrl'  => '',
+                ]
+            );
+        } else {
+            dbExecute(
+                'UPDATE user_artists
+                 SET play_count = play_count + 1, updated_at = NOW()
+                 WHERE id = :id',
+                [':id' => $existing['id']]
+            );
+        }
+    }
 }
 
 /**

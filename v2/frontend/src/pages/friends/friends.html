@@ -12,19 +12,27 @@
             <h1 class="page__title">Find Friends</h1>
         </header>
         <main class="page__content">
-            <input type="text" id="friend-search-input" class="search-input"
-                   placeholder="Search by username..." autocomplete="off" />
-            <div id="search-results" style="margin-top: 16px;">
-                <!-- Search results will be appended here by friends.js -->
-                <div class="empty-state" id="search-empty-state">
-                    <div class="empty-state__icon" data-lucide="search"></div>
-                    <h2 class="empty-state__title">Search for friends</h2>
-                    <p class="empty-state__text">Type a username above to find music lovers to connect with.</p>
+            <!-- Search section -->
+            <section class="friends-section">
+                <h2 class="friends-section__title">Find People</h2>
+                <input type="text" id="friend-search-input" class="search-input"
+                       placeholder="Search by username..." autocomplete="off" />
+                <div id="search-results" style="margin-top: 12px;">
+                    <div class="empty-state" id="search-empty-state">
+                        <div class="empty-state__icon" data-lucide="search"></div>
+                        <h2 class="empty-state__title">Search for friends</h2>
+                        <p class="empty-state__text">Type a username above to find music lovers to connect with.</p>
+                    </div>
                 </div>
-            </div>
-            <div id="pending-requests-section" style="margin-top: 24px;">
-                <!-- Pending requests will be appended here by friends.js -->
-            </div>
+            </section>
+
+            <!-- Incoming requests section (hidden by default, shown by friends.js) -->
+            <section id="incoming-requests-section" class="friends-section" style="display: none;">
+            </section>
+
+            <!-- Friends list section -->
+            <section id="friends-list-section" class="friends-section">
+            </section>
         </main>
     </div>
     <script src="../../globals/components/api-client.js"></script>

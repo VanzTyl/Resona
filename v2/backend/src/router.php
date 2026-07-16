@@ -72,6 +72,7 @@ function defineRoutes(): array
         // Friend routes (authenticated)
         new Route('POST',   '/api/friends/request',                 'handleSendFriendRequest', true),
         new Route('PUT',    '/api/friends/request/:id',             'handleRespondToRequest', true),
+        new Route('GET',    '/api/friends/requests/pending',        'handlePendingRequests', true),
         new Route('GET',    '/api/friends',                         'handleListFriends', true),
         new Route('DELETE', '/api/friends/:userId',                 'handleRemoveFriend', true),
 

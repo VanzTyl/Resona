@@ -76,12 +76,12 @@ function createMessagesPageStructure() {
 
     const emptyTitle = document.createElement('h2');
     emptyTitle.className = 'empty-state__title';
-    emptyTitle.textContent = 'No conversations yet';
+    emptyTitle.textContent = 'No friends yet';
     emptyState.appendChild(emptyTitle);
 
     const emptyText = document.createElement('p');
     emptyText.className = 'empty-state__text';
-    emptyText.textContent = "React to a friend's music to start a conversation!";
+    emptyText.textContent = 'Add friends to start a conversation!';
     emptyState.appendChild(emptyText);
 
     main.appendChild(emptyState);
@@ -245,11 +245,23 @@ async function loadThreadList() {
             }
         }
 
-        const errorMsg = document.createElement('p');
+        var errorMsg = document.createElement('p');
         errorMsg.style.color = 'var(--rs-error)';
-        errorMsg.textContent = 'Failed to load messages.';
+        var isAuthError = error && (error.message || '').includes('Authentication');
+        errorMsg.textContent = isAuthError
+            ? 'Please log in again to see your messages.'
+            : 'Could not load messages. Try again later.';
         if (threadListEl !== null) {
             threadListEl.appendChild(errorMsg);
+        }
+
+        // Show empty state as fallback suggestion.
+        if (emptyState !== null) {
+            emptyState.style.display = '';
+            var suggestText = emptyState.querySelector('.empty-state__text');
+            if (suggestText !== null) {
+                suggestText.textContent = 'Find friends to connect with on the Friends page.';
+            }
         }
     }
 }

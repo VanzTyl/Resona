@@ -1,10 +1,10 @@
 ﻿/**
  * Resona Friend Discovery Page Controller
  *
- * Handles user search, send/accept/reject friend requests.
- * v2.1: Uses static HTML containers — appends search results via appendChild.
+ * Handles user search, incoming requests (accept/reject), and friends list.
+ * v2.2: Added incoming requests section with Accept/Reject buttons + friends list.
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 let searchTimeout = null;
@@ -66,7 +66,9 @@ function renderFriendsPage() {
         });
     }
 
-    loadPendingRequests();
+    // Load all sections.
+    loadIncomingRequests();
+    loadFriendsList();
 }
 
 /**
@@ -84,12 +86,21 @@ function createFriendsPageStructure() {
 
     const title = document.createElement('h1');
     title.className = 'page__title';
-    title.textContent = 'Find Friends';
+    title.textContent = 'Friends';
     header.appendChild(title);
     page.appendChild(header);
 
     const main = document.createElement('main');
     main.className = 'page__content';
+
+    // --- Search section ---
+    const searchSection = document.createElement('section');
+    searchSection.className = 'friends-section';
+
+    const searchTitle = document.createElement('h2');
+    searchTitle.className = 'friends-section__title';
+    searchTitle.textContent = 'Find People';
+    searchSection.appendChild(searchTitle);
 
     const searchInput = document.createElement('input');
     searchInput.type = 'text';
@@ -97,17 +108,27 @@ function createFriendsPageStructure() {
     searchInput.className = 'search-input';
     searchInput.placeholder = 'Search by username...';
     searchInput.autocomplete = 'off';
-    main.appendChild(searchInput);
+    searchSection.appendChild(searchInput);
 
     const searchResults = document.createElement('div');
     searchResults.id = 'search-results';
-    searchResults.style.marginTop = '16px';
-    main.appendChild(searchResults);
+    searchResults.style.marginTop = '12px';
+    searchSection.appendChild(searchResults);
 
-    const pendingSection = document.createElement('div');
-    pendingSection.id = 'pending-requests-section';
-    pendingSection.style.marginTop = '24px';
-    main.appendChild(pendingSection);
+    main.appendChild(searchSection);
+
+    // --- Incoming requests section ---
+    const incomingSection = document.createElement('section');
+    incomingSection.id = 'incoming-requests-section';
+    incomingSection.className = 'friends-section';
+    incomingSection.style.display = 'none';
+    main.appendChild(incomingSection);
+
+    // --- Friends list section ---
+    const friendsSection = document.createElement('section');
+    friendsSection.id = 'friends-list-section';
+    friendsSection.className = 'friends-section';
+    main.appendChild(friendsSection);
 
     page.appendChild(main);
 
@@ -227,25 +248,231 @@ async function sendFriendRequest(username) {
 }
 
 /**
- * Load and display pending friend requests.
+ * Load and display incoming friend requests with Accept/Reject buttons.
  *
  * @returns {Promise<void>}
  */
-async function loadPendingRequests() {
-    const section = document.getElementById('pending-requests-section');
+async function loadIncomingRequests() {
+    const section = document.getElementById('incoming-requests-section');
 
     if (section === null) {
         return;
     }
 
     try {
-        const friends = await apiGet('/api/friends?limit=50');
-        // Pending requests display uses same container.
+        const requests = await apiGet('/api/friends/requests/pending');
+
         while (section.firstChild !== null) {
             section.removeChild(section.firstChild);
         }
+
+        if (requests.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = '';
+
+        // Section header.
+        const header = document.createElement('h2');
+        header.className = 'friends-section__title';
+        header.textContent = 'Incoming Requests (' + requests.length + ')';
+        section.appendChild(header);
+
+        requests.forEach(function (req) {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'search-result-item__avatar';
+            avatar.src = req.avatar_url || 'assets/default-avatar.svg';
+            avatar.alt = '';
+            item.appendChild(avatar);
+
+            const info = document.createElement('div');
+            info.className = 'search-result-item__info';
+
+            const name = document.createElement('div');
+            name.className = 'search-result-item__name';
+            name.textContent = req.display_name;
+            info.appendChild(name);
+
+            const username = document.createElement('div');
+            username.className = 'search-result-item__username';
+            username.textContent = '@' + req.username;
+            info.appendChild(username);
+
+            item.appendChild(info);
+
+            // Action buttons container.
+            const actions = document.createElement('div');
+            actions.className = 'search-result-item__actions';
+
+            const acceptBtn = createButton({
+                label: 'Accept',
+                variant: 'primary',
+                size: 'small',
+                onClick: function () {
+                    acceptRequest(req.id, item);
+                },
+            });
+            actions.appendChild(acceptBtn);
+
+            const rejectBtn = createButton({
+                label: 'Reject',
+                variant: 'secondary',
+                size: 'small',
+                onClick: function () {
+                    rejectRequest(req.id, item);
+                },
+            });
+            actions.appendChild(rejectBtn);
+
+            item.appendChild(actions);
+            section.appendChild(item);
+        });
     } catch (_error) {
-        // Silently handle — not critical.
+        // Silently hide section on error.
+        section.style.display = 'none';
+    }
+}
+
+/**
+ * Accept an incoming friend request.
+ *
+ * @param {number} requestId - The friendship record ID.
+ * @param {HTMLElement} item - The DOM element to remove on success.
+ * @returns {Promise<void>}
+ */
+async function acceptRequest(requestId, item) {
+    try {
+        await apiPut('/api/friends/request/' + requestId, {
+            action: 'accept',
+        });
+
+        showToast({
+            message: 'Friend request accepted!',
+            type: 'success',
+        });
+
+        // Remove the request from the list.
+        if (item.parentNode !== null) {
+            item.remove();
+        }
+
+        // Reload friends list to show the new friend.
+        loadFriendsList();
+    } catch (error) {
+        showToast({
+            message: error.message,
+            type: 'error',
+        });
+    }
+}
+
+/**
+ * Reject an incoming friend request.
+ *
+ * @param {number} requestId - The friendship record ID.
+ * @param {HTMLElement} item - The DOM element to remove on success.
+ * @returns {Promise<void>}
+ */
+async function rejectRequest(requestId, item) {
+    try {
+        await apiPut('/api/friends/request/' + requestId, {
+            action: 'reject',
+        });
+
+        showToast({
+            message: 'Friend request rejected.',
+            type: 'info',
+        });
+
+        // Remove the request from the list.
+        if (item.parentNode !== null) {
+            item.remove();
+        }
+    } catch (error) {
+        showToast({
+            message: error.message,
+            type: 'error',
+        });
+    }
+}
+
+/**
+ * Load and display the accepted friends list with listening status.
+ *
+ * @returns {Promise<void>}
+ */
+async function loadFriendsList() {
+    const section = document.getElementById('friends-list-section');
+
+    if (section === null) {
+        return;
+    }
+
+    while (section.firstChild !== null) {
+        section.removeChild(section.firstChild);
+    }
+
+    // Section header.
+    const header = document.createElement('h2');
+    header.className = 'friends-section__title';
+    header.textContent = 'Your Friends';
+    section.appendChild(header);
+
+    try {
+        const friends = await apiGet('/api/friends?limit=50');
+
+        if (friends.length === 0) {
+            const emptyMsg = document.createElement('p');
+            emptyMsg.style.color = 'var(--rs-text-dim)';
+            emptyMsg.style.padding = '12px 0';
+            emptyMsg.textContent = 'No friends yet. Search for users above to add friends!';
+            section.appendChild(emptyMsg);
+            return;
+        }
+
+        friends.forEach(function (friend) {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            const avatar = document.createElement('img');
+            avatar.className = 'search-result-item__avatar';
+            avatar.src = friend.avatar_url || 'assets/default-avatar.svg';
+            avatar.alt = '';
+            item.appendChild(avatar);
+
+            const info = document.createElement('div');
+            info.className = 'search-result-item__info';
+
+            const name = document.createElement('div');
+            name.className = 'search-result-item__name';
+            name.textContent = friend.display_name;
+            info.appendChild(name);
+
+            // Show currently playing track if available.
+            if (friend.currently_playing_track) {
+                const track = document.createElement('div');
+                track.className = 'search-result-item__username';
+                track.textContent = '\u266B ' + friend.currently_playing_track;
+                track.style.color = 'var(--rs-accent)';
+                info.appendChild(track);
+            }
+
+            item.appendChild(info);
+            section.appendChild(item);
+        });
+    } catch (error) {
+        var isAuthError = error && (error.message || '').includes('Authentication');
+        var errorMsg = document.createElement('p');
+        errorMsg.style.color = 'var(--rs-error)';
+        errorMsg.style.padding = '12px 0';
+        errorMsg.textContent = isAuthError
+            ? 'Please log in to see your friends list.'
+            : 'Could not load friends.';
+        section.appendChild(errorMsg);
     }
 }
 

@@ -16,6 +16,7 @@
  */
 function createEl(tag, attrs) {
     var el = document.createElement(tag);
+    if (!attrs) return el;
     if (attrs.id) el.id = attrs.id;
     if (attrs.className) el.className = attrs.className;
     if (attrs.text) el.textContent = attrs.text;
