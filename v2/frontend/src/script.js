@@ -68,8 +68,13 @@ const RESONA_PAGE_SCRIPTS = {
     messages: 'pages/messages/messages.js',
     dashboard: 'pages/dashboard/dashboard.js',
     profile: 'pages/profile/profile.js',
-    // v1.1: Onboarding script
     onboarding: 'pages/onboarding/onboarding.js',
+};
+
+// v2.1: Page-specific helper scripts loaded before the controller.
+const RESONA_PAGE_HELPERS = {
+    profile: 'pages/profile/profile-helpers.js',
+    onboarding: 'pages/onboarding/onboarding-helpers.js',
 };
 
 // v1.1: Nav items use Lucide icon names instead of emoji
@@ -217,7 +222,7 @@ async function handleRouteChange() {
 }
 
 /**
- * Dynamically load a page controller script.
+ * Dynamically load a page controller and its helpers.
  *
  * @param {string} controllerName - Name of the controller to load.
  * @returns {Promise<void>}
@@ -229,30 +234,59 @@ function loadPageScript(controllerName) {
             return;
         }
 
-        const scriptPath = RESONA_PAGE_SCRIPTS[controllerName];
+        var scriptsToLoad = [];
 
+        // Load helper script first, if one exists.
+        var helperPath = RESONA_PAGE_HELPERS[controllerName];
+        if (helperPath !== undefined) {
+            scriptsToLoad.push(helperPath);
+        }
+
+        // Load main controller script.
+        var scriptPath = RESONA_PAGE_SCRIPTS[controllerName];
         if (scriptPath === undefined) {
             resolve();
             return;
         }
+        scriptsToLoad.push(scriptPath);
 
-        const script = document.createElement('script');
-        script.src = scriptPath;
-        script.async = false;
-        script.defer = false;
-
-        script.onload = function () {
-            appState.pageScriptsLoaded[controllerName] = true;
-            resolve();
-        };
-
-        script.onerror = function () {
-            console.error('Failed to load page script: ' + scriptPath);
-            reject();
-        };
-
-        document.head.appendChild(script);
+        // Load scripts sequentially.
+        loadScriptsSequentially(scriptsToLoad, 0, controllerName, resolve, reject);
     });
+}
+
+/**
+ * Load an array of scripts one at a time.
+ *
+ * @param {string[]} scripts - Script paths to load.
+ * @param {number} index - Current index.
+ * @param {string} controllerName - Controller name for tracking.
+ * @param {Function} resolve - Promise resolve.
+ * @param {Function} reject - Promise reject.
+ * @returns {void}
+ */
+function loadScriptsSequentially(scripts, index, controllerName, resolve, reject) {
+    if (index >= scripts.length) {
+        appState.pageScriptsLoaded[controllerName] = true;
+        resolve();
+        return;
+    }
+
+    var script = document.createElement('script');
+    script.src = scripts[index];
+    script.async = false;
+    script.defer = false;
+
+    script.onload = function () {
+        loadScriptsSequentially(scripts, index + 1, controllerName, resolve, reject);
+    };
+
+    script.onerror = function () {
+        console.error('Failed to load script: ' + scripts[index]);
+        reject();
+    };
+
+    document.head.appendChild(script);
 }
 
 /**
