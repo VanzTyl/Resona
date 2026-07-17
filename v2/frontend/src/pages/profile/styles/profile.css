@@ -395,3 +395,80 @@
         padding: 0 var(--rs-space-8) var(--rs-space-4);
     }
 }
+
+/* ========================================
+   TREQ-006: Profile Edit Form Container
+   ======================================== */
+
+#profile-form {
+    display: none;
+}
+
+.profile-form-container {
+    display: none;
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-5);
+    margin-top: var(--rs-space-4);
+    box-shadow: var(--rs-shadow-md);
+    animation: formSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+.profile-form-container--visible {
+    display: block;
+}
+
+@keyframes formSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-form-container .profile-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-4);
+    color: var(--rs-text);
+}
+
+.profile-form-container .form-group {
+    margin-bottom: var(--rs-space-3);
+}
+
+.profile-form-container .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.profile-form-actions {
+    display: flex;
+    gap: var(--rs-space-3);
+    margin-top: var(--rs-space-4);
+}
+
+.profile-form-actions .profile-edit-btn {
+    flex: 1;
+}
+
+[data-theme="light"] .profile-form-container {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-form-container {
+        animation: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .profile-form-container {
+        padding: var(--rs-space-4);
+        margin-left: var(--rs-space-3);
+        margin-right: var(--rs-space-3);
+    }
+}

@@ -41,7 +41,29 @@ function renderOnboardingPage() {
 
     page.classList.add('page--active');
 
+    // TREQ-001: Trigger glitch overlay on heading
+    triggerGlitchOnHeading(page);
+
     loadExistingProfile();
+}
+
+/**
+ * TREQ-001: Apply glitch overlay animation to the onboarding heading.
+ * Plays once on initial mount and resolves after 1.5 seconds.
+ *
+ * @param {HTMLElement} page - The onboarding page element.
+ */
+function triggerGlitchOnHeading(page) {
+    var titleEl = page.querySelector('#onboarding-title');
+    if (titleEl !== null && !titleEl.hasAttribute('data-glitch-played')) {
+        titleEl.setAttribute('data-glitch-played', 'true');
+        titleEl.setAttribute('data-text', titleEl.textContent);
+        titleEl.classList.add('glitch-overlay');
+        setTimeout(function () {
+            titleEl.classList.remove('glitch-overlay');
+            titleEl.removeAttribute('data-text');
+        }, 1500);
+    }
 }
 
 /** Create onboarding page DOM structure. @returns {HTMLElement} */

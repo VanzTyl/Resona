@@ -335,3 +335,104 @@
         max-width: 60%;
     }
 }
+
+/* ========================================
+   TREQ-003: Message Thread List Improvements
+   ======================================== */
+
+.thread-item--unread {
+    background: rgba(124, 58, 237, 0.05);
+    border-left: 3px solid var(--rs-primary);
+}
+
+.thread-item--entering {
+    animation: threadSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+@keyframes threadSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.thread-item__preview--playing {
+    color: var(--rs-secondary);
+}
+
+.thread-list-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--rs-space-10) var(--rs-space-4);
+    text-align: center;
+    color: var(--rs-text-dim);
+}
+
+.thread-list-empty__icon {
+    font-size: 48px;
+    margin-bottom: var(--rs-space-3);
+    opacity: 0.5;
+}
+
+.thread-list-empty__text {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+}
+
+.thread-item-skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3) var(--rs-space-4);
+}
+
+.thread-item-skeleton__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--rs-radius-full);
+    background: var(--rs-surface-elevated);
+    animation: shimmer 1.5s infinite;
+}
+
+.thread-item-skeleton__text {
+    flex: 1;
+}
+
+.thread-item-skeleton__line {
+    height: 12px;
+    border-radius: var(--rs-radius-sm);
+    background: var(--rs-surface-elevated);
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 4px;
+}
+
+.thread-item-skeleton__line:first-child {
+    width: 60%;
+}
+
+.thread-item-skeleton__line:last-child {
+    width: 40%;
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .thread-item--entering {
+        animation: none;
+    }
+    .thread-item-skeleton__avatar,
+    .thread-item-skeleton__line {
+        animation: none;
+        opacity: 0.5;
+    }
+}

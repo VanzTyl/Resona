@@ -464,6 +464,9 @@ async function loadProfile() {
         // v3.1: Edit Profile button — shows/hides the form
         setupEditProfileButton();
 
+        // TREQ-005: Ensure form is hidden after profile load
+        hideEditForm();
+
         if (typeof initIcons === 'function') {
             initIcons();
         }
@@ -602,6 +605,9 @@ async function saveProfile() {
             type: 'success',
         });
 
+        // TREQ-005: Hide form on successful save
+        hideEditForm();
+
         loadProfile();
     } catch (error) {
         showToast({
@@ -617,17 +623,19 @@ async function saveProfile() {
  *
  * @returns {void}
  */
+/**
+ * v3.3: Set up the Edit Profile button that toggles inline form visibility.
+ * TREQ-005: Form hidden by default, shown on edit click, hidden on save/cancel.
+ * TREQ-006: Form wrapped in profile-form-container with proper styling.
+ *
+ * @returns {void}
+ */
 function setupEditProfileButton() {
-    var form = document.getElementById('profile-form');
+    var formContainer = document.getElementById('profile-form-container');
     var header = document.getElementById('profile-header');
 
-    if (form === null || header === null) {
+    if (header === null) {
         return;
-    }
-
-    var existingBar = document.querySelector('.profile-edit-bar');
-    if (existingBar !== null) {
-        existingBar.remove();
     }
 
     var existingEditBtn = header.querySelector('.profile-header__edit-btn');
@@ -640,9 +648,12 @@ function setupEditProfileButton() {
 
     var editBtn = document.createElement('button');
     editBtn.className = 'profile-edit-btn';
+    editBtn.id = 'profile-edit-toggle-btn';
     editBtn.textContent = 'Edit Profile';
     editBtn.addEventListener('click', function () {
-        openEditProfileModal(form);
+        if (formContainer !== null) {
+            toggleEditForm(formContainer);
+        }
     });
 
     editBtnContainer.appendChild(editBtn);
@@ -652,6 +663,62 @@ function setupEditProfileButton() {
         header.insertBefore(editBtnContainer, infoEl.nextSibling);
     } else {
         header.appendChild(editBtnContainer);
+    }
+}
+
+/**
+ * Toggle the edit profile form visibility.
+ * TREQ-005: Form hidden by default, shown only on edit click.
+ *
+ * @param {HTMLElement} formContainer - The form container element.
+ */
+function toggleEditForm(formContainer) {
+    if (formContainer === null) {
+        return;
+    }
+    var isVisible = formContainer.style.display !== 'none';
+    if (isVisible) {
+        hideEditForm();
+    } else {
+        showEditForm();
+    }
+}
+
+/**
+ * Show the edit profile form.
+ */
+function showEditForm() {
+    var formContainer = document.getElementById('profile-form-container');
+    var editBtn = document.getElementById('profile-edit-toggle-btn');
+    if (formContainer !== null) {
+        formContainer.style.display = 'block';
+        formContainer.classList.add('profile-form-container--visible');
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    if (editBtn !== null) {
+        editBtn.textContent = 'Close';
+        editBtn.style.background = 'var(--rs-surface-elevated)';
+        editBtn.style.color = 'var(--rs-text)';
+        editBtn.style.border = '1px solid var(--rs-border)';
+    }
+}
+
+/**
+ * Hide the edit profile form.
+ * Called on Cancel click, save success, or initial page load.
+ */
+function hideEditForm() {
+    var formContainer = document.getElementById('profile-form-container');
+    var editBtn = document.getElementById('profile-edit-toggle-btn');
+    if (formContainer !== null) {
+        formContainer.style.display = 'none';
+        formContainer.classList.remove('profile-form-container--visible');
+    }
+    if (editBtn !== null) {
+        editBtn.textContent = 'Edit Profile';
+        editBtn.style.background = '';
+        editBtn.style.color = '';
+        editBtn.style.border = '';
     }
 }
 
