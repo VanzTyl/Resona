@@ -67,6 +67,7 @@
 .profile-header__edit-btn {
     padding: 0 var(--rs-space-5) var(--rs-space-4);
     display: flex;
+    margin-left: 500px;
 }
 
 .profile-edit-btn {
@@ -251,6 +252,7 @@
     background: var(--rs-primary-light);
     color: var(--rs-primary);
     margin: 2px;
+    align-items: center;
 }
 
 .tag--genre {

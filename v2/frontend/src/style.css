@@ -791,6 +791,8 @@ ul, ol {
     display: flex;
     flex-direction: column;
     max-width: 85%;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .message--sent {
@@ -1966,7 +1968,7 @@ ul, ol {
     #profile-content > #profile-genre-tags { grid-area: genres; }
     #profile-content > #profile-about-section { grid-area: about; }
     #profile-content > #profile-top-artists { grid-area: topartists; }
-    #profile-content > #profile-form { grid-area: form; }
+    #profile-content > #profile-form { grid-area: form; display: flex; }
 
     .profile-header__name {
         font-size: var(--rs-font-size-3xl);
@@ -5287,7 +5289,6 @@ ul, ol {
 }
 
 .form-group__label {
-    position: absolute;
     top: var(--rs-space-3);
     left: var(--rs-space-3);
     font-size: var(--rs-font-size-sm);
