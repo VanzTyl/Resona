@@ -1,0 +1,32 @@
+/* ========================================
+   Login Page Styles
+   Extracted from style.css (lines 1022-1048)
+   ======================================== */
+
+/* ----- Login Page ----- */
+.login-page {
+    text-align: center;
+    padding: var(--rs-space-8) var(--rs-space-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rs-space-6);
+}
+
+.login-page__logo {
+    font-size: 64px;
+    margin-bottom: var(--rs-space-2);
+}
+
+.login-page__title {
+    font-size: var(--rs-font-size-3xl);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-text);
+}
+
+.login-page__subtitle {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    max-width: 300px;
+    line-height: 1.6;
+}

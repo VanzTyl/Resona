@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Resona</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <!-- v3.0: 'Your Musical Identity Tour' — guided profile setup journey -->
+    <div id="page-onboarding" class="page page--centered page--active">
+        <div class="onboarding" id="onboarding-content">
+            <!-- Journey Line Progress -->
+            <div class="onboarding__progress" id="onboarding-progress">
+                <!-- JS populates .onboarding__station elements based on current step -->
+            </div>
+
+            <!-- Title + Subtitle -->
+            <h1 class="onboarding__title" id="onboarding-title">Welcome to Resona!</h1>
+            <p class="onboarding__subtitle" id="onboarding-subtitle">Let's set up your profile.</p>
+
+            <!-- Step Content (dynamic, rendered by JS via innerHTML) -->
+            <div id="onboarding-step-content">
+                <!-- Step-specific form fields go here -->
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="onboarding__actions" id="onboarding-actions">
+                <div id="onboarding-back-btn"></div>
+                <div id="onboarding-next-btn"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script src="../../script.js"></script>
+    <script src="onboarding-helpers.js"></script>
+    <script src="onboarding.js"></script>
+</body>
+</html>

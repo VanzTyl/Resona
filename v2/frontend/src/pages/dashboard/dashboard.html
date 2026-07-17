@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Dashboard</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+<body>
+    <!-- v3.0: 'Your Soundprint' — visual fingerprint of listening identity -->
+    <div id="page-dashboard" class="page page--active">
+        <header class="page__header">
+            <div class="page__header-brand">
+                <h1 class="page__title">Your Soundprint</h1>
+            </div>
+        </header>
+        <main class="page__content" id="dashboard-content">
+            <!-- Hero Stats Grid -->
+            <div id="dashboard-stats-grid" class="stats-grid">
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
+                </div>
+            </div>
+
+            <!-- Listening Clock (v3.0 NEW: CSS conic-gradient radial chart) -->
+            <div class="listening-clock">
+                <div class="listening-clock__title">Listening Clock</div>
+                <div class="listening-clock__chart" aria-label="24-hour listening activity distribution">
+                    <div class="listening-clock__center"></div>
+                </div>
+            </div>
+
+            <!-- Period Filter -->
+            <div id="dashboard-period-filter" class="period-filter"></div>
+
+            <!-- Top Artists — 'Your Headliners' -->
+            <h2 class="dashboard-section-title">Your Headliners</h2>
+            <div id="dashboard-artist-list" class="artist-list">
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+                <div class="artist-item">
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%;"></div>
+                    <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script src="../../script.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

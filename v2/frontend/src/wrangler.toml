@@ -1,0 +1,6 @@
+# Cloudflare Pages configuration
+# Deploy from repo root, output from forge/output/v2/frontend/src/
+# Run: npx wrangler pages deploy forge/output/v2/frontend/src --project-name=resona
+
+name = "resona"
+compatibility_date = "2026-07-17"

@@ -1,0 +1,142 @@
+/* ========================================
+   Onboarding Page Styles — Clean (v3.1)
+   TREQ-001: Glitch animation removed, input placeholder fix
+   ======================================== */
+
+/* === Glitch Overlay — REMOVED === */
+/* All glitch animation keyframes and .glitch-overlay class deleted per TREQ-001 */
+
+/* Onboarding base styles */
+.onboarding {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: var(--rs-space-6) var(--rs-space-4);
+}
+
+.onboarding__progress {
+    display: flex;
+    justify-content: center;
+    gap: var(--rs-space-2);
+    margin-bottom: var(--rs-space-4);
+}
+
+.onboarding__step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--rs-border);
+    transition: background var(--rs-motion-fast) var(--rs-easing);
+}
+
+.onboarding__step-dot--active {
+    background: var(--rs-primary);
+}
+
+.onboarding__step-dot--completed {
+    background: var(--rs-success);
+}
+
+.onboarding__title {
+    font-size: var(--rs-font-size-2xl);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-text);
+    text-align: center;
+    margin-bottom: var(--rs-space-2);
+}
+
+.onboarding__subtitle {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    text-align: center;
+    margin-bottom: var(--rs-space-6);
+}
+
+/* === Step Content Form Inputs — z-index fix === */
+#onboarding-step-content {
+    position: relative;
+    z-index: 1;
+}
+
+#onboarding-step-content .form-group__input {
+    position: relative;
+    z-index: 2;
+    background: var(--rs-surface);
+}
+
+#onboarding-step-content .form-group__input::placeholder {
+    color: var(--rs-text-dim);
+    opacity: 1;
+}
+
+/* Username check */
+.username-check {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-2);
+}
+
+.username-check__indicator {
+    font-size: var(--rs-font-size-lg);
+    min-width: 24px;
+    text-align: center;
+}
+
+.username-check__indicator--valid {
+    color: var(--rs-success);
+}
+
+.username-check__indicator--invalid {
+    color: var(--rs-error);
+}
+
+.onboarding__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--rs-space-3);
+    margin-top: var(--rs-space-6);
+}
+
+/* === Responsive: Tablet (768px – 1023px) === */
+@media (min-width: 768px) {
+    .onboarding {
+        max-width: 440px;
+        padding: var(--rs-space-10) var(--rs-space-6);
+    }
+
+    .onboarding__title {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    .onboarding__subtitle {
+        font-size: var(--rs-font-size-md);
+    }
+}
+
+/* === Responsive: Desktop (>= 1024px) === */
+@media (min-width: 1024px) {
+    #page-onboarding.page--centered {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+        padding: 0;
+    }
+
+    .onboarding {
+        max-width: 440px;
+        width: 100%;
+        background: var(--rs-surface);
+        border: 1px solid var(--rs-border);
+        border-radius: var(--rs-radius-lg);
+        padding: var(--rs-space-8);
+        box-shadow: var(--rs-shadow-md);
+    }
+}
+
+/* === Respect reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+    .onboarding__step-dot {
+        transition: none;
+    }
+}

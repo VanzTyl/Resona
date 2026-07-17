@@ -1,0 +1,21 @@
+# ========================================
+# Resona Backend — Docker ignore rules
+# ========================================
+
+# Environment
+.env
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temp
+tmp/

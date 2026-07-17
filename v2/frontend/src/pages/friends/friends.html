@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resona — Find Friends</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="styles/friends.css">
+</head>
+<body>
+    <!-- v3.0: 'The Connection Hub' — dynamic social discovery experience -->
+    <div id="page-friends" class="page page--active">
+        <header class="page__header">
+            <h1 class="page__title">Friends</h1>
+        </header>
+        <main class="page__content">
+            <!-- Search Section — 'The Spotlight' -->
+            <section class="friends-section friends-search-hero">
+                <h2 class="friends-section__title">Find People</h2>
+                <div class="friends-search-hero__input-wrapper">
+                    <input type="text" id="friend-search-input" class="search-input"
+                           placeholder="Search by username..." autocomplete="off" />
+                </div>
+                <div class="friends-search-hero__suggestions">
+                    <p class="friends-search-hero__hint">Try searching for music lovers...</p>
+                </div>
+                <div id="search-results" style="margin-top: 12px;"></div>
+            </section>
+
+            <!-- Incoming Requests Section — 'Knocking' (TREQ-002: Added visible header + badge) -->
+            <section id="incoming-requests-section" class="friends-section friends-section--requests" style="display: none;">
+                <div class="friends-section__header-row">
+                    <h2 class="friends-section__title">Incoming Requests</h2>
+                    <span class="friends-section__badge" id="incoming-requests-count" style="display: none;"></span>
+                </div>
+                <div id="incoming-requests-list">
+                    <!-- JS populates with .friend-request-card elements + Accept/Reject -->
+                </div>
+            </section>
+
+            <!-- Friends List Section — 'Your Circle' -->
+            <section id="friends-list-section" class="friends-section">
+                <h2 class="friends-section__title">Your Circle</h2>
+                <!-- JS populates with friend discs -->
+            </section>
+        </main>
+    </div>
+    <script src="../../globals/components/api-client.js"></script>
+    <script src="../../globals/components/icons.js"></script>
+    <script src="../../globals/components/theme.js"></script>
+    <script src="../../globals/components/button.js"></script>
+    <script src="../../globals/components/modal.js"></script>
+    <script src="../../globals/components/toast.js"></script>
+    <script src="../../globals/components/skeleton-loader.js"></script>
+    <script src="../../sidebar.js"></script>
+    <script src="../../script.js"></script>
+    <script src="friends.js"></script>
+</body>
+</html>

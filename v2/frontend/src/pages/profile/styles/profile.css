@@ -1,0 +1,549 @@
+/* ========================================
+   Profile Page Styles (v3.3)
+   TREQ-005: Edit button restyled, form hidden by default with toggle
+   Facebook desktop + Instagram mobile layouts
+   ======================================== */
+
+/* ----- Facebook-style Profile Header ----- */
+#profile-header {
+    position: relative;
+    margin-bottom: var(--rs-space-4);
+    border-radius: var(--rs-radius-lg);
+    overflow: hidden;
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+}
+
+.profile-header__cover {
+    height: 140px;
+    background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary), var(--rs-accent));
+    opacity: 0.85;
+}
+
+#profile-header .profile-header__avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--rs-radius-full);
+    object-fit: cover;
+    border: 4px solid var(--rs-surface);
+    position: absolute;
+    left: var(--rs-space-5);
+    bottom: -40px;
+    z-index: 2;
+    margin: 0;
+    flex-shrink: 0;
+    box-shadow: var(--rs-shadow-md);
+}
+
+.profile-header__info {
+    padding: calc(var(--rs-space-10) + var(--rs-space-2)) var(--rs-space-5) var(--rs-space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-1);
+}
+
+#profile-header .profile-header__name {
+    font-size: var(--rs-font-size-2xl);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-text);
+    margin: 0;
+    line-height: 1.2;
+}
+
+#profile-header .profile-header__username {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    font-weight: var(--rs-font-weight-medium);
+}
+
+#profile-header .profile-header__bio {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-dim);
+    line-height: 1.5;
+    margin-top: var(--rs-space-2);
+}
+
+/* === TREQ-005: Edit button restyled to match design system === */
+.profile-header__edit-btn {
+    padding: 0 var(--rs-space-5) var(--rs-space-4);
+    display: flex;
+}
+
+.profile-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rs-space-2);
+    border-radius: var(--rs-radius-md);
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+    white-space: nowrap;
+    user-select: none;
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--rs-space-2) var(--rs-space-5);
+    background: var(--rs-primary);
+    color: #fff;
+    flex: 1;
+    text-align: center;
+}
+
+.profile-edit-btn:hover {
+    background: var(--rs-primary-hover);
+}
+
+.profile-edit-btn:active {
+    transform: scale(0.98);
+}
+
+.profile-edit-btn:focus-visible {
+    outline: 2px solid var(--rs-primary);
+    outline-offset: 2px;
+}
+
+/* === TREQ-005: Profile form — HIDDEN by default === */
+#profile-form {
+    display: none;
+}
+
+/* Form container (visible when toggled) */
+#profile-form.profile-form--visible {
+    display: block;
+}
+
+/* Profile form wrapper inside the page */
+.profile-form-wrapper {
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-5);
+    margin-top: var(--rs-space-4);
+    box-shadow: var(--rs-shadow-md);
+    animation: formSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+.profile-form-wrapper .profile-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-4);
+    color: var(--rs-text);
+}
+
+.profile-form-wrapper .form-group {
+    margin-bottom: var(--rs-space-3);
+}
+
+.profile-form-wrapper .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+[data-theme="light"] .profile-form-wrapper {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Form actions row */
+.profile-form-actions {
+    display: flex;
+    gap: var(--rs-space-3);
+    margin-top: var(--rs-space-4);
+}
+
+.profile-form-actions .profile-edit-btn {
+    flex: 1;
+}
+
+.profile-form-actions .profile-edit-btn--cancel {
+    background: transparent;
+    color: var(--rs-text-muted);
+    border: 1px solid var(--rs-border);
+}
+
+.profile-form-actions .profile-edit-btn--cancel:hover {
+    background: var(--rs-surface-elevated);
+    color: var(--rs-text);
+}
+
+/* ========================================
+   Modal body form (for mobile)
+   ======================================== */
+.rs-modal__body .profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-3);
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: var(--rs-space-2);
+}
+
+/* Stats row */
+.stats-row {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--rs-border);
+    padding: var(--rs-space-3) var(--rs-space-5);
+    margin: 0;
+}
+
+.stats-row .stat-card {
+    flex: 1;
+    text-align: center;
+    padding: var(--rs-space-2);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.stats-row .stat-card:not(:last-child) {
+    border-right: 1px solid var(--rs-border);
+}
+
+.stats-row .stat-card__value {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-text);
+}
+
+.stats-row .stat-card__label {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+    margin-top: 2px;
+}
+
+/* ----- Section Cards ----- */
+#profile-content .profile-section,
+#profile-content .tags-card,
+#profile-content .about-section {
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-4);
+    margin: var(--rs-space-3) 0;
+}
+
+.profile-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-3);
+    color: var(--rs-text);
+}
+
+#profile-content .about-section {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    line-height: 1.6;
+}
+
+/* Tags */
+#profile-interests-tags:empty,
+#profile-genre-tags:empty {
+    display: none;
+}
+
+.tag {
+    display: inline-flex;
+    padding: 2px 10px;
+    border-radius: var(--rs-radius-full);
+    font-size: var(--rs-font-size-sm);
+    background: var(--rs-primary-light);
+    color: var(--rs-primary);
+    margin: 2px;
+}
+
+.tag--genre {
+    background: rgba(244, 114, 182, 0.15);
+    color: var(--rs-secondary);
+}
+
+/* Artist list in profile */
+#profile-top-artists .artist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-2);
+    border-radius: var(--rs-radius-md);
+}
+
+/* ----- Form Controls (shared across page and modal) ----- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-1);
+}
+
+.form-group__label {
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    color: var(--rs-text-muted);
+}
+
+.form-group__input {
+    padding: var(--rs-space-3);
+    border-radius: var(--rs-radius-md);
+    border: 1px solid var(--rs-border);
+    background: var(--rs-surface);
+    color: var(--rs-text);
+    font-size: var(--rs-font-size-base);
+    min-height: 44px;
+}
+
+.form-group__input:focus {
+    border-color: var(--rs-primary);
+    outline: none;
+}
+
+.form-group__input--textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group__hint {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-dim);
+    margin-top: 2px;
+    display: block;
+}
+
+.character-counter {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-dim);
+    text-align: right;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Privacy selector */
+.privacy-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-2);
+}
+
+.privacy-option {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3);
+    border-radius: var(--rs-radius-md);
+    border: 1px solid var(--rs-border);
+    cursor: pointer;
+    transition: border-color var(--rs-motion-fast) var(--rs-easing),
+                background-color var(--rs-motion-fast) var(--rs-easing);
+}
+
+.privacy-option:hover {
+    border-color: var(--rs-primary);
+}
+
+.privacy-option--selected {
+    border-color: var(--rs-primary);
+    background: var(--rs-primary-light);
+}
+
+.privacy-option input[type="radio"] {
+    accent-color: var(--rs-primary);
+    width: 18px;
+    height: 18px;
+}
+
+/* Save button */
+#profile-save-container .rs-btn--primary {
+    background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary));
+    border: none;
+    font-size: var(--rs-font-size-md);
+    padding: var(--rs-space-3) var(--rs-space-6);
+    min-height: 52px;
+    width: 100%;
+}
+
+/* Logout button */
+#profile-logout-container .rs-btn {
+    background: transparent;
+    color: var(--rs-error);
+    font-size: var(--rs-font-size-sm);
+    border: none;
+    padding: var(--rs-space-2) var(--rs-space-4);
+}
+
+#profile-logout-container .rs-btn:hover {
+    color: #dc2626;
+    text-decoration: underline;
+}
+
+/* ========================================
+   Animation
+   ======================================== */
+@keyframes formSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-form-wrapper {
+        animation: none;
+    }
+}
+
+/* ========================================
+   Instagram-style Mobile Profile (<768px)
+   ======================================== */
+@media (max-width: 767px) {
+    #profile-header {
+        text-align: center;
+    }
+
+    .profile-header__cover {
+        height: 100px;
+    }
+
+    #profile-header .profile-header__avatar {
+        width: 96px;
+        height: 96px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -36px;
+    }
+
+    .profile-header__info {
+        padding: calc(var(--rs-space-10)) var(--rs-space-4) var(--rs-space-3);
+        align-items: center;
+    }
+
+    #profile-header .profile-header__name {
+        font-size: var(--rs-font-size-xl);
+    }
+
+    .profile-header__edit-btn {
+        padding: 0 var(--rs-space-4) var(--rs-space-3);
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        padding: var(--rs-space-3) var(--rs-space-4);
+    }
+
+    .stats-row .stat-card__value {
+        font-size: var(--rs-font-size-md);
+    }
+
+    .stats-row .stat-card__label {
+        font-size: var(--rs-font-size-xs);
+    }
+
+    .stats-row .stat-card:not(:last-child) {
+        border-right: 1px solid var(--rs-border);
+    }
+
+    .profile-form-wrapper {
+        padding: var(--rs-space-4);
+        margin-left: var(--rs-space-3);
+        margin-right: var(--rs-space-3);
+    }
+}
+
+/* ========================================
+   Facebook-style Desktop Profile (>=768px)
+   ======================================== */
+@media (min-width: 768px) {
+    .profile-header__cover {
+        height: 180px;
+    }
+
+    #profile-header .profile-header__avatar {
+        width: 132px;
+        height: 132px;
+        bottom: -44px;
+    }
+
+    .profile-header__info {
+        padding: calc(var(--rs-space-12)) var(--rs-space-5) var(--rs-space-4);
+    }
+
+    #profile-header .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    /* Tablet: 2-column grid layout */
+    #profile-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header header"
+            "stats topartists"
+            "interests topartists"
+            "genres topartists"
+            "about topartists"
+            "form form";
+        gap: var(--rs-space-4);
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    #profile-content > #profile-header { grid-area: header; }
+    #profile-content > #profile-stats-row { grid-area: stats; }
+    #profile-content > #profile-interests-tags { grid-area: interests; }
+    #profile-content > #profile-genre-tags { grid-area: genres; }
+    #profile-content > #profile-about-section { grid-area: about; }
+    #profile-content > #profile-top-artists { grid-area: topartists; }
+    #profile-content > .profile-form-wrapper,
+    #profile-content > #profile-form.profile-form--visible { grid-area: form; }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    .profile-header__avatar {
+        width: 120px;
+        height: 120px;
+        border-width: 4px;
+    }
+
+    .profile-header__bio {
+        max-width: 500px;
+    }
+
+    .stats-row {
+        gap: var(--rs-space-4);
+    }
+
+    .profile-edit-btn {
+        flex: 0 1 auto;
+        max-width: 200px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .profile-header__cover {
+        height: 200px;
+    }
+
+    #profile-header .profile-header__avatar {
+        width: 140px;
+        height: 140px;
+        bottom: -50px;
+        left: var(--rs-space-8);
+    }
+
+    .profile-header__info {
+        padding: calc(var(--rs-space-16)) var(--rs-space-8) var(--rs-space-5);
+    }
+
+    .stats-row {
+        padding: var(--rs-space-3) var(--rs-space-8);
+    }
+
+    .profile-header__edit-btn {
+        padding: 0 var(--rs-space-8) var(--rs-space-4);
+    }
+}

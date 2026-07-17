@@ -1,0 +1,32 @@
+# ========================================
+# Resona Frontend — Netlify Configuration
+# ========================================
+
+[build]
+  # Publish directory (where index.html lives)
+  publish = "src"
+
+  # Generate env-config.js from Netlify env vars at deploy time
+  # Set RESONA_API_URL and RESONA_APP_URL in Netlify UI → Environment variables
+  command = "echo \"window.__ENV__ = { RESONA_API_URL: '$RESONA_API_URL', RESONA_APP_URL: '$RESONA_APP_URL' };\" > src/env-config.js"
+
+# === Redirects for SPA support ===
+# Hash-based routing (#/feed, #/login) works without this,
+# but it's here for future non-hash routes and direct URL access
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# === Security headers ===
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
