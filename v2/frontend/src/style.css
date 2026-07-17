@@ -1248,6 +1248,7 @@ ul, ol {
     background: var(--rs-primary-light);
     color: var(--rs-primary);
     margin: 2px;
+    align-items: center;
 }
 
 .tag--genre {
