@@ -738,6 +738,7 @@ function hideEditForm() {
             btn.style.background = '';
             btn.style.color = '';
             btn.style.border = '';
+            btn.style.marginLeft = '500px';
         }
     });
 }
