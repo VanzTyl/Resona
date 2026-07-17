@@ -99,55 +99,67 @@ function handleGetFeed(array $params): void
     $userArtistNames = array_column($userArtists, 'artist_name');
 
     $uniqueFriendIds = array_unique(array_column($events, 'user_id'));
-    $friendIdPlaceholders = implode(',', array_fill(0, count($uniqueFriendIds), '?'));
 
-    // Batch-fetch weekly top tracks for all friend IDs in one query
-    $weeklyTops = dbQuery(
-        "SELECT user_id, track_name, artist_names, album_art_url, COUNT(*) AS play_count
-         FROM listening_events
-         WHERE user_id IN ({$friendIdPlaceholders})
-           AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-         GROUP BY user_id, spotify_track_id, track_name, artist_names, album_art_url
-         ORDER BY user_id, play_count DESC",
-        $uniqueFriendIds
-    );
-    $weeklyTopMap = [];
-    foreach ($weeklyTops as $wt) {
-        if (!isset($weeklyTopMap[$wt['user_id']])) {
-            $weeklyTopMap[$wt['user_id']] = $wt;
+    if (count($uniqueFriendIds) === 0) {
+        $weeklyTopMap = [];
+        $friendArtistsMap = [];
+    } else {
+        $friendIdPlaceholders = implode(',', array_fill(0, count($uniqueFriendIds), '?'));
+
+        // Batch-fetch weekly top tracks for all friend IDs in one query
+        $weeklyTops = dbQuery(
+            "SELECT user_id, track_name, artist_names, album_art_url, COUNT(*) AS play_count
+             FROM listening_events
+             WHERE user_id IN ({$friendIdPlaceholders})
+               AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+             GROUP BY user_id, spotify_track_id, track_name, artist_names, album_art_url
+             ORDER BY user_id, play_count DESC",
+            $uniqueFriendIds
+        );
+        $weeklyTopMap = [];
+        foreach ($weeklyTops as $wt) {
+            if (!isset($weeklyTopMap[$wt['user_id']])) {
+                $weeklyTopMap[$wt['user_id']] = $wt;
+            }
         }
-    }
 
-    // Batch-fetch top artists for all friends
-    $allFriendArtists = dbQuery(
-        "SELECT user_id, artist_name FROM user_artists
-         WHERE user_id IN ({$friendIdPlaceholders})
-         ORDER BY user_id, play_count DESC",
-        $uniqueFriendIds
-    );
-    $friendArtistsMap = [];
-    foreach ($allFriendArtists as $row) {
-        $friendArtistsMap[(int)$row['user_id']][] = $row['artist_name'];
+        // Batch-fetch top artists for all friends
+        $allFriendArtists = dbQuery(
+            "SELECT user_id, artist_name FROM user_artists
+             WHERE user_id IN ({$friendIdPlaceholders})
+             ORDER BY user_id, play_count DESC",
+            $uniqueFriendIds
+        );
+        $friendArtistsMap = [];
+        foreach ($allFriendArtists as $row) {
+            $friendArtistsMap[(int)$row['user_id']][] = $row['artist_name'];
+        }
     }
 
     // Batch-fetch reaction summaries for all card IDs in one query
     $cardIds = array_column($events, 'id');
-    $cardIdPlaceholders = implode(',', array_fill(0, count($cardIds), '?'));
 
-    $reactionsBatch = dbQuery(
-        "SELECT listening_event_id, emoji, COUNT(*) AS count
-         FROM reactions
-         WHERE listening_event_id IN ({$cardIdPlaceholders})
-         GROUP BY listening_event_id, emoji",
-        $cardIds
-    );
+    if (count($cardIds) === 0) {
+        $reactionsBatch = [];
+        $userReactedMap = [];
+    } else {
+        $cardIdPlaceholders = implode(',', array_fill(0, count($cardIds), '?'));
 
-    $userReactions = dbQuery(
-        "SELECT listening_event_id FROM reactions
-         WHERE listening_event_id IN ({$cardIdPlaceholders}) AND user_id = ?",
-        array_merge($cardIds, [$userId])
-    );
-    $userReactedMap = array_fill_keys(array_column($userReactions, 'listening_event_id'), true);
+        $reactionsBatch = dbQuery(
+            "SELECT listening_event_id, emoji, COUNT(*) AS count
+             FROM reactions
+             WHERE listening_event_id IN ({$cardIdPlaceholders})
+             GROUP BY listening_event_id, emoji",
+            $cardIds
+        );
+
+        $userReactions = dbQuery(
+            "SELECT listening_event_id FROM reactions
+             WHERE listening_event_id IN ({$cardIdPlaceholders}) AND user_id = ?",
+            array_merge($cardIds, [$userId])
+        );
+        $userReactedMap = array_fill_keys(array_column($userReactions, 'listening_event_id'), true);
+    }
 
     // Build reaction summary lookup map
     $reactionSummaryMap = [];

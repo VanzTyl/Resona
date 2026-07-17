@@ -126,13 +126,20 @@ function createFeedCard(cardData, onReaction) {
     emojiRow.className = 'feed-card__emoji-row';
 
     // v1.1: Lucide icon names for reactions
-    const VALID_REACTION_NAMES = ['flame', 'heart', 'music', 'dance', 'guitar', 'angry', 'award', 'eye', 'handshake', 'headphones'];
+    const VALID_REACTION_NAMES = ['flame', 'heart', 'music'];
+
+    var userReacted = cardData.reactionSummary.userReacted;
 
     VALID_REACTION_NAMES.forEach(function (iconName) {
         const emojiBtn = document.createElement('button');
         emojiBtn.className = 'feed-card__emoji-btn';
         emojiBtn.setAttribute('aria-label', 'React with ' + iconName);
         emojiBtn.setAttribute('title', 'React with ' + iconName);
+
+        var isReacted = Array.isArray(userReacted) ? userReacted.indexOf(iconName) !== -1 : !!userReacted[iconName];
+        if (isReacted) {
+            emojiBtn.classList.add('feed-card__emoji-btn--reacted');
+        }
 
         // Use Lucide icon if createIcon is available
         if (typeof createIcon === 'function') {

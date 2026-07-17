@@ -50,7 +50,7 @@ const MESSAGE_TYPE_MANUAL = 'manual';
 const MESSAGE_TYPE_AUTO = 'auto';
 
 // Reaction Type Constants — v1.1: Lucide icon names
-const VALID_REACTIONS = ['flame', 'heart', 'music', 'dance', 'guitar', 'angry', 'award', 'eye', 'handshake', 'headphones'];
+const VALID_REACTIONS = ['flame', 'heart', 'music'];
 // Keep VALID_EMOJIS for backwards compatibility with existing data
 const VALID_EMOJIS = ['🔥', '❤️', '🎵', '💃', '🎸', '😤', '💯', '👀', '🤝', '🎧'];
 

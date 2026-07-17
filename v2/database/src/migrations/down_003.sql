@@ -5,23 +5,23 @@
 -- ========================================
 
 -- 1. Drop foreign key constraints (reverse order of creation)
-ALTER TABLE spotify_tokens DROP FOREIGN KEY IF EXISTS fk_spotify_tokens_user;
+ALTER TABLE spotify_tokens DROP FOREIGN KEY fk_spotify_tokens_user;
 
-ALTER TABLE reactions DROP FOREIGN KEY IF EXISTS fk_reactions_user;
-ALTER TABLE reactions DROP FOREIGN KEY IF EXISTS fk_reactions_event;
+ALTER TABLE reactions DROP FOREIGN KEY fk_reactions_user;
+ALTER TABLE reactions DROP FOREIGN KEY fk_reactions_event;
 
-ALTER TABLE user_artists DROP FOREIGN KEY IF EXISTS fk_user_artists_user;
+ALTER TABLE user_artists DROP FOREIGN KEY fk_user_artists_user;
 
-ALTER TABLE listening_events DROP FOREIGN KEY IF EXISTS fk_listening_events_user;
+ALTER TABLE listening_events DROP FOREIGN KEY fk_listening_events_user;
 
-ALTER TABLE messages DROP FOREIGN KEY IF EXISTS fk_messages_sender;
-ALTER TABLE messages DROP FOREIGN KEY IF EXISTS fk_messages_thread;
+ALTER TABLE messages DROP FOREIGN KEY fk_messages_sender;
+ALTER TABLE messages DROP FOREIGN KEY fk_messages_thread;
 
-ALTER TABLE friendships DROP FOREIGN KEY IF EXISTS fk_friendships_receiver;
-ALTER TABLE friendships DROP FOREIGN KEY IF EXISTS fk_friendships_sender;
+ALTER TABLE friendships DROP FOREIGN KEY fk_friendships_receiver;
+ALTER TABLE friendships DROP FOREIGN KEY fk_friendships_sender;
 
-ALTER TABLE chat_threads DROP FOREIGN KEY IF EXISTS fk_chat_threads_user2;
-ALTER TABLE chat_threads DROP FOREIGN KEY IF EXISTS fk_chat_threads_user1;
+ALTER TABLE chat_threads DROP FOREIGN KEY fk_chat_threads_user2;
+ALTER TABLE chat_threads DROP FOREIGN KEY fk_chat_threads_user1;
 
 -- 2. Drop the unique key and recreate with original name
 ALTER TABLE chat_threads DROP INDEX uk_chat_pair;

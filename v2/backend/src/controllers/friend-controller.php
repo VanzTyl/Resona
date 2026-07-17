@@ -190,10 +190,10 @@ function handleListFriends(array $params): void
             "SELECT u.id, u.username, u.display_name AS displayName, u.avatar_url AS avatarUrl
              FROM (
                  SELECT receiver_id AS friend_id FROM friendships
-                 WHERE sender_id = :userId1 AND status = :status
+                 WHERE sender_id = :userId1 AND status = :status1
                  UNION
                  SELECT sender_id AS friend_id FROM friendships
-                 WHERE receiver_id = :userId2 AND status = :status
+                 WHERE receiver_id = :userId2 AND status = :status2
              ) AS f
              JOIN users u ON u.id = f.friend_id
              ORDER BY u.display_name ASC
@@ -201,7 +201,8 @@ function handleListFriends(array $params): void
             [
                 ':userId1' => $userId,
                 ':userId2' => $userId,
-                ':status' => FRIEND_STATUS_ACCEPTED,
+                ':status1' => FRIEND_STATUS_ACCEPTED,
+                ':status2' => FRIEND_STATUS_ACCEPTED,
             ]
         );
 

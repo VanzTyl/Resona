@@ -307,7 +307,7 @@ async function handleReaction(cardId, emoji) {
             emojiBtns.forEach(function (btn) {
                 var iconEl = btn.querySelector('[data-lucide]');
                 if (iconEl !== null && iconEl.getAttribute('data-lucide') === emoji) {
-                    btn.classList.add('feed-card__emoji-btn--active');
+                    btn.classList.toggle('feed-card__emoji-btn--reacted');
                 }
             });
         }

@@ -26,6 +26,7 @@ function createEl(tag, attrs) {
     if (attrs.maxl) el.maxLength = attrs.maxl;
     if (attrs.name) el.name = attrs.name;
     if (attrs.checked) el.checked = true;
+    if (attrs.value !== undefined) el.value = attrs.value;
     return el;
 }
 
