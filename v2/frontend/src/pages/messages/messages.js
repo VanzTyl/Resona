@@ -117,9 +117,15 @@ function createMessagesPageStructure() {
     chatInput.appendChild(textarea);
 
     const sendBtn = document.createElement('button');
-    sendBtn.className = 'rs-btn rs-btn--primary';
+    sendBtn.className = 'rs-btn rs-btn--primary rs-btn--icon-circle';
     sendBtn.id = 'chat-send-btn';
     sendBtn.setAttribute('aria-label', 'Send message');
+    if (typeof createIcon === 'function') {
+        const sendIcon = createIcon('send', { size: 20 });
+        sendBtn.appendChild(sendIcon);
+    } else {
+        sendBtn.textContent = 'Send';
+    }
     chatInput.appendChild(sendBtn);
 
     chatPane.appendChild(chatInput);
@@ -181,42 +187,63 @@ async function loadThreadList() {
 
         friends.forEach(function (friend) {
             var threadItem = document.createElement('div');
-            threadItem.className = 'search-result-item';
-            threadItem.style.cursor = 'pointer';
+            threadItem.className = 'thread-item';
             threadItem.setAttribute('data-friend-id', String(friend.id));
+            if (friend.isPlaying) {
+                threadItem.classList.add('thread-item--online');
+            }
+
+            var avatarWrapper = document.createElement('div');
+            avatarWrapper.className = 'thread-item__avatar-wrapper';
 
             var avatar = document.createElement('img');
-            avatar.className = 'search-result-item__avatar';
+            avatar.className = 'thread-item__avatar';
             avatar.src = friend.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = '';
-            threadItem.appendChild(avatar);
+            avatarWrapper.appendChild(avatar);
+
+            var onlineDot = document.createElement('div');
+            onlineDot.className = 'thread-item__online-dot';
+            avatarWrapper.appendChild(onlineDot);
+
+            threadItem.appendChild(avatarWrapper);
 
             var info = document.createElement('div');
-            info.className = 'search-result-item__info';
+            info.className = 'thread-item__info';
 
             var name = document.createElement('div');
-            name.className = 'search-result-item__name';
+            name.className = 'thread-item__name';
             name.textContent = friend.displayName;
             info.appendChild(name);
 
-            var status = document.createElement('div');
-            status.className = 'search-result-item__username';
-            status.textContent = friend.currentlyPlayingTrack
+            var preview = document.createElement('div');
+            preview.className = 'thread-item__preview';
+            preview.textContent = friend.currentlyPlayingTrack
                 ? '\u266B ' + friend.currentlyPlayingTrack
-                : '';
-            info.appendChild(status);
+                : (friend.lastMessage || 'Start a conversation');
+            info.appendChild(preview);
 
             threadItem.appendChild(info);
 
-            var unreadCount = friend.unreadCount || 0;
+            var meta = document.createElement('div');
+            meta.className = 'thread-item__meta';
 
+            if (friend.lastMessageTime) {
+                var timeEl = document.createElement('div');
+                timeEl.className = 'thread-item__time';
+                timeEl.textContent = formatMessageTime(friend.lastMessageTime);
+                meta.appendChild(timeEl);
+            }
+
+            var unreadCount = friend.unreadCount || 0;
             if (unreadCount > 0) {
                 var badge = document.createElement('span');
-                badge.className = 'bottom-nav__unread-badge';
-                badge.style.position = 'static';
+                badge.className = 'thread-item__unread-badge';
                 badge.textContent = unreadCount;
-                threadItem.appendChild(badge);
+                meta.appendChild(badge);
             }
+
+            threadItem.appendChild(meta);
 
             threadItem.addEventListener('click', function () {
                 loadChatThread(friend.id, friend.displayName, friend.avatarUrl);
@@ -310,15 +337,11 @@ async function loadChatThread(friendId, friendName, friendAvatarUrl) {
 
     // Clear thread list selection highlight.
     if (threadList !== null) {
-        var items = threadList.querySelectorAll('.search-result-item');
+        var items = threadList.querySelectorAll('.thread-item');
         items.forEach(function (item) {
-            item.classList.remove('search-result-item--active');
-        });
-
-        // Find and highlight the selected friend.
-        items.forEach(function (item) {
+            item.classList.remove('thread-item--active');
             if (item.getAttribute('data-friend-id') === String(friendId)) {
-                item.classList.add('search-result-item--active');
+                item.classList.add('thread-item--active');
             }
         });
     }

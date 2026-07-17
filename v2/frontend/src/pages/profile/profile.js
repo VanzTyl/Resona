@@ -121,6 +121,11 @@ function setupProfileContainers() {
     if (el !== null) {
         el.className = 'profile-section';
     }
+
+    var statsRow = document.getElementById('profile-stats-row');
+    if (statsRow !== null) {
+        statsRow.className = 'stats-row';
+    }
 }
 
 /* Helper functions (createEl, createFormField, createTextField, etc.)
@@ -147,35 +152,44 @@ async function loadProfile() {
             // Non-critical.
         }
 
-        // Populate profile header.
-        const profileHeader = document.getElementById('profile-header');
+        // Populate profile header — Facebook/Instagram layout.
+        var profileHeader = document.getElementById('profile-header');
         if (profileHeader !== null) {
             while (profileHeader.firstChild !== null) {
                 profileHeader.removeChild(profileHeader.firstChild);
             }
 
-            const avatar = document.createElement('img');
+            var cover = document.createElement('div');
+            cover.className = 'profile-header__cover';
+            profileHeader.appendChild(cover);
+
+            var avatar = document.createElement('img');
             avatar.className = 'profile-header__avatar';
             avatar.src = profile.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = 'Profile picture';
             profileHeader.appendChild(avatar);
 
-            const name = document.createElement('h2');
+            var info = document.createElement('div');
+            info.className = 'profile-header__info';
+
+            var name = document.createElement('h2');
             name.className = 'profile-header__name';
             name.textContent = profile.displayName;
-            profileHeader.appendChild(name);
+            info.appendChild(name);
 
-            const username = document.createElement('p');
+            var username = document.createElement('p');
             username.className = 'profile-header__username';
             username.textContent = '@' + profile.username;
-            profileHeader.appendChild(username);
+            info.appendChild(username);
 
             if (profile.bio) {
-                const bio = document.createElement('p');
+                var bio = document.createElement('p');
                 bio.className = 'profile-header__bio';
                 bio.textContent = profile.bio;
-                profileHeader.appendChild(bio);
+                info.appendChild(bio);
             }
+
+            profileHeader.appendChild(info);
         }
 
         // Populate stats row.
@@ -598,69 +612,197 @@ async function saveProfile() {
 }
 
 /**
- * v3.1: Set up the Edit Profile button that toggles the form visibility.
- * Creates an edit bar with a button, inserted before the form.
- * Also adds a Cancel button inside the form to hide it.
+ * v3.2: Set up the Edit Profile button that opens a modal popup.
+ * Uses createModal() for the edit form instead of inline collapse.
  *
  * @returns {void}
  */
 function setupEditProfileButton() {
     var form = document.getElementById('profile-form');
-    var content = document.getElementById('profile-content');
+    var header = document.getElementById('profile-header');
 
-    if (form === null || content === null) {
+    if (form === null || header === null) {
         return;
     }
 
-    // Remove any existing edit bar (from previous page renders).
     var existingBar = document.querySelector('.profile-edit-bar');
     if (existingBar !== null) {
         existingBar.remove();
     }
 
-    // Create the edit button bar.
-    var editBar = document.createElement('div');
-    editBar.className = 'profile-edit-bar';
+    var existingEditBtn = header.querySelector('.profile-header__edit-btn');
+    if (existingEditBtn !== null) {
+        existingEditBtn.remove();
+    }
+
+    var editBtnContainer = document.createElement('div');
+    editBtnContainer.className = 'profile-header__edit-btn';
 
     var editBtn = document.createElement('button');
     editBtn.className = 'profile-edit-btn';
     editBtn.textContent = 'Edit Profile';
     editBtn.addEventListener('click', function () {
-        if (form !== null) {
-            form.classList.remove('profile-form--collapsible');
-            form.classList.add('profile-form--visible');
-        }
-        if (editBar !== null) {
-            editBar.style.display = 'none';
+        openEditProfileModal(form);
+    });
+
+    editBtnContainer.appendChild(editBtn);
+
+    var infoEl = header.querySelector('.profile-header__info');
+    if (infoEl !== null) {
+        header.insertBefore(editBtnContainer, infoEl.nextSibling);
+    } else {
+        header.appendChild(editBtnContainer);
+    }
+}
+
+/**
+ * Open the edit profile modal using createModal().
+ *
+ * @param {HTMLElement} form - The profile form element.
+ * @returns {void}
+ */
+function openEditProfileModal(form) {
+    var modalContent = document.createElement('div');
+    modalContent.className = 'profile-form';
+    modalContent.style.display = 'flex';
+    modalContent.style.flexDirection = 'column';
+    modalContent.style.gap = 'var(--rs-space-4)';
+    modalContent.style.maxHeight = '65vh';
+    modalContent.style.overflowY = 'auto';
+    modalContent.style.padding = '0';
+
+    var fieldMap = {
+        'profile-display-name': 'displayName',
+        'profile-avatar-url': 'avatarUrl',
+        'profile-username': 'username',
+        'profile-bio': 'bio',
+        'profile-interests': 'interests',
+        'profile-favorite-genres': 'favoriteGenres',
+        'profile-about-me': 'aboutMe',
+    };
+
+    Object.keys(fieldMap).forEach(function (inputId) {
+        var sourceField = document.getElementById(inputId);
+        if (sourceField === null) { return; }
+        var group = sourceField.closest('.form-group');
+        if (group !== null) {
+            var clone = group.cloneNode(true);
+            var clonedInput = clone.querySelector('#' + inputId);
+            if (clonedInput !== null) {
+                clonedInput.value = sourceField.value;
+            }
+            modalContent.appendChild(clone);
         }
     });
 
-    editBar.appendChild(editBtn);
-
-    // Insert the edit bar before the form.
-    form.parentNode.insertBefore(editBar, form);
-
-    // Add a Cancel button inside the form if not already present.
-    var existingCancel = form.querySelector('.profile-edit-btn--cancel');
-    if (existingCancel === null) {
-        var cancelSection = document.createElement('div');
-        cancelSection.style.display = 'flex';
-        cancelSection.style.gap = 'var(--rs-space-3)';
-        cancelSection.style.marginTop = 'var(--rs-space-3)';
-
-        var cancelBtn = document.createElement('button');
-        cancelBtn.className = 'profile-edit-btn profile-edit-btn--cancel';
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.addEventListener('click', function () {
-            form.classList.add('profile-form--collapsible');
-            form.classList.remove('profile-form--visible');
-            if (editBar !== null) {
-                editBar.style.display = '';
+    var privacySelector = document.getElementById('profile-privacy-selector');
+    if (privacySelector !== null) {
+        modalContent.appendChild(privacySelector.cloneNode(true));
+        var selectedRadio = document.querySelector('input[name="privacy"]:checked');
+        if (selectedRadio !== null) {
+            var clonedRadio = modalContent.querySelector('input[value="' + selectedRadio.value + '"]');
+            if (clonedRadio !== null) {
+                clonedRadio.checked = true;
             }
-        });
+        }
+    }
 
-        cancelSection.appendChild(cancelBtn);
-        form.appendChild(cancelSection);
+    var saveContainer = document.createElement('div');
+    saveContainer.id = 'profile-save-container';
+    saveContainer.appendChild(createButton({
+        label: 'Save Changes',
+        variant: 'primary',
+        isFullWidth: true,
+        onClick: function () { },
+    }));
+    modalContent.appendChild(saveContainer);
+
+    var modalInstance = createModal({
+        title: 'Edit Profile',
+        content: modalContent,
+        onClose: function () {
+            loadProfile();
+        },
+    });
+
+    var saveBtn = modalContent.querySelector('#profile-save-container .rs-btn--primary');
+    if (saveBtn !== null) {
+        saveBtn.addEventListener('click', function () {
+            saveProfileFromModal(modalContent, modalInstance);
+        });
+    }
+
+    modalInstance.open();
+
+    if (typeof initIcons === 'function') {
+        initIcons();
+    }
+}
+
+/**
+ * Save profile changes from the modal form.
+ *
+ * @param {HTMLElement} modalContent - The modal content element.
+ * @param {object} modalInstance - The modal instance from createModal().
+ * @returns {Promise<void>}
+ */
+async function saveProfileFromModal(modalContent, modalInstance) {
+    var payload = {};
+
+    var displayNameInput = modalContent.querySelector('#profile-display-name');
+    if (displayNameInput !== null) {
+        var displayName = displayNameInput.value.trim();
+        if (displayName !== '') { payload.displayName = displayName; }
+    }
+
+    var avatarUrlInput = modalContent.querySelector('#profile-avatar-url');
+    if (avatarUrlInput !== null) {
+        var avatarUrl = avatarUrlInput.value.trim();
+        if (avatarUrl !== '') {
+            if (!isValidUrl(avatarUrl)) {
+                showToast({ message: 'Please enter a valid URL for the avatar', type: 'error' });
+                return;
+            }
+            payload.avatarUrl = avatarUrl;
+        }
+    }
+
+    var usernameInput = modalContent.querySelector('#profile-username');
+    var originalUsernameInput = document.getElementById('profile-username');
+    if (usernameInput !== null && originalUsernameInput !== null) {
+        var username = usernameInput.value.trim();
+        var originalUsername = originalUsernameInput.getAttribute('data-original') || '';
+        if (username !== '' && username !== originalUsername) {
+            payload.username = username;
+        }
+    }
+
+    var bioInput = modalContent.querySelector('#profile-bio');
+    if (bioInput !== null) { payload.bio = bioInput.value.trim(); }
+
+    var interestsInput = modalContent.querySelector('#profile-interests');
+    if (interestsInput !== null) { payload.interests = interestsInput.value.trim(); }
+
+    var genresInput = modalContent.querySelector('#profile-favorite-genres');
+    if (genresInput !== null) { payload.favoriteGenres = genresInput.value.trim(); }
+
+    var aboutMeInput = modalContent.querySelector('#profile-about-me');
+    if (aboutMeInput !== null) { payload.aboutMe = aboutMeInput.value.trim(); }
+
+    var selectedPrivacy = modalContent.querySelector('input[name="privacy"]:checked');
+    if (selectedPrivacy !== null) { payload.privacyLevel = selectedPrivacy.value; }
+
+    if (Object.keys(payload).length === 0) {
+        showToast({ message: 'No fields to update', type: 'error' });
+        return;
+    }
+
+    try {
+        await apiPut('/api/user/profile', payload);
+        showToast({ message: 'Profile updated successfully!', type: 'success' });
+        modalInstance.close();
+    } catch (error) {
+        showToast({ message: 'Failed to update profile: ' + error.message, type: 'error' });
     }
 }
 

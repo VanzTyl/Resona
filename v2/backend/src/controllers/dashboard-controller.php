@@ -107,7 +107,16 @@ function handleGetTopArtists(array $params): void
     // Note: LIMIT uses literal integer not a bound parameter
     // because TiDB/MySQL rejects bound parameters in LIMIT clauses.
     $artists = dbQuery(
-        "SELECT ua.artist_name, ua.artist_image_url, ua.play_count
+        "SELECT ua.artist_name, ua.artist_image_url, ua.play_count,
+                (SELECT le.album_art_url
+                 FROM listening_events le
+                 WHERE le.user_id = ua.user_id
+                   AND le.artist_names LIKE CONCAT('%', ua.artist_name, '%')
+                   AND le.album_art_url IS NOT NULL
+                   AND le.album_art_url != ''
+                 ORDER BY le.created_at DESC
+                 LIMIT 1
+                ) AS album_image_url
          FROM user_artists ua
          WHERE ua.user_id = :userId
                {$dateCondition}

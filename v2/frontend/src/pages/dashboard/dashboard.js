@@ -236,13 +236,12 @@ async function loadDashboard() {
                 if (index < 3) {
                     var artImg = document.createElement('img');
                     artImg.className = 'artist-item__art';
-                    // Backend returns 'artist_image_url' from user_artists table.
-                    // Keep the img element visible even without src — CSS border+bg acts as placeholder
-                    var artUrl = artist.artist_image_url || artist.image_url || '';
+                    var artUrl = artist.artist_image_url || artist.album_image_url || artist.image_url || '';
                     if (artUrl) {
                         artImg.src = artUrl;
                     }
                     artImg.alt = artist.artist_name + ' album art';
+                    artImg.loading = 'lazy';
                     item.appendChild(artImg);
                 }
 

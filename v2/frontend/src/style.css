@@ -4472,9 +4472,9 @@ ul, ol {
         min-width: 0;
     }
 
-    /* v3.1 Fix C: Desktop chat-header sizing — smaller icon, avatar, and name */
-    #messages-chat-header .chat-header__back-btn .rs-icon {
-        --rs-icon-size: 18px;
+    /* v3.1 Fix C: Desktop chat-header — hide back button, desktop has split pane */
+    #messages-chat-header .chat-header__back-btn {
+        display: none;
     }
 
     #messages-chat-header .chat-header__avatar {

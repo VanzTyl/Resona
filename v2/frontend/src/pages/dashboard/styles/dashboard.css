@@ -83,3 +83,20 @@
     color: #fff;
     border-color: var(--rs-primary);
 }
+
+.artist-item__art {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--rs-radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--rs-surface-elevated);
+    border: 1px solid var(--rs-border);
+}
+
+@media (min-width: 768px) {
+    .artist-item__art {
+        width: 72px;
+        height: 72px;
+    }
+}

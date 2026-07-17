@@ -178,11 +178,13 @@
 
 /* Now-playing friends scrollable section */
 .now-playing-friends {
+    position: relative;
     margin-bottom: var(--rs-space-4);
-    padding: var(--rs-space-3);
+    padding: var(--rs-space-3) 0;
     background: var(--rs-surface);
     border-radius: var(--rs-radius-lg);
     border: 1px solid var(--rs-border);
+    overflow: hidden;
 }
 
 .now-playing-friends__title {
@@ -192,15 +194,21 @@
     margin-bottom: var(--rs-space-3);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding: 0 var(--rs-space-3);
 }
 
-.now-playing-friends__scroll {
+.now-playing-friends__track-list {
     display: flex;
     gap: var(--rs-space-3);
     overflow-x: auto;
     scroll-behavior: smooth;
-    scrollbar-width: thin;
-    padding-bottom: var(--rs-space-2);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: var(--rs-space-1) var(--rs-space-8);
+}
+
+.now-playing-friends__track-list::-webkit-scrollbar {
+    display: none;
 }
 
 .now-playing-friends__item {
@@ -220,6 +228,19 @@
     box-shadow: var(--rs-shadow-sm);
 }
 
+.now-playing-friends__info {
+    padding: 0 var(--rs-space-1);
+    overflow: hidden;
+}
+
+.now-playing-friends__name-row {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-1);
+    justify-content: center;
+    margin-bottom: 2px;
+}
+
 .now-playing-friends__name {
     font-size: var(--rs-font-size-sm);
     font-weight: var(--rs-font-weight-medium);
@@ -227,14 +248,19 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 90px;
 }
 
 .now-playing-friends__tag {
-    font-size: var(--rs-font-size-xs);
+    font-size: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: var(--rs-success);
-    font-weight: var(--rs-font-weight-bold);
-    display: block;
-    margin-bottom: var(--rs-space-1);
+    background: rgba(16, 185, 129, 0.12);
+    padding: 1px 4px;
+    border-radius: var(--rs-radius-full);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .now-playing-friends__track {
@@ -245,35 +271,93 @@
     text-overflow: ellipsis;
 }
 
-.now-playing-friends__scroll-btn {
+/* Arrow buttons */
+.now-playing-friends__arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
     border-radius: var(--rs-radius-full);
     background: var(--rs-surface-elevated);
     color: var(--rs-text);
+    border: 1px solid var(--rs-border);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--rs-shadow-md);
-    z-index: 1;
-    cursor: pointer;
-    border: 1px solid var(--rs-border);
+    font-size: 18px;
+    box-shadow: var(--rs-shadow-sm);
+    transition: background var(--rs-motion-fast) var(--rs-easing);
 }
 
-.now-playing-friends__scroll-btn:hover {
+.now-playing-friends__arrow:hover {
     background: var(--rs-primary);
     color: #fff;
 }
 
-.now-playing-friends__scroll-btn--left {
-    left: -8px;
+.now-playing-friends__arrow--left {
+    left: 4px;
 }
 
-.now-playing-friends__scroll-btn--right {
-    right: -8px;
+.now-playing-friends__arrow--right {
+    right: 4px;
+}
+
+/* ----- Mobile (<480px) adjustments ----- */
+@media (max-width: 480px) {
+    .now-playing-friends__item {
+        width: 110px;
+    }
+
+    .now-playing-friends__art {
+        width: 90px;
+        height: 90px;
+    }
+
+    .now-playing-friends__name {
+        font-size: var(--rs-font-size-xs);
+    }
+
+    .now-playing-friends__track {
+        font-size: 10px;
+    }
+
+    .now-playing-friends__track-list {
+        gap: var(--rs-space-2);
+        padding: var(--rs-space-1) var(--rs-space-6);
+    }
+
+    .now-playing-friends__arrow {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+}
+
+/* ----- Tablet (768px-1023px) ----- */
+@media (min-width: 768px) {
+    .now-playing-friends__item {
+        width: 160px;
+    }
+
+    .now-playing-friends__art {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+/* ----- Desktop (>=1024px) ----- */
+@media (min-width: 1024px) {
+    .now-playing-friends__item {
+        width: 180px;
+    }
+
+    .now-playing-friends__art {
+        width: 160px;
+        height: 160px;
+    }
 }
 
 /* Refresh feed button */
