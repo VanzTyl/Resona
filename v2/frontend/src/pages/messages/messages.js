@@ -219,7 +219,7 @@ async function loadThreadList() {
             }
 
             threadItem.addEventListener('click', function () {
-                navigateToChat(friend.id, friend.displayName);
+                loadChatThread(friend.id, friend.displayName);
             });
 
             threadListEl.appendChild(threadItem);

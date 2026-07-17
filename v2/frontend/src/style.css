@@ -1855,15 +1855,17 @@ ul, ol {
     #messages-chat-pane {
         display: flex !important;
         flex-direction: column;
+        min-height: 0;
+    }
+    #messages-chat-thread {
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
+        padding-right: var(--rs-space-2);
     }
 
     #messages-chat-pane[style*="display: none"] {
         display: none !important;
-    }
-
-    .chat-input {
-        position: relative;
     }
 
     /* Discover: 3-column grid */
@@ -1911,7 +1913,7 @@ ul, ol {
     #profile-content > #profile-genre-tags { grid-area: genres; }
     #profile-content > #profile-about-section { grid-area: about; }
     #profile-content > #profile-top-artists { grid-area: topartists; }
-    #profile-content > #profile-form-section { grid-area: form; }
+    #profile-content > #profile-form { grid-area: form; }
 
     .profile-header__name {
         font-size: var(--rs-font-size-3xl);
@@ -2267,7 +2269,13 @@ ul, ol {
     #messages-chat-pane {
         display: flex !important;
         flex-direction: column;
+        min-height: 0;
+    }
+    #messages-chat-thread {
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
+        padding-right: var(--rs-space-2);
     }
 
     #messages-chat-pane[style*="display: none"] {

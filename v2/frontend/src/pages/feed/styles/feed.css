@@ -160,6 +160,10 @@
     box-shadow: 0 0 0 1px var(--rs-primary);
 }
 
+.feed-card__emoji-btn--reacted .rs-icon {
+    color: var(--rs-primary);
+}
+
 .feed-card__emoji-btn--active {
     background: var(--rs-primary);
     color: #fff;
