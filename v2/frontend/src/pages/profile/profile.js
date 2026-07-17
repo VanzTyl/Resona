@@ -384,8 +384,9 @@ async function loadProfile() {
                     label.classList.add('privacy-option--selected');
                 } else {
                     label.classList.remove('privacy-option--selected');
-                }
-            }
+    }
+}
+
         });
 
         // Spotify status.
@@ -445,6 +446,9 @@ async function loadProfile() {
                 },
             }));
         }
+
+        // v3.1: Edit Profile button — shows/hides the form
+        setupEditProfileButton();
 
         if (typeof initIcons === 'function') {
             initIcons();
@@ -590,6 +594,73 @@ async function saveProfile() {
             message: 'Failed to update profile: ' + error.message,
             type: 'error',
         });
+    }
+}
+
+/**
+ * v3.1: Set up the Edit Profile button that toggles the form visibility.
+ * Creates an edit bar with a button, inserted before the form.
+ * Also adds a Cancel button inside the form to hide it.
+ *
+ * @returns {void}
+ */
+function setupEditProfileButton() {
+    var form = document.getElementById('profile-form');
+    var content = document.getElementById('profile-content');
+
+    if (form === null || content === null) {
+        return;
+    }
+
+    // Remove any existing edit bar (from previous page renders).
+    var existingBar = document.querySelector('.profile-edit-bar');
+    if (existingBar !== null) {
+        existingBar.remove();
+    }
+
+    // Create the edit button bar.
+    var editBar = document.createElement('div');
+    editBar.className = 'profile-edit-bar';
+
+    var editBtn = document.createElement('button');
+    editBtn.className = 'profile-edit-btn';
+    editBtn.textContent = 'Edit Profile';
+    editBtn.addEventListener('click', function () {
+        if (form !== null) {
+            form.classList.remove('profile-form--collapsible');
+            form.classList.add('profile-form--visible');
+        }
+        if (editBar !== null) {
+            editBar.style.display = 'none';
+        }
+    });
+
+    editBar.appendChild(editBtn);
+
+    // Insert the edit bar before the form.
+    form.parentNode.insertBefore(editBar, form);
+
+    // Add a Cancel button inside the form if not already present.
+    var existingCancel = form.querySelector('.profile-edit-btn--cancel');
+    if (existingCancel === null) {
+        var cancelSection = document.createElement('div');
+        cancelSection.style.display = 'flex';
+        cancelSection.style.gap = 'var(--rs-space-3)';
+        cancelSection.style.marginTop = 'var(--rs-space-3)';
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.className = 'profile-edit-btn profile-edit-btn--cancel';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.addEventListener('click', function () {
+            form.classList.add('profile-form--collapsible');
+            form.classList.remove('profile-form--visible');
+            if (editBar !== null) {
+                editBar.style.display = '';
+            }
+        });
+
+        cancelSection.appendChild(cancelBtn);
+        form.appendChild(cancelSection);
     }
 }
 

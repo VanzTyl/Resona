@@ -136,15 +136,11 @@
     border-radius: var(--rs-radius-md);
 }
 
-/* ----- Edit Toggle (Checkbox Hack) ----- */
-.profile-edit-toggle {
-    display: none !important;
-}
-
+/* ----- Edit Toggle (JS-controlled) ----- */
 .profile-edit-bar {
     display: flex;
     justify-content: stretch;
-    padding: var(--rs-space-4) 0;
+    padding: var(--rs-space-3) 0;
     margin-top: var(--rs-space-3);
     border-top: 1px solid var(--rs-border);
 }
@@ -156,20 +152,36 @@
     user-select: none;
     padding: var(--rs-space-3);
     font-size: var(--rs-font-size-base);
+    border-radius: var(--rs-radius-md);
+    background: var(--rs-primary);
+    color: #fff;
+    border: none;
+    font-weight: var(--rs-font-weight-semibold);
+    transition: background var(--rs-motion-fast) var(--rs-easing);
+    min-height: 44px;
+}
+
+.profile-edit-btn:hover {
+    background: var(--rs-primary-hover);
+}
+
+.profile-edit-btn--cancel {
+    background: transparent;
+    color: var(--rs-text-muted);
+    border: 1px solid var(--rs-border);
+}
+
+.profile-edit-btn--cancel:hover {
+    background: var(--rs-surface-elevated);
 }
 
 /* Collapsible form: hidden by default */
 .profile-form--collapsible {
-    display: none !important;
+    display: none;
 }
 
-/* Show form when checkbox is checked */
-.profile-edit-toggle:checked ~ .profile-edit-bar {
-    display: none !important;
-}
-
-.profile-edit-toggle:checked ~ .profile-form--collapsible {
-    display: block !important;
+.profile-form--visible {
+    display: block;
 }
 
 /* ----- Collapsible Form Layout ----- */
