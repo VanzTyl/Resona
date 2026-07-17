@@ -252,15 +252,15 @@ async function loadSidebarUserProfile(avatarEl, userInfoEl) {
         var userUsernameEl = document.getElementById('sidebar-user-username');
 
         if (userNameEl !== null) {
-            userNameEl.textContent = profile.display_name || 'User';
+            userNameEl.textContent = profile.displayName || 'User';
         }
 
         if (userUsernameEl !== null) {
             userUsernameEl.textContent = '@' + (profile.username || 'user');
         }
+        if (profile.avatarUrl) {
 
-        if (profile.avatar_url) {
-            avatarEl.src = profile.avatar_url;
+            avatarEl.src = profile.avatarUrl;
         }
     } catch (_e) {
         // Non-blocking.

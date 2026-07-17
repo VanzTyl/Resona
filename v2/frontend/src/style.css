@@ -883,6 +883,23 @@ ul, ol {
     background: var(--rs-surface-elevated);
 }
 
+.search-result-item--active {
+    background: var(--rs-primary);
+    color: #fff;
+}
+
+.search-result-item--active .search-result-item__name {
+    color: #fff;
+}
+
+.search-result-item--active .search-result-item__username {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-message + .chat-message {
+    margin-top: 0;
+}
+
 .search-result-item__avatar {
     width: 44px;
     height: 44px;

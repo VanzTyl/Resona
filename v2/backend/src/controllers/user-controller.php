@@ -5,17 +5,183 @@
  *
  * Handles user profile retrieval, updates, and search.
  * Implements contracts C-004, C-005, C-006.
- * v1.1: Extended with bio, username validation, privacy, interests/genres/about-me, username check.
+ * v1.2: Extracted validation helpers. Added USERNAME_REGEX. camelCase API response fields.
  *
  * @package Resona
- * @version 1.1.0
+ * @version 1.2.0
  */
+
+// ---------------------------------------------------------------------------
+// Validation Helpers (under 50 lines each)
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate display name.
+ *
+ * @param string $value The display name to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateDisplayName(string $value): ?string
+{
+    if (strlen($value) > 100) {
+        return 'Display name too long (max 100 characters)';
+    }
+    return null;
+}
+
+/**
+ * Validate avatar URL.
+ *
+ * @param string $value The avatar URL to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateAvatarUrl(string $value): ?string
+{
+    if (strlen($value) > 500) {
+        return 'Avatar URL too long (max 500 characters)';
+    }
+    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+        return 'Invalid avatar URL format';
+    }
+    return null;
+}
+
+/**
+ * Validate username format, length, uniqueness, and cooldown.
+ *
+ * @param string $value  The proposed username.
+ * @param int    $userId The current user ID.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateUsername(string $value, int $userId): ?string
+{
+    $len = strlen($value);
+    if ($len < USERNAME_MIN_LENGTH || $len > USERNAME_MAX_LENGTH) {
+        return 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters';
+    }
+    if (!preg_match(USERNAME_REGEX, $value)) {
+        return 'Username can only contain lowercase letters, numbers, and underscores';
+    }
+
+    $currentUserRow = dbQueryOne(
+        'SELECT username, username_updated_at FROM users WHERE id = :id',
+        [':id' => $userId]
+    );
+
+    // If unchanged, skip uniqueness and cooldown checks
+    if ($currentUserRow !== null && $currentUserRow['username'] === $value) {
+        return null;
+    }
+
+    // Check uniqueness
+    $existing = dbQueryOne(
+        'SELECT id FROM users WHERE username = :username AND id != :userId',
+        [':username' => $value, ':userId' => $userId]
+    );
+    if ($existing !== null) {
+        return 'Username is already taken';
+    }
+
+    // Check cooldown (7 days between changes)
+    if ($currentUserRow !== null && $currentUserRow['username_updated_at'] !== null) {
+        $lastChange = strtotime($currentUserRow['username_updated_at']);
+        $daysSinceChange = (time() - $lastChange) / 86400;
+        if ($daysSinceChange < USERNAME_CHANGE_COOLDOWN_DAYS) {
+            $daysRemaining = ceil(USERNAME_CHANGE_COOLDOWN_DAYS - $daysSinceChange);
+            return 'Username can only be changed once every ' . USERNAME_CHANGE_COOLDOWN_DAYS . ' days. '
+                . $daysRemaining . ' day(s) remaining.';
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Validate privacy level.
+ *
+ * @param string $value The privacy level to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validatePrivacyLevel(string $value): ?string
+{
+    if (!in_array($value, PRIVACY_LEVELS, true)) {
+        return 'Invalid privacy level. Must be public, friends_only, or private';
+    }
+    return null;
+}
+
+/**
+ * Validate bio length.
+ *
+ * @param string $value The bio to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateBio(string $value): ?string
+{
+    if (strlen($value) > 200) {
+        return 'Bio too long (max 200 characters)';
+    }
+    return null;
+}
+
+/**
+ * Validate interests length.
+ *
+ * @param string $value The interests to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateInterests(string $value): ?string
+{
+    if (strlen($value) > 500) {
+        return 'Interests too long (max 500 characters)';
+    }
+    return null;
+}
+
+/**
+ * Validate favorite genres length.
+ *
+ * @param string $value The favorite genres to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateFavoriteGenres(string $value): ?string
+{
+    if (strlen($value) > 300) {
+        return 'Favorite genres too long (max 300 characters)';
+    }
+    return null;
+}
+
+/**
+ * Validate about me length.
+ *
+ * @param string $value The about me to validate.
+ *
+ * @return string|null Error message or null if valid.
+ */
+function validateAboutMe(string $value): ?string
+{
+    if (strlen($value) > 500) {
+        return 'About me too long (max 500 characters)';
+    }
+    return null;
+}
+
+// ---------------------------------------------------------------------------
+// Controller Handlers
+// ---------------------------------------------------------------------------
 
 /**
  * Get the authenticated user's profile.
  * Maps to: GET /api/user/profile
- * Implements C-004. v1.1: Extended response with bio, username_updated_at, privacy_level,
- *                         interests, favorite_genres, about_me, is_onboarded, onboarding_step.
+ * Implements C-004. v1.2: camelCase response fields via SQL AS aliases.
  *
  * @param array $params Route parameters (unused).
  *
@@ -27,12 +193,14 @@ function handleGetProfile(array $params): void
     $userId = $auth['userId'];
 
     $user = dbQueryOne(
-        'SELECT u.id, u.username, u.display_name, u.avatar_url, u.email,
-                u.bio, u.username_updated_at, u.privacy_level,
-                u.interests, u.favorite_genres, u.about_me,
-                u.is_onboarded, u.onboarding_step,
-                (st.access_token IS NOT NULL) AS spotify_connected,
-                u.created_at
+        'SELECT u.id, u.username, u.display_name AS displayName, u.avatar_url AS avatarUrl,
+                u.email,
+                u.bio, u.username_updated_at AS usernameUpdatedAt,
+                u.privacy_level AS privacyLevel,
+                u.interests, u.favorite_genres AS favoriteGenres, u.about_me AS aboutMe,
+                u.is_onboarded AS isOnboarded, u.onboarding_step AS onboardingStep,
+                (st.access_token IS NOT NULL) AS spotifyConnected,
+                u.created_at AS createdAt
          FROM users u
          LEFT JOIN spotify_tokens st ON st.user_id = u.id
          WHERE u.id = :userId',
@@ -44,9 +212,9 @@ function handleGetProfile(array $params): void
         return;
     }
 
-    $user['spotify_connected'] = (bool) $user['spotify_connected'];
-    $user['is_onboarded'] = (bool) $user['is_onboarded'];
-    $user['onboarding_step'] = (int) $user['onboarding_step'];
+    $user['spotifyConnected'] = (bool) $user['spotifyConnected'];
+    $user['isOnboarded'] = (bool) $user['isOnboarded'];
+    $user['onboardingStep'] = (int) $user['onboardingStep'];
 
     sendJson([
         'success' => true,
@@ -57,7 +225,7 @@ function handleGetProfile(array $params): void
 /**
  * Update the authenticated user's profile.
  * Maps to: PUT /api/user/profile
- * Implements C-005. v1.1: Extended with bio, username, privacy_level, interests, genres, about_me.
+ * Implements C-005. v1.2: Uses validation helpers, camera-ready camelCase response.
  *
  * @param array $params Route parameters (unused).
  *
@@ -69,161 +237,69 @@ function handleUpdateProfile(array $params): void
     $userId = $auth['userId'];
     $body = parseJsonBody();
 
-    $displayName = trim($body['displayName'] ?? '');
-    $avatarUrl = trim($body['avatarUrl'] ?? '');
-    $bio = trim($body['bio'] ?? '');
-    $username = strtolower(trim($body['username'] ?? ''));
-    $privacyLevel = trim($body['privacyLevel'] ?? '');
-    $interests = trim($body['interests'] ?? '');
-    $favoriteGenres = trim($body['favoriteGenres'] ?? '');
-    $aboutMe = trim($body['aboutMe'] ?? '');
+    // Field definitions: [dbColumn, camelCaseKey, validator, transform]
+    $fieldDefs = [
+        ['display_name',  'displayName',     'validateDisplayName',  null],
+        ['avatar_url',    'avatarUrl',       'validateAvatarUrl',    null],
+        ['bio',           'bio',             'validateBio',          null],
+        ['username',      'username',        'validateUsername',     'strtolower'],
+        ['privacy_level', 'privacyLevel',    'validatePrivacyLevel', null],
+        ['interests',     'interests',       'validateInterests',    null],
+        ['favorite_genres','favoriteGenres', 'validateFavoriteGenres', null],
+        ['about_me',      'aboutMe',         'validateAboutMe',      null],
+    ];
 
-    $hasUpdates = false;
     $updateFields = [];
     $updateParams = [':userId' => $userId];
 
-    if ($displayName !== '') {
-        if (strlen($displayName) > 100) {
-            sendJson(['success' => false, 'error' => 'Display name too long (max 100 characters)'], HTTP_BAD_REQUEST);
-            return;
+    // Special handling: username changed check to avoid extra cooldown query
+    $usernameChanged = false;
+
+    foreach ($fieldDefs as [$dbCol, $bodyKey, $validator, $transform]) {
+        if (!isset($body[$bodyKey])) {
+            continue;
         }
 
-        $updateFields[] = 'display_name = :displayName';
-        $updateParams[':displayName'] = $displayName;
-        $hasUpdates = true;
-    }
+        $value = trim((string) $body[$bodyKey]);
 
-    if ($avatarUrl !== '') {
-        if (strlen($avatarUrl) > 500) {
-            sendJson(['success' => false, 'error' => 'Avatar URL too long (max 500 characters)'], HTTP_BAD_REQUEST);
-            return;
+        if ($value === '') {
+            continue;
         }
 
-        if (!filter_var($avatarUrl, FILTER_VALIDATE_URL)) {
-            sendJson(['success' => false, 'error' => 'Invalid avatar URL format'], HTTP_BAD_REQUEST);
-            return;
+        if ($transform !== null) {
+            $value = $transform($value);
         }
 
-        $updateFields[] = 'avatar_url = :avatarUrl';
-        $updateParams[':avatarUrl'] = $avatarUrl;
-        $hasUpdates = true;
-    }
-
-    // v1.1: Bio field
-    if (isset($body['bio'])) {
-        if (strlen($bio) > 200) {
-            sendJson(['success' => false, 'error' => 'Bio too long (max 200 characters)'], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        $updateFields[] = 'bio = :bio';
-        $updateParams[':bio'] = $bio;
-        $hasUpdates = true;
-    }
-
-    // v1.1: Username change
-    if (isset($body['username'])) {
-        if (strlen($username) < USERNAME_MIN_LENGTH || strlen($username) > USERNAME_MAX_LENGTH) {
-            sendJson([
-                'success' => false,
-                'error'   => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
-            ], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        // Check if username actually changed — skip cooldown if same value.
-        $currentUserRow = dbQueryOne(
-            'SELECT username, username_updated_at FROM users WHERE id = :id',
-            [':id' => $userId]
-        );
-
-        if ($currentUserRow !== null && $currentUserRow['username'] === $username) {
-            // Username unchanged — no cooldown check or update needed.
-            // Fall through to allow other fields to update.
+        if ($dbCol === 'username') {
+            $error = $validator($value, $userId);
         } else {
-            // Check uniqueness
-            $existing = dbQueryOne(
-                'SELECT id FROM users WHERE username = :username AND id != :userId',
-                [':username' => $username, ':userId' => $userId]
+            $error = $validator($value);
+        }
+
+        if ($error !== null) {
+            sendJson(['success' => false, 'error' => $error], HTTP_BAD_REQUEST);
+            return;
+        }
+
+        if ($dbCol === 'username') {
+            $currentRow = dbQueryOne(
+                'SELECT username FROM users WHERE id = :id',
+                [':id' => $userId]
             );
-
-            if ($existing !== null) {
-                sendJson(['success' => false, 'error' => 'Username is already taken'], HTTP_CONFLICT);
-                return;
+            if ($currentRow !== null && $currentRow['username'] !== $value) {
+                $usernameChanged = true;
             }
-
-            // Check cooldown (7 days between changes)
-            if ($currentUserRow !== null && $currentUserRow['username_updated_at'] !== null) {
-                $lastChange = strtotime($currentUserRow['username_updated_at']);
-                $daysSinceChange = (time() - $lastChange) / 86400;
-
-                if ($daysSinceChange < USERNAME_CHANGE_COOLDOWN_DAYS) {
-                    $daysRemaining = ceil(USERNAME_CHANGE_COOLDOWN_DAYS - $daysSinceChange);
-                    sendJson([
-                        'success' => false,
-                        'error'   => 'Username can only be changed once every ' . USERNAME_CHANGE_COOLDOWN_DAYS . ' days. '
-                                    . $daysRemaining . ' day(s) remaining.',
-                    ], HTTP_BAD_REQUEST);
-                    return;
-                }
-            }
-
-            $updateFields[] = 'username = :username';
-            $updateFields[] = 'username_updated_at = NOW()';
-            $updateParams[':username'] = $username;
-            $hasUpdates = true;
-        }
-    }
-
-    // v1.1: Privacy level
-    if (isset($body['privacyLevel'])) {
-        if (!in_array($privacyLevel, PRIVACY_LEVELS, true)) {
-            sendJson(['success' => false, 'error' => 'Invalid privacy level. Must be public, friends_only, or private'], HTTP_BAD_REQUEST);
-            return;
         }
 
-        $updateFields[] = 'privacy_level = :privacyLevel';
-        $updateParams[':privacyLevel'] = $privacyLevel;
-        $hasUpdates = true;
+        $updateFields[] = "{$dbCol} = :{$dbCol}";
+        $updateParams[":{$dbCol}"] = $value;
     }
 
-    // v1.1: Interests
-    if (isset($body['interests'])) {
-        if (strlen($interests) > 500) {
-            sendJson(['success' => false, 'error' => 'Interests too long (max 500 characters)'], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        $updateFields[] = 'interests = :interests';
-        $updateParams[':interests'] = $interests;
-        $hasUpdates = true;
+    if ($usernameChanged) {
+        $updateFields[] = 'username_updated_at = NOW()';
     }
 
-    // v1.1: Favorite genres
-    if (isset($body['favoriteGenres'])) {
-        if (strlen($favoriteGenres) > 300) {
-            sendJson(['success' => false, 'error' => 'Favorite genres too long (max 300 characters)'], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        $updateFields[] = 'favorite_genres = :favoriteGenres';
-        $updateParams[':favoriteGenres'] = $favoriteGenres;
-        $hasUpdates = true;
-    }
-
-    // v1.1: About me
-    if (isset($body['aboutMe'])) {
-        if (strlen($aboutMe) > 500) {
-            sendJson(['success' => false, 'error' => 'About me too long (max 500 characters)'], HTTP_BAD_REQUEST);
-            return;
-        }
-
-        $updateFields[] = 'about_me = :aboutMe';
-        $updateParams[':aboutMe'] = $aboutMe;
-        $hasUpdates = true;
-    }
-
-    if (!$hasUpdates) {
+    if (count($updateFields) === 0) {
         sendJson(['success' => false, 'error' => 'No fields to update'], HTTP_BAD_REQUEST);
         return;
     }
@@ -234,15 +310,18 @@ function handleUpdateProfile(array $params): void
     dbExecute($sql, $updateParams);
 
     $user = dbQueryOne(
-        'SELECT id, username, display_name, avatar_url, email, bio, username_updated_at,
-                privacy_level, interests, favorite_genres, about_me,
-                is_onboarded, onboarding_step, created_at
+        'SELECT id, username, display_name AS displayName, avatar_url AS avatarUrl,
+                email, bio, username_updated_at AS usernameUpdatedAt,
+                privacy_level AS privacyLevel, interests,
+                favorite_genres AS favoriteGenres, about_me AS aboutMe,
+                is_onboarded AS isOnboarded, onboarding_step AS onboardingStep,
+                created_at AS createdAt
          FROM users WHERE id = :userId',
         [':userId' => $userId]
     );
 
-    $user['is_onboarded'] = (bool) $user['is_onboarded'];
-    $user['onboarding_step'] = (int) $user['onboarding_step'];
+    $user['isOnboarded'] = (bool) $user['isOnboarded'];
+    $user['onboardingStep'] = (int) $user['onboardingStep'];
 
     sendJson([
         'success' => true,
@@ -253,7 +332,7 @@ function handleUpdateProfile(array $params): void
 /**
  * Search for users by username (partial match).
  * Maps to: GET /api/user/search?q={query}&limit={limit}
- * Implements C-006.
+ * Implements C-006. v1.2: camelCase response fields.
  *
  * @param array $params Route parameters (unused).
  *
@@ -278,10 +357,11 @@ function handleSearchUsers(array $params): void
 
     try {
         $users = dbQuery(
-            "SELECT id, username, display_name, avatar_url FROM users
+            "SELECT id, username, display_name AS displayName, avatar_url AS avatarUrl
+             FROM users
              WHERE (username LIKE :query1 OR display_name LIKE :query2)
                AND id != :userId
-             LIMIT {$limit}",
+             LIMIT " . (int)$limit,
             [
                 ':query1'   => '%' . $query . '%',
                 ':query2'   => '%' . $query . '%',
@@ -305,7 +385,7 @@ function handleSearchUsers(array $params): void
 /**
  * Check if a username is available.
  * Maps to: GET /api/user/check-username?username={username}
- * v1.1: New endpoint for onboarding and profile editing.
+ * v1.2: Added USERNAME_REGEX validation.
  *
  * @param array $params Route parameters (unused).
  *
@@ -329,6 +409,18 @@ function handleCheckUsername(array $params): void
             'data'    => [
                 'available' => false,
                 'reason'    => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
+            ],
+        ]);
+        return;
+    }
+
+    // Validate regex (lowercase letters, numbers, underscores)
+    if (!preg_match(USERNAME_REGEX, $username)) {
+        sendJson([
+            'success' => true,
+            'data'    => [
+                'available' => false,
+                'reason'    => 'Username can only contain lowercase letters, numbers, and underscores',
             ],
         ]);
         return;

@@ -510,7 +510,7 @@ async function loadNowPlayingFriends() {
     try {
         var friends = await apiGet('/api/friends?limit=50');
         var nowPlaying = friends.filter(function (f) {
-            return f.is_playing && f.currently_playing_track;
+            return f.isPlaying && f.currentlyPlayingTrack;
         });
 
         if (nowPlaying.length === 0) { section.style.display = 'none'; return; }
@@ -539,7 +539,7 @@ async function loadNowPlayingFriends() {
 
             var art = document.createElement('img');
             art.className = 'now-playing-friends__art';
-            art.src = friend.album_art_url || 'assets/default-album.svg';
+            art.src = friend.albumArtUrl || 'assets/default-album.svg';
             art.alt = '';
             art.loading = 'lazy';
             item.appendChild(art);
@@ -552,7 +552,7 @@ async function loadNowPlayingFriends() {
 
             var name = document.createElement('span');
             name.className = 'now-playing-friends__name';
-            name.textContent = friend.display_name;
+            name.textContent = friend.displayName;
             nameRow.appendChild(name);
 
             var tag = document.createElement('span');
@@ -564,7 +564,7 @@ async function loadNowPlayingFriends() {
 
             var track = document.createElement('div');
             track.className = 'now-playing-friends__track';
-            track.textContent = friend.currently_playing_track;
+            track.textContent = friend.currentlyPlayingTrack;
             info.appendChild(track);
 
             item.appendChild(info);

@@ -193,18 +193,26 @@ function handleGetMessages(array $params): void
         return;
     }
 
-    $messages = dbQuery(
-        "SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
-                m.content, m.message_type, m.created_at
-         FROM messages m
-         JOIN users u ON u.id = m.sender_id
-         WHERE m.thread_id = :threadId
-         ORDER BY m.created_at DESC
-         LIMIT {$limit} OFFSET {$offset}",
-        [
-            ':threadId' => $threadId,
-        ]
-    );
+    try {
+        $messages = dbQuery(
+            "SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
+                    m.content, m.message_type, m.created_at
+             FROM messages m
+             JOIN users u ON u.id = m.sender_id
+             WHERE m.thread_id = :threadId
+             ORDER BY m.created_at DESC
+             LIMIT " . (int)$limit . " OFFSET " . (int)$offset,
+            [
+                ':threadId' => $threadId,
+            ]
+        );
+    } catch (\Throwable $e) {
+        sendJson([
+            'success' => false,
+            'error'   => 'Failed to fetch messages: ' . $e->getMessage(),
+        ], HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 
     sendJson([
         'success' => true,

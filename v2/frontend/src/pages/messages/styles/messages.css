@@ -1,0 +1,98 @@
+/* ========================================
+   Messages Page Styles
+   Extracted from style.css (lines 755-851)
+   ======================================== */
+
+/* ----- Messages / Chat ----- */
+.chat-thread {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-3);
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+}
+
+.message--sent {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.message--received {
+    align-self: flex-start;
+}
+
+.message--auto {
+    opacity: 0.8;
+}
+
+.message__bubble {
+    padding: var(--rs-space-3);
+    border-radius: var(--rs-radius-md);
+    font-size: var(--rs-font-size-base);
+    line-height: 1.4;
+}
+
+.message--sent .message__bubble {
+    background: var(--rs-primary);
+    color: #fff;
+    border-bottom-right-radius: var(--rs-radius-sm);
+}
+
+.message--received .message__bubble {
+    background: var(--rs-surface);
+    color: var(--rs-text);
+    border-bottom-left-radius: var(--rs-radius-sm);
+}
+
+.message--auto .message__bubble {
+    border-left: 3px solid var(--rs-accent);
+}
+
+.message__time {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-dim);
+    margin-top: var(--rs-space-1);
+}
+
+.message__auto-label {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-accent);
+    font-weight: var(--rs-font-weight-medium);
+    margin-top: 2px;
+}
+
+.chat-input {
+    display: flex;
+    gap: var(--rs-space-2);
+    padding: var(--rs-space-3);
+    background: var(--rs-surface);
+    border-top: 1px solid var(--rs-border);
+    position: sticky;
+    bottom: 0;
+}
+
+.chat-input__field {
+    flex: 1;
+    padding: var(--rs-space-3);
+    border-radius: var(--rs-radius-md);
+    border: 1px solid var(--rs-border);
+    background: var(--rs-background);
+    color: var(--rs-text);
+    font-size: var(--rs-font-size-base);
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+}
+
+.chat-input__field:focus {
+    border-color: var(--rs-primary);
+    outline: none;
+}
+
+.chat-input__field::placeholder {
+    color: var(--rs-text-dim);
+}

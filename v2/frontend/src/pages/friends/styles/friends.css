@@ -1,0 +1,93 @@
+/* ========================================
+   Friends Page Styles
+   Extracted from style.css (lines 852-940)
+   ======================================== */
+
+/* ----- Friend Search ----- */
+.search-input {
+    width: 100%;
+    padding: var(--rs-space-3) var(--rs-space-4);
+    border-radius: var(--rs-radius-md);
+    border: 1px solid var(--rs-border);
+    background: var(--rs-surface);
+    color: var(--rs-text);
+    font-size: var(--rs-font-size-md);
+    min-height: 48px;
+}
+
+.search-input:focus {
+    border-color: var(--rs-primary);
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--rs-text-dim);
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3);
+    border-radius: var(--rs-radius-md);
+    transition: background var(--rs-motion-fast) var(--rs-easing);
+}
+
+.search-result-item:hover {
+    background: var(--rs-surface-elevated);
+}
+
+.search-result-item--active {
+    background: var(--rs-primary);
+    color: #fff;
+}
+
+.search-result-item--active .search-result-item__name {
+    color: #fff;
+}
+
+.search-result-item--active .search-result-item__username {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-message + .chat-message {
+    margin-top: 0;
+}
+
+.search-result-item__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rs-radius-full);
+    object-fit: cover;
+}
+
+.search-result-item__info {
+    flex: 1;
+}
+
+.search-result-item__name {
+    font-weight: var(--rs-font-weight-medium);
+}
+
+.search-result-item__username {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.search-result-item__actions {
+    display: flex;
+    gap: var(--rs-space-2);
+    flex-shrink: 0;
+}
+
+/* ----- Friends page sections ----- */
+.friends-section {
+    margin-bottom: var(--rs-space-6);
+}
+
+.friends-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-3);
+    color: var(--rs-text);
+}

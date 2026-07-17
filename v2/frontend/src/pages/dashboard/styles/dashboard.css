@@ -1,0 +1,85 @@
+/* ========================================
+   Dashboard Page Styles
+   Extracted from style.css (lines 941-1021)
+   ======================================== */
+
+/* ----- Stats / Dashboard ----- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--rs-space-3);
+    margin-bottom: var(--rs-space-6);
+}
+
+.stat-card {
+    background: var(--rs-surface);
+    border-radius: var(--rs-radius-md);
+    padding: var(--rs-space-4);
+    text-align: center;
+}
+
+.stat-card__value {
+    font-size: var(--rs-font-size-3xl);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-primary);
+}
+
+.stat-card__label {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+    margin-top: var(--rs-space-1);
+}
+
+.artist-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-2);
+}
+
+.artist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-2);
+    border-radius: var(--rs-radius-md);
+}
+
+.artist-item__rank {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-text-dim);
+    width: 24px;
+    text-align: center;
+}
+
+.artist-item__name {
+    flex: 1;
+    font-weight: var(--rs-font-weight-medium);
+}
+
+.artist-item__count {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.period-filter {
+    display: flex;
+    gap: var(--rs-space-2);
+    margin-bottom: var(--rs-space-4);
+}
+
+.period-btn {
+    padding: var(--rs-space-1) var(--rs-space-3);
+    border-radius: var(--rs-radius-full);
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    color: var(--rs-text-muted);
+    border: 1px solid var(--rs-border);
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+}
+
+.period-btn--active {
+    background: var(--rs-primary);
+    color: #fff;
+    border-color: var(--rs-primary);
+}

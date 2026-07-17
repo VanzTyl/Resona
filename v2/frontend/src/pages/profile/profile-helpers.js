@@ -185,3 +185,18 @@ function fillContainer(containerId, children) {
         container.appendChild(child);
     });
 }
+
+/**
+ * Validate URL string.
+ *
+ * @param {string} url - URL to validate.
+ * @returns {boolean} True if valid URL.
+ */
+function isValidUrl(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (_e) {
+        return false;
+    }
+}

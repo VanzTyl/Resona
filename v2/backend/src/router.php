@@ -19,7 +19,6 @@ require_once __DIR__ . '/controllers/reaction-controller.php';
 require_once __DIR__ . '/controllers/message-controller.php';
 require_once __DIR__ . '/controllers/dashboard-controller.php';
 // v1.1: New controllers
-require_once __DIR__ . '/controllers/stats-controller.php';
 require_once __DIR__ . '/controllers/discover-controller.php';
 require_once __DIR__ . '/controllers/onboarding-controller.php';
 
@@ -101,8 +100,8 @@ function defineRoutes(): array
         new Route('GET',    '/api/dashboard/stats',                 'handleGetPersonalStats', true),
         new Route('GET',    '/api/dashboard/top-artists',           'handleGetTopArtists', true),
 
-        // v1.1: Stats route (profile listening summary)
-        new Route('GET',    '/api/user/stats',                     'handleGetUserStats', true),
+        // v1.1: Stats route (profile listening summary) — delegates to dashboard controller
+        new Route('GET',    '/api/user/stats',                     'handleGetPersonalStats', true),
 
         // v1.1: Discovery route
         new Route('GET',    '/api/discover/random',                 'handleDiscoverRandom', true),

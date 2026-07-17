@@ -182,7 +182,7 @@ async function performSearch(query) {
 
             const avatar = document.createElement('img');
             avatar.className = 'search-result-item__avatar';
-            avatar.src = user.avatar_url || 'assets/default-avatar.svg';
+            avatar.src = user.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = '';
             item.appendChild(avatar);
 
@@ -191,7 +191,7 @@ async function performSearch(query) {
 
             const name = document.createElement('div');
             name.className = 'search-result-item__name';
-            name.textContent = user.display_name;
+            name.textContent = user.displayName;
             info.appendChild(name);
 
             const username = document.createElement('div');
@@ -285,7 +285,7 @@ async function loadIncomingRequests() {
 
             const avatar = document.createElement('img');
             avatar.className = 'search-result-item__avatar';
-            avatar.src = req.avatar_url || 'assets/default-avatar.svg';
+            avatar.src = req.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = '';
             item.appendChild(avatar);
 
@@ -294,7 +294,7 @@ async function loadIncomingRequests() {
 
             const name = document.createElement('div');
             name.className = 'search-result-item__name';
-            name.textContent = req.display_name;
+            name.textContent = req.displayName;
             info.appendChild(name);
 
             const username = document.createElement('div');
@@ -446,7 +446,7 @@ async function loadFriendsList() {
 
             const avatar = document.createElement('img');
             avatar.className = 'search-result-item__avatar';
-            avatar.src = friend.avatar_url || 'assets/default-avatar.svg';
+            avatar.src = friend.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = '';
             item.appendChild(avatar);
 
@@ -455,14 +455,14 @@ async function loadFriendsList() {
 
             const name = document.createElement('div');
             name.className = 'search-result-item__name';
-            name.textContent = friend.display_name;
+            name.textContent = friend.displayName;
             info.appendChild(name);
 
             // Show currently playing track if available.
-            if (friend.currently_playing_track) {
+            if (friend.currentlyPlayingTrack) {
                 const track = document.createElement('div');
                 track.className = 'search-result-item__username';
-                track.textContent = '\u266B ' + friend.currently_playing_track;
+                track.textContent = '\u266B ' + friend.currentlyPlayingTrack;
                 track.style.color = 'var(--rs-accent)';
                 info.appendChild(track);
             }

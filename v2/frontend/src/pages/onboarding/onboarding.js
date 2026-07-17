@@ -103,14 +103,14 @@ async function loadExistingProfile() {
     try {
         var profile = await apiGet('/api/user/profile');
 
-        onboardingState.data.displayName = profile.display_name || '';
+        onboardingState.data.displayName = profile.displayName || '';
         onboardingState.data.username = profile.username || '';
         onboardingState.data.bio = profile.bio || '';
         onboardingState.data.interests = profile.interests || '';
-        onboardingState.data.favoriteGenres = profile.favorite_genres || '';
-        onboardingState.data.avatarUrl = profile.avatar_url || '';
-        onboardingState.data.privacyLevel = profile.privacy_level || 'friends_only';
-        onboardingState.currentStep = profile.onboarding_step || 1;
+        onboardingState.data.favoriteGenres = profile.favoriteGenres || '';
+        onboardingState.data.avatarUrl = profile.avatarUrl || '';
+        onboardingState.data.privacyLevel = profile.privacyLevel || 'friends_only';
+        onboardingState.currentStep = profile.onboardingStep || 1;
 
         renderStep(onboardingState.currentStep);
     } catch (_e) {

@@ -174,29 +174,51 @@ function handleListFriends(array $params): void
     $limit = min((int)($_GET['limit'] ?? DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
     $offset = ($page - 1) * $limit;
 
-    $friends = dbQuery(
-        "SELECT u.id, u.username, u.display_name, u.avatar_url,
-                le.track_name AS currently_playing_track,
-                le.artist_names AS currently_playing_artist,
-                le.album_art_url,
-                le.is_playing
-         FROM friendships f
-         JOIN users u ON (CASE WHEN f.sender_id = :userId THEN f.receiver_id ELSE f.sender_id END) = u.id
-         LEFT JOIN listening_events le ON le.user_id = u.id
-              AND le.created_at = (
-                  SELECT MAX(le2.created_at) FROM listening_events le2 WHERE le2.user_id = u.id
-              )
-         WHERE (f.sender_id = :userId2 OR f.receiver_id = :userId3)
-           AND f.status = :status
-         ORDER BY u.display_name ASC
-          LIMIT {$limit} OFFSET {$offset}",
-        [
-            ':userId'    => $userId,
-            ':userId2'   => $userId,
-            ':userId3'   => $userId,
-            ':status'    => FRIEND_STATUS_ACCEPTED,
-        ]
-    );
+    try {
+        $friends = dbQuery(
+            "SELECT u.id, u.username, u.display_name AS displayName, u.avatar_url AS avatarUrl,
+                    le.track_name AS currentlyPlayingTrack,
+                    le.artist_names AS currentlyPlayingArtist,
+                    le.album_art_url AS albumArtUrl,
+                    le.is_playing AS isPlaying,
+                    (
+                        SELECT COUNT(*)
+                        FROM messages m
+                        JOIN chat_threads ct ON ct.id = m.thread_id
+                        WHERE (
+                            (ct.user_id_1 = u.id AND ct.user_id_2 = :unreadUserA)
+                            OR
+                            (ct.user_id_1 = :unreadUserB AND ct.user_id_2 = u.id)
+                        )
+                        AND m.sender_id != :unreadUserC
+                    ) AS unreadCount
+             FROM friendships f
+             JOIN users u ON (CASE WHEN f.sender_id = :userId THEN f.receiver_id ELSE f.sender_id END) = u.id
+             LEFT JOIN listening_events le ON le.user_id = u.id
+                  AND le.created_at = (
+                      SELECT MAX(le2.created_at) FROM listening_events le2 WHERE le2.user_id = u.id
+                  )
+             WHERE (f.sender_id = :userId2 OR f.receiver_id = :userId3)
+               AND f.status = :status
+             ORDER BY u.display_name ASC
+             LIMIT " . (int)$limit . " OFFSET " . (int)$offset,
+            [
+                ':userId'       => $userId,
+                ':userId2'      => $userId,
+                ':userId3'      => $userId,
+                ':unreadUserA'  => $userId,
+                ':unreadUserB'  => $userId,
+                ':unreadUserC'  => $userId,
+                ':status'       => FRIEND_STATUS_ACCEPTED,
+            ]
+        );
+    } catch (\Throwable $e) {
+        sendJson([
+            'success' => false,
+            'error'   => 'Failed to list friends: ' . $e->getMessage(),
+        ], HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 
     sendJson([
         'success' => true,
@@ -219,7 +241,7 @@ function handlePendingRequests(array $params): void
     $userId = $auth['userId'];
 
     $requests = dbQuery(
-        'SELECT f.id, f.sender_id, u.username, u.display_name, u.avatar_url, f.created_at
+        'SELECT f.id, f.sender_id, u.username, u.display_name AS displayName, u.avatar_url AS avatarUrl, f.created_at AS createdAt
          FROM friendships f
          JOIN users u ON u.id = f.sender_id
          WHERE f.receiver_id = :userId AND f.status = :status

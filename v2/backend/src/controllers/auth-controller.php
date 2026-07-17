@@ -68,6 +68,17 @@ function handleSpotifyCallback(array $params): void
         return;
     }
 
+    // Validate state parameter to prevent CSRF attacks on OAuth callback.
+    $storedState = $_SESSION['spotify_oauth_state'] ?? '';
+
+    if ($storedState === '' || $state !== $storedState) {
+        sendJson(['success' => false, 'error' => 'Invalid state parameter - possible CSRF attack'], HTTP_FORBIDDEN);
+        return;
+    }
+
+    // Clear the consumed state to prevent replay attacks.
+    unset($_SESSION['spotify_oauth_state']);
+
     $spotifyConfig = getSpotifyConfig();
 
     // Exchange authorization code for access and refresh tokens.
@@ -401,21 +412,36 @@ function storeSpotifyTokens(
     string $refreshToken,
     int $expiresAt
 ): void {
+    $encryptionConfig = getTokenEncryptionConfig();
+    $key = $encryptionConfig['key'];
+
+    if ($key === '') {
+        error_log('[Resona Security] TOKEN_ENCRYPTION_KEY is not configured. Cannot encrypt tokens.');
+        sendJson(['success' => false, 'error' => 'Server encryption configuration error'], HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
+
+    // Encrypt access token with random IV and store IV alongside ciphertext.
+    $accessIv = openssl_random_pseudo_bytes(16);
     $encryptedAccess = openssl_encrypt(
         $accessToken,
-        'aes-256-cbc',
-        getJwtConfig()['secret'],
+        TOKEN_ENCRYPTION_CIPHER,
+        $key,
         0,
-        substr(hash('sha256', getJwtConfig()['secret']), 0, 16)
+        $accessIv
     );
+    $storedAccess = base64_encode($accessIv) . ':' . $encryptedAccess;
 
+    // Encrypt refresh token with a separate random IV.
+    $refreshIv = openssl_random_pseudo_bytes(16);
     $encryptedRefresh = openssl_encrypt(
         $refreshToken,
-        'aes-256-cbc',
-        getJwtConfig()['secret'],
+        TOKEN_ENCRYPTION_CIPHER,
+        $key,
         0,
-        substr(hash('sha256', getJwtConfig()['secret']), 16, 16)
+        $refreshIv
     );
+    $storedRefresh = base64_encode($refreshIv) . ':' . $encryptedRefresh;
 
     dbExecute(
         'INSERT INTO spotify_tokens (user_id, access_token, refresh_token, expires_at, created_at, updated_at)
@@ -427,11 +453,11 @@ function storeSpotifyTokens(
              updated_at = NOW()',
         [
             ':userId'       => $userId,
-            ':accessToken'  => $encryptedAccess,
-            ':refreshToken' => $encryptedRefresh,
+            ':accessToken'  => $storedAccess,
+            ':refreshToken' => $storedRefresh,
             ':expiresAt'    => date('Y-m-d H:i:s', $expiresAt),
-            ':accessToken2' => $encryptedAccess,
-            ':refreshToken2' => $encryptedRefresh,
+            ':accessToken2' => $storedAccess,
+            ':refreshToken2' => $storedRefresh,
             ':expiresAt2'   => date('Y-m-d H:i:s', $expiresAt),
         ]
     );

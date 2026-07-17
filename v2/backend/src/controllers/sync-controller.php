@@ -10,6 +10,8 @@
  * @version 1.0.0
  */
 
+require_once __DIR__ . '/token-helper.php';
+
 /**
  * Cron-triggered batch polling of Spotify playback for all active users.
  * Maps to: GET /api/internal/sync/poll
@@ -346,56 +348,6 @@ function saveCurrentlyPlayingEvent(int $userId, array $trackData): void
 }
 
 /**
- * Get decrypted Spotify tokens for a user.
- *
- * @param int $userId The internal user ID.
- *
- * @return array|null Token data or null if not found.
- */
-function getDecryptedTokens(int $userId): ?array
-{
-    $tokens = dbQueryOne(
-        'SELECT access_token, refresh_token, expires_at
-         FROM spotify_tokens WHERE user_id = :userId',
-        [':userId' => $userId]
-    );
-
-    if ($tokens === null) {
-        return null;
-    }
-
-    $jwtSecret = getJwtConfig()['secret'];
-    $iv1 = substr(hash('sha256', $jwtSecret), 0, 16);
-    $iv2 = substr(hash('sha256', $jwtSecret), 16, 16);
-
-    $decryptedAccess = openssl_decrypt(
-        $tokens['access_token'],
-        'aes-256-cbc',
-        $jwtSecret,
-        0,
-        $iv1
-    );
-
-    $decryptedRefresh = openssl_decrypt(
-        $tokens['refresh_token'],
-        'aes-256-cbc',
-        $jwtSecret,
-        0,
-        $iv2
-    );
-
-    if ($decryptedAccess === false) {
-        return null;
-    }
-
-    return [
-        'access_token'  => $decryptedAccess,
-        'refresh_token' => $decryptedRefresh !== false ? $decryptedRefresh : '',
-        'expires_at'    => $tokens['expires_at'],
-    ];
-}
-
-/**
  * Fetch recently played tracks from Spotify API (works with free accounts).
  *
  * @param string $accessToken A valid Spotify access token.
@@ -435,60 +387,6 @@ function fetchRecentTracks(string $accessToken): ?array
     }
 
     return $data['items'];
-}
-
-/**
- * Refresh an expired Spotify access token.
- *
- * @param string $refreshToken The Spotify refresh token.
- *
- * @return array|null New token data or null on failure.
- */
-function refreshSpotifyToken(string $refreshToken): ?array
-{
-    if ($refreshToken === '') {
-        return null;
-    }
-
-    $spotifyConfig = getSpotifyConfig();
-
-    $postData = http_build_query([
-        'grant_type'    => 'refresh_token',
-        'refresh_token' => $refreshToken,
-        'client_id'     => $spotifyConfig['clientId'],
-        'client_secret' => $spotifyConfig['clientSecret'],
-    ]);
-
-    $ch = curl_init();
-
-    if ($ch === false) {
-        return null;
-    }
-
-    curl_setopt_array($ch, [
-        CURLOPT_URL            => SPOTIFY_TOKEN_URL,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $postData,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
-        CURLOPT_TIMEOUT        => 30,
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($response === false || $httpCode !== 200) {
-        return null;
-    }
-
-    $data = json_decode($response, true);
-
-    if (!is_array($data) || !isset($data['access_token'])) {
-        return null;
-    }
-
-    return $data;
 }
 
 /**

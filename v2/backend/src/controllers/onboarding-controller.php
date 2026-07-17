@@ -94,9 +94,6 @@ function handleOnboardingStep(array $params): void
     $updateParams = [':id' => $userId];
 
     foreach ($allowedFields as $field) {
-        $bodyField = lcfirst(str_replace('_', '', ucwords($field, '_')));
-        $bodyField = preg_replace_callback('/_([a-z])/', function ($m) { return strtoupper($m[1]); }, $field);
-
         // Map database field names to camelCase body keys
         $camelMap = [
             'display_name' => 'displayName',
@@ -118,6 +115,13 @@ function handleOnboardingStep(array $params): void
                     sendJson([
                         'success' => false,
                         'error'   => 'Username must be between ' . USERNAME_MIN_LENGTH . ' and ' . USERNAME_MAX_LENGTH . ' characters',
+                    ], HTTP_BAD_REQUEST);
+                    return;
+                }
+                if (!preg_match(USERNAME_REGEX, $value)) {
+                    sendJson([
+                        'success' => false,
+                        'error'   => 'Username can only contain lowercase letters, numbers, and underscores',
                     ], HTTP_BAD_REQUEST);
                     return;
                 }

@@ -83,3 +83,6 @@ const USERNAME_MIN_LENGTH = 3;
 const USERNAME_MAX_LENGTH = 20;
 const USERNAME_REGEX = '/^[a-z0-9_]+$/';
 const USERNAME_CHANGE_COOLDOWN_DAYS = 7;
+
+// Token encryption cipher (must match key length: 32 bytes for aes-256-cbc)
+const TOKEN_ENCRYPTION_CIPHER = 'aes-256-cbc';

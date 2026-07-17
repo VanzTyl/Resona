@@ -33,7 +33,7 @@ function handleAddReaction(array $params): void
         return;
     }
 
-    if (!in_array($emoji, VALID_EMOJIS, true)) {
+    if (!in_array($emoji, VALID_REACTIONS, true)) {
         sendJson(['success' => false, 'error' => 'Invalid emoji type'], HTTP_BAD_REQUEST);
         return;
     }
@@ -151,7 +151,7 @@ function handleGetReactions(array $params): void
     }
 
     $reactions = dbQuery(
-        'SELECT r.id, r.emoji, r.user_id, u.username, r.created_at
+        'SELECT r.id, r.emoji, r.user_id AS userId, u.username, r.created_at AS createdAt
          FROM reactions r
          JOIN users u ON u.id = r.user_id
          WHERE r.listening_event_id = :cardId

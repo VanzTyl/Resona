@@ -156,13 +156,13 @@ async function loadProfile() {
 
             const avatar = document.createElement('img');
             avatar.className = 'profile-header__avatar';
-            avatar.src = profile.avatar_url || 'assets/default-avatar.svg';
+            avatar.src = profile.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = 'Profile picture';
             profileHeader.appendChild(avatar);
 
             const name = document.createElement('h2');
             name.className = 'profile-header__name';
-            name.textContent = profile.display_name;
+            name.textContent = profile.displayName;
             profileHeader.appendChild(name);
 
             const username = document.createElement('p');
@@ -243,14 +243,14 @@ async function loadProfile() {
                 genresContainer.removeChild(genresContainer.firstChild);
             }
 
-            if (profile.favorite_genres) {
+            if (profile.favoriteGenres) {
                 // Add section title
                 var genresTitle = document.createElement('h3');
                 genresTitle.className = 'profile-section__title';
                 genresTitle.textContent = 'Favorite Genres';
                 genresContainer.appendChild(genresTitle);
 
-                profile.favorite_genres.split(',').filter(function (t) {
+                profile.favoriteGenres.split(',').filter(function (t) {
                     return t.trim() !== '';
                 }).forEach(function (tag) {
                     var tagEl = document.createElement('span');
@@ -270,13 +270,13 @@ async function loadProfile() {
                 aboutSection.removeChild(aboutSection.firstChild);
             }
 
-            if (profile.about_me) {
+            if (profile.aboutMe) {
                 var section = document.createElement('div');
                 section.className = 'profile-section';
 
                 var aboutDiv = document.createElement('div');
                 aboutDiv.className = 'about-section';
-                aboutDiv.textContent = profile.about_me;
+                aboutDiv.textContent = profile.aboutMe;
                 section.appendChild(aboutDiv);
 
                 aboutSection.appendChild(section);
@@ -334,12 +334,12 @@ async function loadProfile() {
         // Populate form fields.
         var displayNameInput = document.getElementById('profile-display-name');
         if (displayNameInput !== null) {
-            displayNameInput.value = profile.display_name || '';
+            displayNameInput.value = profile.displayName || '';
         }
 
         var avatarUrlInput = document.getElementById('profile-avatar-url');
         if (avatarUrlInput !== null) {
-            avatarUrlInput.value = profile.avatar_url || '';
+            avatarUrlInput.value = profile.avatarUrl || '';
         }
 
         var usernameInput = document.getElementById('profile-username');
@@ -365,16 +365,16 @@ async function loadProfile() {
 
         var genresInput = document.getElementById('profile-favorite-genres');
         if (genresInput !== null) {
-            genresInput.value = profile.favorite_genres || '';
+            genresInput.value = profile.favoriteGenres || '';
         }
 
         var aboutMeInput = document.getElementById('profile-about-me');
         if (aboutMeInput !== null) {
-            aboutMeInput.value = profile.about_me || '';
+            aboutMeInput.value = profile.aboutMe || '';
         }
 
         // Set privacy level.
-        var privacyLevel = profile.privacy_level || 'friends_only';
+        var privacyLevel = profile.privacyLevel || 'friends_only';
         var privacyRadios = document.querySelectorAll('input[name="privacy"]');
         privacyRadios.forEach(function (radio) {
             radio.checked = radio.value === privacyLevel;
@@ -393,14 +393,14 @@ async function loadProfile() {
         if (spotifyStatus !== null) {
             spotifyStatus.innerHTML = '';
             var statusIcon = document.createElement('span');
-            statusIcon.setAttribute('data-lucide', profile.spotify_connected ? 'check-circle' : 'x-circle');
+            statusIcon.setAttribute('data-lucide', profile.spotifyConnected ? 'check-circle' : 'x-circle');
             statusIcon.className = 'rs-icon';
             spotifyStatus.appendChild(statusIcon);
             var statusText = document.createTextNode(
-                profile.spotify_connected ? ' Connected' : ' Not connected'
+                profile.spotifyConnected ? ' Connected' : ' Not connected'
             );
             spotifyStatus.appendChild(statusText);
-            spotifyStatus.style.color = profile.spotify_connected
+            spotifyStatus.style.color = profile.spotifyConnected
                 ? 'var(--rs-success)' : 'var(--rs-text-dim)';
         }
 
@@ -590,16 +590,6 @@ async function saveProfile() {
             message: 'Failed to update profile: ' + error.message,
             type: 'error',
         });
-    }
-}
-
-/** Validate URL string. @param {string} url @returns {boolean} */
-function isValidUrl(url) {
-    try {
-        new URL(url);
-        return true;
-    } catch (_e) {
-        return false;
     }
 }
 

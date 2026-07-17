@@ -1,0 +1,281 @@
+/* ========================================
+   Feed Page Styles
+   Extracted from style.css (lines 371-526)
+   ======================================== */
+
+/* ----- Feed Card ----- */
+.feed-card {
+    background: var(--rs-surface);
+    border-radius: var(--rs-radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--rs-space-4);
+    box-shadow: var(--rs-shadow-md);
+    transition: transform var(--rs-motion-normal) var(--rs-easing);
+    animation: rs-card-enter var(--rs-motion-normal) var(--rs-easing);
+}
+
+.feed-card:hover {
+    transform: translateY(-2px);
+}
+
+.feed-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-4);
+}
+
+.feed-card__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rs-radius-full);
+    object-fit: cover;
+    border: 2px solid var(--rs-primary);
+}
+
+.feed-card__user-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.feed-card__display-name {
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+}
+
+.feed-card__username {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.feed-card__now-playing-badge {
+    display: none;
+    font-size: var(--rs-font-size-xs);
+    font-weight: var(--rs-font-weight-bold);
+    color: var(--rs-success);
+    letter-spacing: 1px;
+    padding: var(--rs-space-1) var(--rs-space-2);
+    border: 1px solid var(--rs-success);
+    border-radius: var(--rs-radius-sm);
+}
+
+.feed-card__now-playing-badge--active {
+    display: inline;
+    animation: rs-pulse 2s ease-in-out infinite;
+}
+
+.feed-card__art {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--rs-surface-elevated);
+}
+
+.feed-card__album-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.feed-card__track-info {
+    padding: var(--rs-space-3) var(--rs-space-4);
+}
+
+.feed-card__track-name {
+    font-size: var(--rs-font-size-md);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-1);
+}
+
+.feed-card__artists {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.feed-card__stats {
+    padding: 0 var(--rs-space-4) var(--rs-space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-1);
+}
+
+.feed-card__stat-label {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.feed-card__stat-label--shared {
+    color: var(--rs-secondary);
+}
+
+.feed-card__overlap {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--rs-space-1) var(--rs-space-2);
+    background: var(--rs-primary-light);
+    border-radius: var(--rs-radius-sm);
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    color: var(--rs-primary);
+    margin-top: var(--rs-space-1);
+}
+
+.feed-card__reactions {
+    padding: var(--rs-space-3) var(--rs-space-4);
+    border-top: 1px solid var(--rs-border);
+}
+
+.feed-card__emoji-row {
+    display: flex;
+    gap: var(--rs-space-1);
+    flex-wrap: wrap;
+}
+
+.feed-card__emoji-btn {
+    font-size: var(--rs-font-size-lg);
+    padding: var(--rs-space-1) var(--rs-space-2);
+    border-radius: var(--rs-radius-sm);
+    transition: transform var(--rs-motion-fast) var(--rs-easing);
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feed-card__emoji-btn:hover {
+    transform: scale(1.2);
+    background: var(--rs-primary-light);
+}
+
+.feed-card__emoji-btn:active {
+    transform: scale(1.4);
+}
+
+.feed-card__reaction-count {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-dim);
+    margin-top: var(--rs-space-1);
+}
+
+/* Now-playing friends scrollable section */
+.now-playing-friends {
+    margin-bottom: var(--rs-space-4);
+    padding: var(--rs-space-3);
+    background: var(--rs-surface);
+    border-radius: var(--rs-radius-lg);
+    border: 1px solid var(--rs-border);
+}
+
+.now-playing-friends__title {
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-semibold);
+    color: var(--rs-text);
+    margin-bottom: var(--rs-space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.now-playing-friends__scroll {
+    display: flex;
+    gap: var(--rs-space-3);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    padding-bottom: var(--rs-space-2);
+}
+
+.now-playing-friends__item {
+    flex: 0 0 auto;
+    width: 140px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.now-playing-friends__art {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--rs-radius-md);
+    object-fit: cover;
+    margin: 0 auto var(--rs-space-2);
+    display: block;
+    box-shadow: var(--rs-shadow-sm);
+}
+
+.now-playing-friends__name {
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    color: var(--rs-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing-friends__tag {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-success);
+    font-weight: var(--rs-font-weight-bold);
+    display: block;
+    margin-bottom: var(--rs-space-1);
+}
+
+.now-playing-friends__track {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing-friends__scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rs-radius-full);
+    background: var(--rs-surface-elevated);
+    color: var(--rs-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--rs-shadow-md);
+    z-index: 1;
+    cursor: pointer;
+    border: 1px solid var(--rs-border);
+}
+
+.now-playing-friends__scroll-btn:hover {
+    background: var(--rs-primary);
+    color: #fff;
+}
+
+.now-playing-friends__scroll-btn--left {
+    left: -8px;
+}
+
+.now-playing-friends__scroll-btn--right {
+    right: -8px;
+}
+
+/* Refresh feed button */
+.feed-refresh {
+    text-align: center;
+    padding: var(--rs-space-6) 0;
+}
+
+/* Feed loading skeleton */
+.feed-loading {
+    text-align: center;
+    padding: var(--rs-space-8) 0;
+    color: var(--rs-text-dim);
+}
+
+/* End of feed marker */
+.feed-end {
+    text-align: center;
+    padding: var(--rs-space-4) 0;
+    color: var(--rs-text-dim);
+    font-size: var(--rs-font-size-sm);
+}

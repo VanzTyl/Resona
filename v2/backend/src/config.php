@@ -131,6 +131,19 @@ function getJwtConfig(): array
 }
 
 /**
+ * Get token encryption configuration.
+ * Uses a separate key from JWT to avoid key reuse vulnerabilities.
+ *
+ * @return array{key: string} Encryption key.
+ */
+function getTokenEncryptionConfig(): array
+{
+    return [
+        'key' => envString('TOKEN_ENCRYPTION_KEY'),
+    ];
+}
+
+/**
  * Get application configuration.
  *
  * @return array{env: string, url: string, corsOrigin: string}

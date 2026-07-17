@@ -13,7 +13,7 @@
  *
  * @returns {void}
  */
-function renderMessagesPage() {
+function renderMessagesPage(_route, params) {
     const existingPage = document.querySelector('.page--active');
 
     if (existingPage !== null) {
@@ -35,7 +35,11 @@ function renderMessagesPage() {
 
     page.classList.add('page--active');
 
-    loadThreadList();
+    if (params !== undefined && params.chatWith !== undefined) {
+        loadChatThread(params.chatWith, params.friendName || 'Friend');
+    } else {
+        loadThreadList();
+    }
 }
 
 /**
@@ -179,10 +183,11 @@ async function loadThreadList() {
             var threadItem = document.createElement('div');
             threadItem.className = 'search-result-item';
             threadItem.style.cursor = 'pointer';
+            threadItem.setAttribute('data-friend-id', String(friend.id));
 
             var avatar = document.createElement('img');
             avatar.className = 'search-result-item__avatar';
-            avatar.src = friend.avatar_url || 'assets/default-avatar.svg';
+            avatar.src = friend.avatarUrl || 'assets/default-avatar.svg';
             avatar.alt = '';
             threadItem.appendChild(avatar);
 
@@ -191,19 +196,19 @@ async function loadThreadList() {
 
             var name = document.createElement('div');
             name.className = 'search-result-item__name';
-            name.textContent = friend.display_name;
+            name.textContent = friend.displayName;
             info.appendChild(name);
 
             var status = document.createElement('div');
             status.className = 'search-result-item__username';
-            status.textContent = friend.currently_playing_track
-                ? '\u266B ' + friend.currently_playing_track
+            status.textContent = friend.currentlyPlayingTrack
+                ? '\u266B ' + friend.currentlyPlayingTrack
                 : '';
             info.appendChild(status);
 
             threadItem.appendChild(info);
 
-            var unreadCount = friend.unread_count || 0;
+            var unreadCount = friend.unreadCount || 0;
 
             if (unreadCount > 0) {
                 var badge = document.createElement('span');
@@ -214,7 +219,7 @@ async function loadThreadList() {
             }
 
             threadItem.addEventListener('click', function () {
-                navigateToChat(friend.id, friend.display_name);
+                navigateToChat(friend.id, friend.displayName);
             });
 
             threadListEl.appendChild(threadItem);
@@ -223,16 +228,34 @@ async function loadThreadList() {
         if (typeof initIcons === 'function') {
             initIcons();
         }
-    } catch (_error) {
-        // Fall back to empty state on error.
+    } catch (error) {
+        // Clear loading.
+        while (threadListEl.firstChild !== null) {
+            threadListEl.removeChild(threadListEl.firstChild);
+        }
+
         threadListEl.style.display = 'none';
+
         if (emptyState !== null) {
             emptyState.style.display = '';
             var suggestText = emptyState.querySelector('.empty-state__text');
-            if (suggestText !== null) {
-                suggestText.textContent = 'Find friends to connect with on the Friends page.';
+
+            var isAuthErr = error && (error.message || '').includes('Authentication');
+
+            if (isAuthErr) {
+                emptyState.querySelector('.empty-state__title').textContent = 'Please log in';
+                if (suggestText !== null) {
+                    suggestText.textContent = 'Sign in to see your conversations.';
+                }
+            } else {
+                emptyState.querySelector('.empty-state__title').textContent = 'Could not load conversations';
+                if (suggestText !== null) {
+                    suggestText.textContent = 'Something went wrong. Please try again.';
+                }
             }
         }
+
+        console.error('loadThreadList error:', error);
     }
 }
 
@@ -244,7 +267,320 @@ async function loadThreadList() {
  * @returns {void}
  */
 function navigateToChat(friendId, friendName) {
-    navigateTo('/feed', { chatWith: friendId, friendName: friendName });
+    navigateTo('/messages', { chatWith: friendId, friendName: friendName });
+}
+
+/**
+ * Load a chat thread with a specific friend.
+ * Fetches thread ID and messages, populates the chat pane.
+ *
+ * @param {number} friendId - The friend's user ID.
+ * @param {string} friendName - The friend's display name.
+ * @returns {Promise<void>}
+ */
+async function loadChatThread(friendId, friendName) {
+    var threadList = document.getElementById('messages-thread-list');
+    var emptyState = document.getElementById('messages-empty-state');
+    var chatPane = document.getElementById('messages-chat-pane');
+    var chatHeader = document.getElementById('messages-chat-header');
+    var chatThread = document.getElementById('messages-chat-thread');
+    var chatInput = document.getElementById('messages-chat-input');
+
+    if (chatPane === null || chatHeader === null || chatThread === null) {
+        return;
+    }
+
+    // Clear thread list selection highlight.
+    if (threadList !== null) {
+        var items = threadList.querySelectorAll('.search-result-item');
+        items.forEach(function (item) {
+            item.classList.remove('search-result-item--active');
+        });
+
+        // Find and highlight the selected friend.
+        items.forEach(function (item) {
+            if (item.getAttribute('data-friend-id') === String(friendId)) {
+                item.classList.add('search-result-item--active');
+            }
+        });
+    }
+
+    // Hide empty state, show chat pane.
+    if (emptyState !== null) {
+        emptyState.style.display = 'none';
+    }
+
+    if (threadList !== null) {
+        threadList.style.display = '';
+    }
+
+    chatPane.style.display = '';
+    chatHeader.textContent = friendName;
+
+    // Show loading in chat thread.
+    while (chatThread.firstChild !== null) {
+        chatThread.removeChild(chatThread.firstChild);
+    }
+
+    var loadingEl = document.createElement('p');
+    loadingEl.style.color = 'var(--rs-text-dim)';
+    loadingEl.style.padding = '24px';
+    loadingEl.textContent = 'Loading messages...';
+    chatThread.appendChild(loadingEl);
+
+    try {
+        // Step 1: Get thread ID for this friend.
+        var threadResponse = await apiGet('/api/messages/thread/' + friendId);
+        var currentThreadId = threadResponse.threadId;
+
+        // Clear loading.
+        while (chatThread.firstChild !== null) {
+            chatThread.removeChild(chatThread.firstChild);
+        }
+
+        if (currentThreadId === null) {
+            // No thread yet.
+            var noThreadEl = document.createElement('div');
+            noThreadEl.className = 'empty-state';
+            noThreadEl.style.padding = '48px 24px';
+
+            var noThreadIcon = document.createElement('div');
+            noThreadIcon.className = 'empty-state__icon';
+            noThreadIcon.setAttribute('data-lucide', 'message-circle');
+            noThreadEl.appendChild(noThreadIcon);
+
+            var noThreadTitle = document.createElement('h2');
+            noThreadTitle.className = 'empty-state__title';
+            noThreadTitle.textContent = 'Start a conversation';
+            noThreadEl.appendChild(noThreadTitle);
+
+            var noThreadText = document.createElement('p');
+            noThreadText.className = 'empty-state__text';
+            noThreadText.textContent = 'Send a message to ' + friendName + ' to start chatting!';
+            noThreadEl.appendChild(noThreadText);
+
+            chatThread.appendChild(noThreadEl);
+
+            if (typeof initIcons === 'function') {
+                initIcons();
+            }
+
+            return;
+        }
+
+        // Step 2: Fetch messages for this thread.
+        var messagesData = await apiGet('/api/messages/' + currentThreadId + '?limit=50');
+
+        var messages = messagesData.messages !== undefined ? messagesData.messages : messagesData;
+
+        if (messages.length === 0) {
+            var emptyMsg = document.createElement('div');
+            emptyMsg.className = 'empty-state';
+            emptyMsg.style.padding = '48px 24px';
+
+            var emptyIcon = document.createElement('div');
+            emptyIcon.className = 'empty-state__icon';
+            emptyIcon.setAttribute('data-lucide', 'message-circle');
+            emptyMsg.appendChild(emptyIcon);
+
+            var emptyTitle = document.createElement('h2');
+            emptyTitle.className = 'empty-state__title';
+            emptyTitle.textContent = 'No messages yet';
+            emptyMsg.appendChild(emptyTitle);
+
+            chatThread.appendChild(emptyMsg);
+        } else {
+            messages.forEach(function (msg) {
+                var msgEl = createMessageElement(msg);
+                chatThread.appendChild(msgEl);
+            });
+        }
+
+        // Scroll to bottom.
+        chatThread.scrollTop = chatThread.scrollHeight;
+
+        // Wire up send handler.
+        setupChatSendHandler(currentThreadId, friendId, friendName);
+
+        if (typeof initIcons === 'function') {
+            initIcons();
+        }
+    } catch (error) {
+        while (chatThread.firstChild !== null) {
+            chatThread.removeChild(chatThread.firstChild);
+        }
+
+        var errorEl = document.createElement('div');
+        errorEl.className = 'empty-state';
+        errorEl.style.padding = '48px 24px';
+
+        var errorTitle = document.createElement('h2');
+        errorTitle.className = 'empty-state__title';
+        errorTitle.textContent = 'Could not load messages';
+        errorEl.appendChild(errorTitle);
+
+        chatThread.appendChild(errorEl);
+        console.error('loadChatThread error:', error);
+    }
+}
+
+/**
+ * Create a message DOM element.
+ *
+ * @param {object} msg - Message object from API.
+ * @returns {HTMLElement} The message element.
+ */
+function createMessageElement(msg) {
+    var msgEl = document.createElement('div');
+    msgEl.className = 'chat-message';
+
+    var senderId = msg.senderId || msg.sender_id || msg.userId;
+    var currentUserId = getCurrentUserId();
+    var isOwn = senderId === currentUserId;
+
+    msgEl.classList.add('message', isOwn ? 'message--sent' : 'message--received');
+
+    var bubble = document.createElement('div');
+    bubble.className = 'message__bubble';
+
+    var content = document.createElement('p');
+    content.className = 'message__content';
+    content.textContent = msg.content || msg.text || '';
+    bubble.appendChild(content);
+
+    var time = document.createElement('span');
+    time.className = 'message__time';
+
+    if (msg.createdAt !== undefined) {
+        time.textContent = formatMessageTime(msg.createdAt);
+    } else if (msg.created_at !== undefined) {
+        time.textContent = formatMessageTime(msg.created_at);
+    }
+
+    bubble.appendChild(time);
+    msgEl.appendChild(bubble);
+
+    return msgEl;
+}
+
+/**
+ * Format a timestamp for message display.
+ *
+ * @param {string} timestamp - ISO timestamp.
+ * @returns {string} Formatted time string.
+ */
+function formatMessageTime(timestamp) {
+    try {
+        var date = new Date(timestamp);
+        var now = new Date();
+        var diffMs = now.getTime() - date.getTime();
+        var diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffDays === 0) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (diffDays === 1) {
+            return 'Yesterday';
+        } else if (diffDays < 7) {
+            return date.toLocaleDateString([], { weekday: 'short' });
+        } else {
+            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+    } catch (_e) {
+        return '';
+    }
+}
+
+/**
+ * Get the current user's ID from the JWT token.
+ *
+ * @returns {number|null} User ID or null if not authenticated.
+ */
+function getCurrentUserId() {
+    try {
+        var token = getAccessToken();
+
+        if (token === null) {
+            return null;
+        }
+
+        var parts = token.split('.');
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        var payload = JSON.parse(atob(parts[1]));
+
+        return payload.userId !== undefined ? payload.userId : null;
+    } catch (_e) {
+        return null;
+    }
+}
+
+/**
+ * Set up chat send button handler.
+ *
+ * @param {number} threadId - The current thread ID.
+ * @param {number} friendId - The friend's user ID.
+ * @param {string} friendName - The friend's display name.
+ * @returns {void}
+ */
+function setupChatSendHandler(threadId, friendId, friendName) {
+    var sendBtn = document.getElementById('chat-send-btn');
+    var inputField = document.getElementById('chat-input-field');
+
+    if (sendBtn === null || inputField === null) {
+        return;
+    }
+
+    // Remove existing listeners by cloning.
+    var newSendBtn = sendBtn.cloneNode(true);
+    sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+    var newInputField = inputField.cloneNode(true);
+    inputField.parentNode.replaceChild(newInputField, inputField);
+
+    // Focus the input.
+    newInputField.focus();
+
+    // Send function.
+    async function sendMessage() {
+        var content = newInputField.value.trim();
+
+        if (content === '') {
+            return;
+        }
+
+        newSendBtn.disabled = true;
+
+        try {
+            await apiPost('/api/messages/send', {
+                threadId: threadId,
+                content: content,
+            });
+
+            newInputField.value = '';
+            await loadChatThread(friendId, friendName);
+        } catch (error) {
+            showToast({
+                message: 'Failed to send message: ' + (error.message || 'Unknown error'),
+                type: 'error',
+            });
+        } finally {
+            newSendBtn.disabled = false;
+            newInputField.focus();
+        }
+    }
+
+    newSendBtn.addEventListener('click', sendMessage);
+
+    // Enter to send, Shift+Enter for newline.
+    newInputField.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
 }
 
 /**

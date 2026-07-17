@@ -5,16 +5,17 @@
  *
  * Generates personalized social feed with friend music activity cards.
  * Implements contracts C-013, C-014, C-015, C-016.
- * v1.1: Added privacy_level filter to feed query.
+ * v1.2: Batch-eager-loaded enrichment data (N+1 fix). getReactionSummary accepts $currentUserId param.
  *
  * @package Resona
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 /**
  * Get paginated friend activity feed.
  * Maps to: GET /api/feed?cursor={cursor}&limit={limit}
  * Implements C-013. v1.1: Excludes friends with privacy_level='private'.
+ * v1.2: Batch-eager-loaded enrichment data (N+1 fix).
  *
  * @param array $params Route parameters (unused).
  *
@@ -67,8 +68,6 @@ function handleGetFeed(array $params): void
     $cursorCondition = '';
 
     if ($cursor !== '') {
-        // Use positional placeholder (?) consistently — PDO rejects mixing
-        // ? and :name placeholders in the same statement.
         $cursorCondition = ' AND le.created_at < ?';
         $params_list[] = $cursor;
     }
@@ -91,31 +90,128 @@ function handleGetFeed(array $params): void
         $events = array_slice($events, 0, $limit);
     }
 
+    // --- Batch eager-load enrichment data ---
+    // Eager-load current user's top artists (same for all cards)
+    $userArtists = dbQuery(
+        'SELECT artist_name FROM user_artists WHERE user_id = :userId ORDER BY play_count DESC LIMIT 10',
+        [':userId' => $userId]
+    );
+    $userArtistNames = array_column($userArtists, 'artist_name');
+
+    $uniqueFriendIds = array_unique(array_column($events, 'user_id'));
+    $friendIdPlaceholders = implode(',', array_fill(0, count($uniqueFriendIds), '?'));
+
+    // Batch-fetch weekly top tracks for all friend IDs in one query
+    $weeklyTops = dbQuery(
+        "SELECT user_id, track_name, artist_names, album_art_url, COUNT(*) AS play_count
+         FROM listening_events
+         WHERE user_id IN ({$friendIdPlaceholders})
+           AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+         GROUP BY user_id, spotify_track_id, track_name, artist_names, album_art_url
+         ORDER BY user_id, play_count DESC",
+        $uniqueFriendIds
+    );
+    $weeklyTopMap = [];
+    foreach ($weeklyTops as $wt) {
+        if (!isset($weeklyTopMap[$wt['user_id']])) {
+            $weeklyTopMap[$wt['user_id']] = $wt;
+        }
+    }
+
+    // Batch-fetch top artists for all friends
+    $allFriendArtists = dbQuery(
+        "SELECT user_id, artist_name FROM user_artists
+         WHERE user_id IN ({$friendIdPlaceholders})
+         ORDER BY user_id, play_count DESC",
+        $uniqueFriendIds
+    );
+    $friendArtistsMap = [];
+    foreach ($allFriendArtists as $row) {
+        $friendArtistsMap[(int)$row['user_id']][] = $row['artist_name'];
+    }
+
+    // Batch-fetch reaction summaries for all card IDs in one query
+    $cardIds = array_column($events, 'id');
+    $cardIdPlaceholders = implode(',', array_fill(0, count($cardIds), '?'));
+
+    $reactionsBatch = dbQuery(
+        "SELECT listening_event_id, emoji, COUNT(*) AS count
+         FROM reactions
+         WHERE listening_event_id IN ({$cardIdPlaceholders})
+         GROUP BY listening_event_id, emoji",
+        $cardIds
+    );
+
+    $userReactions = dbQuery(
+        "SELECT listening_event_id FROM reactions
+         WHERE listening_event_id IN ({$cardIdPlaceholders}) AND user_id = ?",
+        array_merge($cardIds, [$userId])
+    );
+    $userReactedMap = array_fill_keys(array_column($userReactions, 'listening_event_id'), true);
+
+    // Build reaction summary lookup map
+    $reactionSummaryMap = [];
+    foreach ($reactionsBatch as $row) {
+        $eid = (int)$row['listening_event_id'];
+        if (!isset($reactionSummaryMap[$eid])) {
+            $reactionSummaryMap[$eid] = ['count' => 0, 'topEmojis' => [], 'userReacted' => false];
+        }
+        $reactionSummaryMap[$eid]['count'] += (int)$row['count'];
+        $reactionSummaryMap[$eid]['topEmojis'][] = [
+            'emoji' => $row['emoji'],
+            'count' => (int)$row['count'],
+        ];
+    }
+    foreach ($userReactedMap as $eid => $val) {
+        if (isset($reactionSummaryMap[$eid])) {
+            $reactionSummaryMap[$eid]['userReacted'] = true;
+        }
+    }
+    // --- End batch eager-load ---
+
     $cards = [];
 
     foreach ($events as $event) {
-        $computedData = computeFeedCardData((int)$userId, (int)$event['user_id']);
+        $friendUserId = (int)$event['user_id'];
+
+        // Weekly top track from batch map
+        $weeklyTop = $weeklyTopMap[$friendUserId] ?? null;
+
+        // Compute shared artists from cached user artists and batch-fetched friend artists
+        $friendArtistNamesForFriend = $friendArtistsMap[$friendUserId] ?? [];
+        $sharedArtists = array_values(array_intersect($userArtistNames, $friendArtistNamesForFriend));
+        $totalUnique = count(array_unique(array_merge($userArtistNames, $friendArtistNamesForFriend)));
+        $overlapScore = $totalUnique > 0
+            ? round((count($sharedArtists) / $totalUnique) * 100, 1)
+            : 0.0;
+
+        // Reaction summary from batch map
+        $summary = $reactionSummaryMap[(int)$event['id']] ?? [
+            'count'       => 0,
+            'topEmojis'   => [],
+            'userReacted' => false,
+        ];
 
         $cards[] = [
-            'id'                => (int)$event['id'],
-            'user'              => [
-                'id'           => (int)$event['user_id'],
-                'username'     => $event['username'],
-                'displayName'  => $event['display_name'],
-                'avatarUrl'    => $event['avatar_url'],
+            'id'              => (int)$event['id'],
+            'user'            => [
+                'id'          => $friendUserId,
+                'username'    => $event['username'],
+                'displayName' => $event['display_name'],
+                'avatarUrl'   => $event['avatar_url'],
             ],
-            'track'             => [
-                'name'       => $event['track_name'],
-                'artists'    => explode(', ', $event['artist_names']),
-                'albumName'  => $event['album_name'],
-                'albumArt'   => $event['album_art_url'],
+            'track'           => [
+                'name'      => $event['track_name'],
+                'artists'   => explode(', ', $event['artist_names']),
+                'albumName' => $event['album_name'],
+                'albumArt'  => $event['album_art_url'],
             ],
-            'isPlaying'         => (bool)$event['is_playing'],
-            'weeklyTopTrack'    => $computedData['weeklyTopTrack'],
-            'sharedArtists'     => $computedData['sharedArtists'],
-            'overlapScore'      => $computedData['overlapScore'],
-            'reactionSummary'   => getReactionSummary((int)$event['id']),
-            'createdAt'         => $event['created_at'],
+            'isPlaying'       => (bool)$event['is_playing'],
+            'weeklyTopTrack'  => $weeklyTop,
+            'sharedArtists'   => $sharedArtists,
+            'overlapScore'    => $overlapScore,
+            'reactionSummary' => $summary,
+            'createdAt'       => $event['created_at'],
         ];
     }
 
@@ -355,16 +451,15 @@ function computeFeedCardData(int $userId, int $friendId): array
 
 /**
  * Get a summary of reactions for a given feed card.
+ * v1.2: Accepts $currentUserId as parameter instead of calling requireAuth() internally.
  *
- * @param int $cardId The listening event ID.
+ * @param int $cardId         The listening event ID.
+ * @param int $currentUserId  The authenticated user ID.
  *
  * @return array{count: int, topEmojis: array, userReacted: bool}
  */
-function getReactionSummary(int $cardId): array
+function getReactionSummary(int $cardId, int $currentUserId): array
 {
-    $auth = requireAuth();
-    $currentUserId = $auth['userId'];
-
     $reactions = dbQuery(
         'SELECT emoji, COUNT(*) AS count FROM reactions
          WHERE listening_event_id = :cardId

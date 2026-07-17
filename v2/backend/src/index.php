@@ -36,6 +36,11 @@ foreach ($requiredExtensions as $extension) {
 // Load environment configuration.
 loadEnvironment();
 
+// Start session for OAuth state CSRF protection.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Set up error handling.
 set_exception_handler(function (Throwable $exception): void {
     $appConfig = getAppConfig();
