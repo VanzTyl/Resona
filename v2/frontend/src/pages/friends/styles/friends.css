@@ -1,6 +1,7 @@
 /* ========================================
-   Friends Page Styles
-   Extracted from style.css (lines 852-940)
+   Friends Page Styles (v3.2)
+   TREQ-002: Incoming request card alignment fix
+   Extracted from style.css + page-specific enhancements
    ======================================== */
 
 /* ----- Friend Search ----- */
@@ -92,8 +93,21 @@
     color: var(--rs-text);
 }
 
+/* === TREQ-002: Section header row with badge === */
+.friends-section__header-row {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-2);
+    margin-bottom: var(--rs-space-3);
+}
+
+.friends-section__header-row .friends-section__title {
+    margin-bottom: 0;
+}
+
 /* ========================================
-   TREQ-002: Incoming Friend Request Enhancements
+   TREQ-002: Incoming Friend Request Cards
+   Properly aligned under section header
    ======================================== */
 
 .friend-request-card {
@@ -106,6 +120,10 @@
     border-radius: var(--rs-radius-md);
     margin-bottom: var(--rs-space-2);
     transition: border-color var(--rs-motion-fast) var(--rs-easing);
+}
+
+.friend-request-card:last-child {
+    margin-bottom: 0;
 }
 
 .friend-request-card:hover {
@@ -236,4 +254,47 @@
     padding: var(--rs-space-6) var(--rs-space-4);
     color: var(--rs-text-dim);
     font-size: var(--rs-font-size-sm);
+}
+
+/* ========================================
+   Responsive Layouts
+   ======================================== */
+
+/* === Mobile (< 768px): Stacked single column === */
+@media (max-width: 767px) {
+    #incoming-requests-section .friend-request-card {
+        flex-wrap: nowrap;
+    }
+}
+
+/* === Tablet (768px – 1023px): 2-column grid === */
+@media (min-width: 768px) {
+    #page-friends .page__content {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    #search-results {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+        margin-top: var(--rs-space-4) !important;
+    }
+
+    #incoming-requests-section {
+        display: block !important;
+    }
+
+    #incoming-requests-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+    }
+}
+
+/* === Desktop (>= 1024px): Sidebar layout with wider content === */
+@media (min-width: 1024px) {
+    #page-friends .page__content {
+        max-width: 960px;
+    }
 }

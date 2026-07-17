@@ -525,6 +525,15 @@ function setupProfileEventListeners() {
             }
         }
     });
+
+    // TREQ-005: Cancel button in edit form
+    var cancelBtn = document.getElementById('profile-cancel-btn');
+    if (cancelBtn !== null && cancelBtn.getAttribute('data-listener') === null) {
+        cancelBtn.setAttribute('data-listener', 'true');
+        cancelBtn.addEventListener('click', function () {
+            hideEditForm();
+        });
+    }
 }
 
 /** Save profile changes. */
@@ -631,18 +640,30 @@ async function saveProfile() {
  * @returns {void}
  */
 function setupEditProfileButton() {
-    var formContainer = document.getElementById('profile-form-container');
+    var formContainer = document.getElementById('profile-form');
     var header = document.getElementById('profile-header');
 
     if (header === null) {
         return;
     }
 
+    // Check if edit button already exists (from HTML template or previous render)
     var existingEditBtn = header.querySelector('.profile-header__edit-btn');
     if (existingEditBtn !== null) {
-        existingEditBtn.remove();
+        // Re-wire the click handler on existing button
+        var btn = existingEditBtn.querySelector('.profile-edit-btn');
+        if (btn !== null) {
+            // Remove old listener by replacing with clone
+            var newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', function () {
+                toggleEditForm();
+            });
+        }
+        return;
     }
 
+    // Fallback: create button dynamically if not in HTML
     var editBtnContainer = document.createElement('div');
     editBtnContainer.className = 'profile-header__edit-btn';
 
@@ -651,9 +672,7 @@ function setupEditProfileButton() {
     editBtn.id = 'profile-edit-toggle-btn';
     editBtn.textContent = 'Edit Profile';
     editBtn.addEventListener('click', function () {
-        if (formContainer !== null) {
-            toggleEditForm(formContainer);
-        }
+        toggleEditForm();
     });
 
     editBtnContainer.appendChild(editBtn);
@@ -669,14 +688,13 @@ function setupEditProfileButton() {
 /**
  * Toggle the edit profile form visibility.
  * TREQ-005: Form hidden by default, shown only on edit click.
- *
- * @param {HTMLElement} formContainer - The form container element.
  */
-function toggleEditForm(formContainer) {
+function toggleEditForm() {
+    var formContainer = document.getElementById('profile-form');
     if (formContainer === null) {
         return;
     }
-    var isVisible = formContainer.style.display !== 'none';
+    var isVisible = formContainer.classList.contains('profile-form--visible');
     if (isVisible) {
         hideEditForm();
     } else {
@@ -688,19 +706,20 @@ function toggleEditForm(formContainer) {
  * Show the edit profile form.
  */
 function showEditForm() {
-    var formContainer = document.getElementById('profile-form-container');
-    var editBtn = document.getElementById('profile-edit-toggle-btn');
+    var formContainer = document.getElementById('profile-form');
+    var editBtns = document.querySelectorAll('.profile-edit-btn');
     if (formContainer !== null) {
-        formContainer.style.display = 'block';
-        formContainer.classList.add('profile-form-container--visible');
+        formContainer.classList.add('profile-form--visible');
         formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    if (editBtn !== null) {
-        editBtn.textContent = 'Close';
-        editBtn.style.background = 'var(--rs-surface-elevated)';
-        editBtn.style.color = 'var(--rs-text)';
-        editBtn.style.border = '1px solid var(--rs-border)';
-    }
+    editBtns.forEach(function (btn) {
+        if (btn.id === 'profile-edit-toggle-btn' || btn.closest('.profile-header__edit-btn')) {
+            btn.textContent = 'Close';
+            btn.style.background = 'var(--rs-surface-elevated)';
+            btn.style.color = 'var(--rs-text)';
+            btn.style.border = '1px solid var(--rs-border)';
+        }
+    });
 }
 
 /**
@@ -708,18 +727,19 @@ function showEditForm() {
  * Called on Cancel click, save success, or initial page load.
  */
 function hideEditForm() {
-    var formContainer = document.getElementById('profile-form-container');
-    var editBtn = document.getElementById('profile-edit-toggle-btn');
+    var formContainer = document.getElementById('profile-form');
+    var editBtns = document.querySelectorAll('.profile-edit-btn');
     if (formContainer !== null) {
-        formContainer.style.display = 'none';
-        formContainer.classList.remove('profile-form-container--visible');
+        formContainer.classList.remove('profile-form--visible');
     }
-    if (editBtn !== null) {
-        editBtn.textContent = 'Edit Profile';
-        editBtn.style.background = '';
-        editBtn.style.color = '';
-        editBtn.style.border = '';
-    }
+    editBtns.forEach(function (btn) {
+        if (btn.id === 'profile-edit-toggle-btn' || btn.closest('.profile-header__edit-btn')) {
+            btn.textContent = 'Edit Profile';
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.border = '';
+        }
+    });
 }
 
 /**

@@ -1,6 +1,7 @@
 /* ========================================
-   Profile Page Styles
-   v3.2: Facebook desktop + Instagram mobile layouts
+   Profile Page Styles (v3.3)
+   TREQ-005: Edit button restyled, form hidden by default with toggle
+   Facebook desktop + Instagram mobile layouts
    ======================================== */
 
 /* ----- Facebook-style Profile Header ----- */
@@ -62,30 +63,120 @@
     margin-top: var(--rs-space-2);
 }
 
-/* Edit button in header */
+/* === TREQ-005: Edit button restyled to match design system === */
 .profile-header__edit-btn {
     padding: 0 var(--rs-space-5) var(--rs-space-4);
     display: flex;
 }
 
 .profile-edit-btn {
-    flex: 1;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    padding: var(--rs-space-3);
-    font-size: var(--rs-font-size-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rs-space-2);
     border-radius: var(--rs-radius-md);
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+    white-space: nowrap;
+    user-select: none;
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--rs-space-2) var(--rs-space-5);
     background: var(--rs-primary);
     color: #fff;
-    border: none;
-    font-weight: var(--rs-font-weight-semibold);
-    transition: background var(--rs-motion-fast) var(--rs-easing);
-    min-height: 44px;
+    flex: 1;
+    text-align: center;
 }
 
 .profile-edit-btn:hover {
     background: var(--rs-primary-hover);
+}
+
+.profile-edit-btn:active {
+    transform: scale(0.98);
+}
+
+.profile-edit-btn:focus-visible {
+    outline: 2px solid var(--rs-primary);
+    outline-offset: 2px;
+}
+
+/* === TREQ-005: Profile form — HIDDEN by default === */
+#profile-form {
+    display: none;
+}
+
+/* Form container (visible when toggled) */
+#profile-form.profile-form--visible {
+    display: block;
+}
+
+/* Profile form wrapper inside the page */
+.profile-form-wrapper {
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-5);
+    margin-top: var(--rs-space-4);
+    box-shadow: var(--rs-shadow-md);
+    animation: formSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+.profile-form-wrapper .profile-section__title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-4);
+    color: var(--rs-text);
+}
+
+.profile-form-wrapper .form-group {
+    margin-bottom: var(--rs-space-3);
+}
+
+.profile-form-wrapper .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+[data-theme="light"] .profile-form-wrapper {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Form actions row */
+.profile-form-actions {
+    display: flex;
+    gap: var(--rs-space-3);
+    margin-top: var(--rs-space-4);
+}
+
+.profile-form-actions .profile-edit-btn {
+    flex: 1;
+}
+
+.profile-form-actions .profile-edit-btn--cancel {
+    background: transparent;
+    color: var(--rs-text-muted);
+    border: 1px solid var(--rs-border);
+}
+
+.profile-form-actions .profile-edit-btn--cancel:hover {
+    background: var(--rs-surface-elevated);
+    color: var(--rs-text);
+}
+
+/* ========================================
+   Modal body form (for mobile)
+   ======================================== */
+.rs-modal__body .profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-3);
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: var(--rs-space-2);
 }
 
 /* Stats row */
@@ -176,20 +267,7 @@
     border-radius: var(--rs-radius-md);
 }
 
-/* ----- Form Styles (inside modal) ----- */
-#profile-form {
-    display: none;
-}
-
-.rs-modal__body .profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rs-space-3);
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: var(--rs-space-2);
-}
-
+/* ----- Form Controls (shared across page and modal) ----- */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -271,7 +349,7 @@
     height: 18px;
 }
 
-/* Save button in modal */
+/* Save button */
 #profile-save-container .rs-btn--primary {
     background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary));
     border: none;
@@ -293,6 +371,26 @@
 #profile-logout-container .rs-btn:hover {
     color: #dc2626;
     text-decoration: underline;
+}
+
+/* ========================================
+   Animation
+   ======================================== */
+@keyframes formSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-form-wrapper {
+        animation: none;
+    }
 }
 
 /* ========================================
@@ -346,6 +444,12 @@
     .stats-row .stat-card:not(:last-child) {
         border-right: 1px solid var(--rs-border);
     }
+
+    .profile-form-wrapper {
+        padding: var(--rs-space-4);
+        margin-left: var(--rs-space-3);
+        margin-right: var(--rs-space-3);
+    }
 }
 
 /* ========================================
@@ -368,6 +472,54 @@
 
     #profile-header .profile-header__name {
         font-size: var(--rs-font-size-3xl);
+    }
+
+    /* Tablet: 2-column grid layout */
+    #profile-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header header"
+            "stats topartists"
+            "interests topartists"
+            "genres topartists"
+            "about topartists"
+            "form form";
+        gap: var(--rs-space-4);
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    #profile-content > #profile-header { grid-area: header; }
+    #profile-content > #profile-stats-row { grid-area: stats; }
+    #profile-content > #profile-interests-tags { grid-area: interests; }
+    #profile-content > #profile-genre-tags { grid-area: genres; }
+    #profile-content > #profile-about-section { grid-area: about; }
+    #profile-content > #profile-top-artists { grid-area: topartists; }
+    #profile-content > .profile-form-wrapper,
+    #profile-content > #profile-form.profile-form--visible { grid-area: form; }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    .profile-header__avatar {
+        width: 120px;
+        height: 120px;
+        border-width: 4px;
+    }
+
+    .profile-header__bio {
+        max-width: 500px;
+    }
+
+    .stats-row {
+        gap: var(--rs-space-4);
+    }
+
+    .profile-edit-btn {
+        flex: 0 1 auto;
+        max-width: 200px;
     }
 }
 
@@ -393,82 +545,5 @@
 
     .profile-header__edit-btn {
         padding: 0 var(--rs-space-8) var(--rs-space-4);
-    }
-}
-
-/* ========================================
-   TREQ-006: Profile Edit Form Container
-   ======================================== */
-
-#profile-form {
-    display: none;
-}
-
-.profile-form-container {
-    display: none;
-    background: var(--rs-surface);
-    border: 1px solid var(--rs-border);
-    border-radius: var(--rs-radius-lg);
-    padding: var(--rs-space-5);
-    margin-top: var(--rs-space-4);
-    box-shadow: var(--rs-shadow-md);
-    animation: formSlideIn var(--rs-motion-normal) var(--rs-easing);
-}
-
-.profile-form-container--visible {
-    display: block;
-}
-
-@keyframes formSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.profile-form-container .profile-section__title {
-    font-size: var(--rs-font-size-lg);
-    font-weight: var(--rs-font-weight-semibold);
-    margin-bottom: var(--rs-space-4);
-    color: var(--rs-text);
-}
-
-.profile-form-container .form-group {
-    margin-bottom: var(--rs-space-3);
-}
-
-.profile-form-container .form-group:last-of-type {
-    margin-bottom: 0;
-}
-
-.profile-form-actions {
-    display: flex;
-    gap: var(--rs-space-3);
-    margin-top: var(--rs-space-4);
-}
-
-.profile-form-actions .profile-edit-btn {
-    flex: 1;
-}
-
-[data-theme="light"] .profile-form-container {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .profile-form-container {
-        animation: none;
-    }
-}
-
-@media (max-width: 767px) {
-    .profile-form-container {
-        padding: var(--rs-space-4);
-        margin-left: var(--rs-space-3);
-        margin-right: var(--rs-space-3);
     }
 }

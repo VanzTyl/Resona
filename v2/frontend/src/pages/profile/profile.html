@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="styles/profile.css">
 </head>
 <body>
-    <!-- v3.0: 'The Identity Card' — editorial-style musical identity page -->
+    <!-- v3.3: 'The Identity Card' — editorial-style musical identity page -->
     <div id="page-profile" class="page page--active">
         <header class="page__header">
             <h1 class="page__title">Profile</h1>
@@ -60,62 +60,68 @@
                     </div>
                 </div>
             </div>
-            <!-- Profile Edit Form (v3.1: hidden by default, shown as modal overlay via CSS when .profile-form--visible) -->
+
+            <!-- Profile Edit Form Container (TREQ-005: hidden by default, shown on edit click) -->
             <div id="profile-form" class="profile-form profile-form--collapsible">
-                <h3 class="profile-section__title">Customize Your Profile</h3>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-display-name">Display Name</label>
-                    <input class="form-group__input" type="text" id="profile-display-name" maxlength="100" />
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-avatar-url">Avatar URL</label>
-                    <input class="form-group__input" type="url" id="profile-avatar-url" maxlength="500" />
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-username">Username</label>
-                    <input class="form-group__input" type="text" id="profile-username" maxlength="20" />
-                    <span class="form-group__hint">3-20 characters. Will be lowercased automatically. Can only be changed once every 30 days.</span>
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-bio">Bio</label>
-                    <textarea class="form-group__input form-group__input--textarea" id="profile-bio" maxlength="200"></textarea>
-                    <span class="character-counter" id="bio-counter">0/200</span>
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-interests">Interests</label>
-                    <input class="form-group__input" type="text" id="profile-interests" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-favorite-genres">Favorite Genres</label>
-                    <input class="form-group__input" type="text" id="profile-favorite-genres" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label" for="profile-about-me">About Me</label>
-                    <textarea class="form-group__input form-group__input--textarea" id="profile-about-me" maxlength="500"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-group__label">Privacy</label>
-                    <div class="privacy-selector" id="profile-privacy-selector">
-                        <label class="privacy-option" id="privacy-public">
-                            <input type="radio" name="privacy" value="public" />
-                            <div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>
-                        </label>
-                        <label class="privacy-option privacy-option--selected" id="privacy-friends">
-                            <input type="radio" name="privacy" value="friends_only" checked />
-                            <div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>
-                        </label>
-                        <label class="privacy-option" id="privacy-private">
-                            <input type="radio" name="privacy" value="private" />
-                            <div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>
-                        </label>
+                <div class="profile-form-wrapper">
+                    <h3 class="profile-section__title">Customize Your Profile</h3>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-display-name">Display Name</label>
+                        <input class="form-group__input" type="text" id="profile-display-name" maxlength="100" />
                     </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-avatar-url">Avatar URL</label>
+                        <input class="form-group__input" type="url" id="profile-avatar-url" maxlength="500" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-username">Username</label>
+                        <input class="form-group__input" type="text" id="profile-username" maxlength="20" />
+                        <span class="form-group__hint">3-20 characters. Will be lowercased automatically. Can only be changed once every 30 days.</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-bio">Bio</label>
+                        <textarea class="form-group__input form-group__input--textarea" id="profile-bio" maxlength="200"></textarea>
+                        <span class="character-counter" id="bio-counter">0/200</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-interests">Interests</label>
+                        <input class="form-group__input" type="text" id="profile-interests" placeholder="e.g. indie, vinyl collecting, concert photography" maxlength="500" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-favorite-genres">Favorite Genres</label>
+                        <input class="form-group__input" type="text" id="profile-favorite-genres" placeholder="e.g. Indie Rock, Jazz, Hip Hop" maxlength="300" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label" for="profile-about-me">About Me</label>
+                        <textarea class="form-group__input form-group__input--textarea" id="profile-about-me" maxlength="500"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">Privacy</label>
+                        <div class="privacy-selector" id="profile-privacy-selector">
+                            <label class="privacy-option" id="privacy-public">
+                                <input type="radio" name="privacy" value="public" />
+                                <div><strong>Public</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Anyone can see your activity</span></div>
+                            </label>
+                            <label class="privacy-option privacy-option--selected" id="privacy-friends">
+                                <input type="radio" name="privacy" value="friends_only" checked />
+                                <div><strong>Friends Only</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only friends can see your activity</span></div>
+                            </label>
+                            <label class="privacy-option" id="privacy-private">
+                                <input type="radio" name="privacy" value="private" />
+                                <div><strong>Private</strong><br /><span style="font-size: var(--rs-font-size-sm); color: var(--rs-text-dim);">Only you can see your activity</span></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">Spotify Connected</label>
+                        <p id="profile-spotify-status" style="padding: 8px 0; color: var(--rs-text-dim);">Checking...</p>
+                    </div>
+                    <div class="profile-form-actions">
+                        <button type="button" class="profile-edit-btn profile-edit-btn--cancel" id="profile-cancel-btn">Cancel</button>
+                        <div id="profile-save-container" style="flex: 1;"></div>
+                    </div>
+                    <div id="profile-logout-container" style="margin-top: var(--rs-space-3);"></div>
                 </div>
-                <div class="form-group">
-                    <label class="form-group__label">Spotify Connected</label>
-                    <p id="profile-spotify-status" style="padding: 8px 0; color: var(--rs-text-dim);">Checking...</p>
-                </div>
-                <div id="profile-save-container"></div>
-                <div id="profile-logout-container" style="margin-top: var(--rs-space-2);"></div>
             </div>
         </main>
     </div>

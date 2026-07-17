@@ -1,6 +1,7 @@
 /* ========================================
-   Messages Page Styles
-   v3.2: Messenger-style thread list + chat
+   Messages Page Styles (v3.3)
+   TREQ-003: Normalized thread list UI, consistent icon sizing
+   Messenger/Instagram-style thread list + chat
    ======================================== */
 
 /* ----- Thread List (Messenger-style) ----- */
@@ -17,6 +18,7 @@
     cursor: pointer;
     border-radius: var(--rs-radius-md);
     transition: background var(--rs-motion-fast) var(--rs-easing);
+    min-height: 64px;
 }
 
 .thread-item:hover {
@@ -28,14 +30,17 @@
     border: 1px solid rgba(124, 58, 237, 0.15);
 }
 
+/* === TREQ-003: Normalized avatar sizing — 44px === */
 .thread-item__avatar-wrapper {
     position: relative;
     flex-shrink: 0;
+    width: 44px;
+    height: 44px;
 }
 
 .thread-item__avatar {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--rs-radius-full);
     object-fit: cover;
 }
@@ -62,6 +67,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    overflow: hidden;
 }
 
 .thread-item__name {
@@ -87,6 +93,7 @@
     align-items: flex-end;
     gap: var(--rs-space-1);
     flex-shrink: 0;
+    min-width: 40px;
 }
 
 .thread-item__time {
@@ -258,7 +265,102 @@
     color: var(--rs-text);
 }
 
-/* ----- Mobile: Full-screen chat pane (<768px) ----- */
+/* ========================================
+   TREQ-003: Thread List UI Cleanup States
+   ======================================== */
+
+.thread-item--unread {
+    background: rgba(124, 58, 237, 0.05);
+    border-left: 3px solid var(--rs-primary);
+}
+
+.thread-item--entering {
+    animation: threadSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+@keyframes threadSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.thread-item__preview--playing {
+    color: var(--rs-secondary);
+}
+
+.thread-list-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--rs-space-10) var(--rs-space-4);
+    text-align: center;
+    color: var(--rs-text-dim);
+}
+
+.thread-list-empty__icon {
+    font-size: 48px;
+    margin-bottom: var(--rs-space-3);
+    opacity: 0.5;
+}
+
+.thread-list-empty__text {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+}
+
+/* Skeleton states */
+.thread-item-skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3) var(--rs-space-4);
+}
+
+.thread-item-skeleton__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rs-radius-full);
+    background: var(--rs-surface-elevated);
+    animation: shimmer 1.5s infinite;
+}
+
+.thread-item-skeleton__text {
+    flex: 1;
+}
+
+.thread-item-skeleton__line {
+    height: 12px;
+    border-radius: var(--rs-radius-sm);
+    background: var(--rs-surface-elevated);
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 4px;
+}
+
+.thread-item-skeleton__line:first-child {
+    width: 60%;
+}
+
+.thread-item-skeleton__line:last-child {
+    width: 40%;
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* ========================================
+   Responsive Layouts
+   ======================================== */
+
+/* === Mobile (<768px): Full-screen chat overlay === */
 @media (max-width: 767px) {
     #page-messages.page--active {
         display: flex;
@@ -310,7 +412,59 @@
     }
 }
 
-/* ----- Desktop (>=1024px): Split pane ----- */
+/* === Tablet (768px – 1023px): Split pane === */
+@media (min-width: 768px) {
+    #page-messages.page--active {
+        display: flex;
+        flex-direction: column;
+        height: calc(100dvh - var(--rs-nav-height));
+        overflow: hidden;
+        padding-bottom: 0;
+    }
+
+    #page-messages .page__header {
+        flex-shrink: 0;
+    }
+
+    #messages-content {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: var(--rs-space-4);
+        flex: 1;
+        min-height: 0;
+        max-width: 100%;
+        padding-top: 0;
+    }
+
+    #messages-thread-list {
+        border-right: 1px solid var(--rs-border);
+        overflow-y: auto;
+        padding-right: var(--rs-space-3);
+    }
+
+    #messages-empty-state {
+        grid-column: 1 / -1;
+    }
+
+    #messages-chat-pane {
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    #messages-chat-thread {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: var(--rs-space-2);
+    }
+
+    #messages-chat-pane[style*="display: none"] {
+        display: none !important;
+    }
+}
+
+/* === Desktop (>=1024px): Wider split pane === */
 @media (min-width: 1024px) {
     #messages-chat-header .chat-header__back-btn {
         display: none;
@@ -329,103 +483,14 @@
     }
 }
 
-/* Wide Desktop (>= 1400px) */
+/* === Wide Desktop (>= 1400px) === */
 @media (min-width: 1400px) {
     .message {
         max-width: 60%;
     }
 }
 
-/* ========================================
-   TREQ-003: Message Thread List Improvements
-   ======================================== */
-
-.thread-item--unread {
-    background: rgba(124, 58, 237, 0.05);
-    border-left: 3px solid var(--rs-primary);
-}
-
-.thread-item--entering {
-    animation: threadSlideIn var(--rs-motion-normal) var(--rs-easing);
-}
-
-@keyframes threadSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.thread-item__preview--playing {
-    color: var(--rs-secondary);
-}
-
-.thread-list-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--rs-space-10) var(--rs-space-4);
-    text-align: center;
-    color: var(--rs-text-dim);
-}
-
-.thread-list-empty__icon {
-    font-size: 48px;
-    margin-bottom: var(--rs-space-3);
-    opacity: 0.5;
-}
-
-.thread-list-empty__text {
-    font-size: var(--rs-font-size-base);
-    color: var(--rs-text-muted);
-}
-
-.thread-item-skeleton {
-    display: flex;
-    align-items: center;
-    gap: var(--rs-space-3);
-    padding: var(--rs-space-3) var(--rs-space-4);
-}
-
-.thread-item-skeleton__avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--rs-radius-full);
-    background: var(--rs-surface-elevated);
-    animation: shimmer 1.5s infinite;
-}
-
-.thread-item-skeleton__text {
-    flex: 1;
-}
-
-.thread-item-skeleton__line {
-    height: 12px;
-    border-radius: var(--rs-radius-sm);
-    background: var(--rs-surface-elevated);
-    animation: shimmer 1.5s infinite;
-    margin-bottom: 4px;
-}
-
-.thread-item-skeleton__line:first-child {
-    width: 60%;
-}
-
-.thread-item-skeleton__line:last-child {
-    width: 40%;
-}
-
-@keyframes shimmer {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
+/* === Reduced Motion === */
 @media (prefers-reduced-motion: reduce) {
     .thread-item--entering {
         animation: none;
