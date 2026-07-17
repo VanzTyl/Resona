@@ -222,21 +222,43 @@ async function loadDashboard() {
                 return;
             }
 
-            topArtists.forEach(function (artist, index) {
+            // Add podium class for CSS grid layout on top 3
+            artistList.classList.add('artist-list--podium');
+
+            // Limit to top 10
+            var limitedArtists = topArtists.slice(0, 10);
+
+            limitedArtists.forEach(function (artist, index) {
                 const item = document.createElement('div');
                 item.className = 'artist-item';
 
-                const rank = document.createElement('div');
+                // Album art thumbnail for top 3 podium items
+                if (index < 3) {
+                    var artImg = document.createElement('img');
+                    artImg.className = 'artist-item__art';
+                    // Backend returns 'artist_image_url' from user_artists table
+                    var artUrl = artist.artist_image_url || artist.image_url || '';
+                    if (artUrl) {
+                        artImg.src = artUrl;
+                        artImg.alt = artist.artist_name;
+                    } else {
+                        // Placeholder — CSS border ring handles this
+                        artImg.style.display = 'none';
+                    }
+                    item.appendChild(artImg);
+                }
+
+                var rank = document.createElement('div');
                 rank.className = 'artist-item__rank';
                 rank.textContent = (index + 1);
                 item.appendChild(rank);
 
-                const name = document.createElement('div');
+                var name = document.createElement('div');
                 name.className = 'artist-item__name';
                 name.textContent = artist.artist_name;
                 item.appendChild(name);
 
-                const count = document.createElement('div');
+                var count = document.createElement('div');
                 count.className = 'artist-item__count';
                 count.textContent = artist.play_count + ' plays';
                 item.appendChild(count);
