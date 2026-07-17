@@ -131,42 +131,48 @@ function handleUpdateProfile(array $params): void
             return;
         }
 
-        // Check uniqueness
-        $existing = dbQueryOne(
-            'SELECT id FROM users WHERE username = :username AND id != :userId',
-            [':username' => $username, ':userId' => $userId]
-        );
-
-        if ($existing !== null) {
-            sendJson(['success' => false, 'error' => 'Username is already taken'], HTTP_CONFLICT);
-            return;
-        }
-
-        // Check cooldown (30 days between changes)
-        $currentUser = dbQueryOne(
-            'SELECT username_updated_at FROM users WHERE id = :id',
+        // Check if username actually changed — skip cooldown if same value.
+        $currentUserRow = dbQueryOne(
+            'SELECT username, username_updated_at FROM users WHERE id = :id',
             [':id' => $userId]
         );
 
-        if ($currentUser !== null && $currentUser['username_updated_at'] !== null) {
-            $lastChange = strtotime($currentUser['username_updated_at']);
-            $daysSinceChange = (time() - $lastChange) / 86400;
+        if ($currentUserRow !== null && $currentUserRow['username'] === $username) {
+            // Username unchanged — no cooldown check or update needed.
+            // Fall through to allow other fields to update.
+        } else {
+            // Check uniqueness
+            $existing = dbQueryOne(
+                'SELECT id FROM users WHERE username = :username AND id != :userId',
+                [':username' => $username, ':userId' => $userId]
+            );
 
-            if ($daysSinceChange < USERNAME_CHANGE_COOLDOWN_DAYS) {
-                $daysRemaining = ceil(USERNAME_CHANGE_COOLDOWN_DAYS - $daysSinceChange);
-                sendJson([
-                    'success' => false,
-                    'error'   => 'Username can only be changed once every ' . USERNAME_CHANGE_COOLDOWN_DAYS . ' days. '
-                                . $daysRemaining . ' day(s) remaining.',
-                ], HTTP_BAD_REQUEST);
+            if ($existing !== null) {
+                sendJson(['success' => false, 'error' => 'Username is already taken'], HTTP_CONFLICT);
                 return;
             }
-        }
 
-        $updateFields[] = 'username = :username';
-        $updateFields[] = 'username_updated_at = NOW()';
-        $updateParams[':username'] = $username;
-        $hasUpdates = true;
+            // Check cooldown (7 days between changes)
+            if ($currentUserRow !== null && $currentUserRow['username_updated_at'] !== null) {
+                $lastChange = strtotime($currentUserRow['username_updated_at']);
+                $daysSinceChange = (time() - $lastChange) / 86400;
+
+                if ($daysSinceChange < USERNAME_CHANGE_COOLDOWN_DAYS) {
+                    $daysRemaining = ceil(USERNAME_CHANGE_COOLDOWN_DAYS - $daysSinceChange);
+                    sendJson([
+                        'success' => false,
+                        'error'   => 'Username can only be changed once every ' . USERNAME_CHANGE_COOLDOWN_DAYS . ' days. '
+                                    . $daysRemaining . ' day(s) remaining.',
+                    ], HTTP_BAD_REQUEST);
+                    return;
+                }
+            }
+
+            $updateFields[] = 'username = :username';
+            $updateFields[] = 'username_updated_at = NOW()';
+            $updateParams[':username'] = $username;
+            $hasUpdates = true;
+        }
     }
 
     // v1.1: Privacy level

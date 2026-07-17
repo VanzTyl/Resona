@@ -345,6 +345,7 @@ async function loadProfile() {
         var usernameInput = document.getElementById('profile-username');
         if (usernameInput !== null) {
             usernameInput.value = profile.username || '';
+            usernameInput.setAttribute('data-original', profile.username || '');
         }
 
         var bioInput = document.getElementById('profile-bio');
@@ -536,7 +537,8 @@ async function saveProfile() {
     var usernameInput = document.getElementById('profile-username');
     if (usernameInput !== null) {
         var username = usernameInput.value.trim();
-        if (username !== '') {
+        var originalUsername = usernameInput.getAttribute('data-original') || '';
+        if (username !== '' && username !== originalUsername) {
             payload.username = username;
         }
     }

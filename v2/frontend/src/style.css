@@ -2272,38 +2272,45 @@ ul, ol {
     #profile-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header      header"
+            "stats       topartists"
+            "interests   topartists"
+            "genres      topartists"
+            "about       topartists"
+            "form        form";
         gap: var(--rs-space-6);
         max-width: 960px;
         margin: 0 auto;
     }
 
-    /* Header spans full width */
     #profile-header {
-        grid-column: 1 / -1;
+        grid-area: header;
         padding: var(--rs-space-6) 0;
     }
 
-    /* Left column: stats, tags, about */
     #profile-stats-row {
-        grid-column: 1;
+        grid-area: stats;
     }
 
     #profile-interests-tags {
-        grid-column: 1;
+        grid-area: interests;
     }
 
     #profile-genre-tags {
-        grid-column: 1;
+        grid-area: genres;
     }
 
     #profile-about-section {
-        grid-column: 1;
+        grid-area: about;
     }
 
-    /* Right column: top artists */
     #profile-top-artists {
-        grid-column: 2;
-        grid-row: 2 / 7;
+        grid-area: topartists;
+    }
+
+    #profile-form {
+        grid-area: form;
     }
 
     .profile-header__avatar {
@@ -2330,10 +2337,23 @@ ul, ol {
         grid-column: 1 / -1;
     }
 
+    /* Full-width: username, bio, about me, privacy, spotify, save, logout */
     #profile-form .form-group:nth-child(4),
+    #profile-form .form-group:nth-child(5),
     #profile-form .form-group:nth-child(8),
-    #profile-form .form-group:nth-child(9) {
+    #profile-form .form-group:nth-child(9),
+    #profile-form .form-group:nth-child(10),
+    #profile-save-container,
+    #profile-logout-container {
         grid-column: 1 / -1;
+    }
+
+    /* Compact fields side by side: display name+avatar, interests+genres */
+    #profile-form .form-group:nth-child(2),
+    #profile-form .form-group:nth-child(3),
+    #profile-form .form-group:nth-child(6),
+    #profile-form .form-group:nth-child(7) {
+        grid-column: span 1;
     }
 
     /* ================================

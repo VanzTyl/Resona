@@ -132,94 +132,81 @@ function createMessagesPageStructure() {
  * @returns {Promise<void>}
  */
 async function loadThreadList() {
-    const content = document.getElementById('messages-content');
+    const threadListEl = document.getElementById('messages-thread-list');
+    const emptyState = document.getElementById('messages-empty-state');
+    const chatPane = document.getElementById('messages-chat-pane');
 
-    if (content === null) {
+    if (threadListEl === null) {
         return;
     }
 
-    // Hide chat pane on initial load.
-    const chatPane = document.getElementById('messages-chat-pane');
-    if (chatPane !== null) {
-        chatPane.style.display = 'none';
-    }
-
-    // Show thread list.
-    const threadList = document.getElementById('messages-thread-list');
-    if (threadList !== null) {
-        threadList.style.display = '';
-    }
+    // Hide everything initially.
+    if (chatPane !== null) { chatPane.style.display = 'none'; }
+    threadListEl.style.display = 'none';
+    if (emptyState !== null) { emptyState.style.display = 'none'; }
 
     // Show loading indicator.
-    const emptyState = document.getElementById('messages-empty-state');
-    if (emptyState !== null) {
-        emptyState.style.display = 'none';
+    while (threadListEl.firstChild !== null) {
+        threadListEl.removeChild(threadListEl.firstChild);
     }
 
-    const loadingMsg = document.createElement('p');
+    var loadingMsg = document.createElement('p');
     loadingMsg.id = 'messages-loading';
     loadingMsg.style.color = 'var(--rs-text-dim)';
     loadingMsg.style.padding = '24px 0';
     loadingMsg.textContent = 'Loading conversations...';
+    threadListEl.appendChild(loadingMsg);
+    threadListEl.style.display = '';
 
-    const threadListEl = document.getElementById('messages-thread-list');
-    if (threadListEl !== null) {
-        // Clear and show loading.
+    try {
+        var friends = await apiGet('/api/friends?limit=50');
+
+        // Clear loading.
         while (threadListEl.firstChild !== null) {
             threadListEl.removeChild(threadListEl.firstChild);
         }
-        threadListEl.appendChild(loadingMsg);
-    }
-
-    try {
-        const friends = await apiGet('/api/friends?limit=50');
-
-        // Clear loading.
-        if (threadListEl !== null) {
-            while (threadListEl.firstChild !== null) {
-                threadListEl.removeChild(threadListEl.firstChild);
-            }
-        }
 
         if (friends.length === 0) {
-            if (emptyState !== null) {
-                emptyState.style.display = '';
-            }
+            threadListEl.style.display = 'none';
+            if (emptyState !== null) { emptyState.style.display = ''; }
             return;
         }
 
+        // Show thread list with friends.
+        threadListEl.style.display = '';
+
         friends.forEach(function (friend) {
-            const threadItem = document.createElement('div');
+            var threadItem = document.createElement('div');
             threadItem.className = 'search-result-item';
             threadItem.style.cursor = 'pointer';
 
-            const avatar = document.createElement('img');
+            var avatar = document.createElement('img');
             avatar.className = 'search-result-item__avatar';
             avatar.src = friend.avatar_url || 'assets/default-avatar.svg';
             avatar.alt = '';
             threadItem.appendChild(avatar);
 
-            const info = document.createElement('div');
+            var info = document.createElement('div');
             info.className = 'search-result-item__info';
 
-            const name = document.createElement('div');
+            var name = document.createElement('div');
             name.className = 'search-result-item__name';
             name.textContent = friend.display_name;
             info.appendChild(name);
 
-            const status = document.createElement('div');
+            var status = document.createElement('div');
             status.className = 'search-result-item__username';
             status.textContent = friend.currently_playing_track
-                ? '\uD83C\uDFB5 ' + friend.currently_playing_track
+                ? '\u266B ' + friend.currently_playing_track
                 : '';
             info.appendChild(status);
 
             threadItem.appendChild(info);
 
-            const unreadCount = friend.unread_count || 0;
+            var unreadCount = friend.unread_count || 0;
 
             if (unreadCount > 0) {
-                const badge = document.createElement('span');
+                var badge = document.createElement('span');
                 badge.className = 'bottom-nav__unread-badge';
                 badge.style.position = 'static';
                 badge.textContent = unreadCount;
@@ -230,23 +217,15 @@ async function loadThreadList() {
                 navigateToChat(friend.id, friend.display_name);
             });
 
-            if (threadListEl !== null) {
-                threadListEl.appendChild(threadItem);
-            }
+            threadListEl.appendChild(threadItem);
         });
 
         if (typeof initIcons === 'function') {
             initIcons();
         }
     } catch (_error) {
-        // On error, show the empty state as a friendly fallback.
-        // The error is usually "no friends yet" (empty list) rather than a
-        // critical failure, so the empty state with suggestion is more helpful.
-        if (threadListEl !== null) {
-            while (threadListEl.firstChild !== null) {
-                threadListEl.removeChild(threadListEl.firstChild);
-            }
-        }
+        // Fall back to empty state on error.
+        threadListEl.style.display = 'none';
         if (emptyState !== null) {
             emptyState.style.display = '';
             var suggestText = emptyState.querySelector('.empty-state__text');

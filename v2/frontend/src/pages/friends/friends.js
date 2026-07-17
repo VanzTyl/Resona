@@ -355,13 +355,9 @@ async function acceptRequest(requestId, item) {
             type: 'success',
         });
 
-        // Remove the request from the list.
-        if (item.parentNode !== null) {
-            item.remove();
-        }
-
-        // Reload friends list to show the new friend.
+        // Reload friends list and remaining incoming requests.
         loadFriendsList();
+        loadIncomingRequests();
     } catch (error) {
         showToast({
             message: error.message,
@@ -388,10 +384,8 @@ async function rejectRequest(requestId, item) {
             type: 'info',
         });
 
-        // Remove the request from the list.
-        if (item.parentNode !== null) {
-            item.remove();
-        }
+        // Reload incoming requests to update section.
+        loadIncomingRequests();
     } catch (error) {
         showToast({
             message: error.message,
@@ -422,8 +416,20 @@ async function loadFriendsList() {
     header.textContent = 'Your Friends';
     section.appendChild(header);
 
+    // Show a loading indicator while fetching.
+    var loadingEl = document.createElement('p');
+    loadingEl.style.color = 'var(--rs-text-dim)';
+    loadingEl.style.padding = '12px 0';
+    loadingEl.textContent = 'Loading...';
+    section.appendChild(loadingEl);
+
     try {
-        const friends = await apiGet('/api/friends?limit=50');
+        var friends = await apiGet('/api/friends?limit=50');
+
+        // Remove loading indicator.
+        if (loadingEl.parentNode !== null) {
+            loadingEl.remove();
+        }
 
         if (friends.length === 0) {
             const emptyMsg = document.createElement('p');
