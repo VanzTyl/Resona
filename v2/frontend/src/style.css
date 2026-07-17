@@ -1968,7 +1968,7 @@ ul, ol {
     #profile-content > #profile-genre-tags { grid-area: genres; }
     #profile-content > #profile-about-section { grid-area: about; }
     #profile-content > #profile-top-artists { grid-area: topartists; }
-    #profile-content > #profile-form { grid-area: form; display: flex; }
+    #profile-content > #profile-form { grid-area: form; }
 
     .profile-header__name {
         font-size: var(--rs-font-size-3xl);
@@ -5395,6 +5395,7 @@ ul, ol {
 
 /* Form container styling when visible */
 #profile-form.profile-form--visible {
+    display: flex;
     background: var(--rs-surface);
     border: 1px solid var(--rs-border);
     border-radius: var(--rs-radius-lg);
