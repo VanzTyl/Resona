@@ -1566,6 +1566,20 @@ ul, ol {
     max-width: 480px;
     margin: 0 auto;
     padding: var(--rs-space-6) var(--rs-space-4);
+    position: relative;
+    z-index: 1;
+}
+
+/* TREQ-001: Ensure step content inputs are above any overlapping elements */
+#onboarding-step-content {
+    position: relative;
+    z-index: 2;
+}
+
+#onboarding-step-content .form-group__input {
+    position: relative;
+    z-index: 3;
+    background: var(--rs-surface);
 }
 
 .onboarding__progress {
@@ -4118,8 +4132,295 @@ ul, ol {
 #search-results .search-result-item:nth-child(10) { animation-delay: 450ms; }
 
 /* ========================================
-   v3.1: Messages Page — Discord-Style Layout
+   v3.3: Friend Request Card Styles (TREQ-002)
+   Used by friends.js loadIncomingRequests()
    ======================================== */
+
+/* Section header row with title + badge */
+.friends-section__header-row {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-2);
+    margin-bottom: var(--rs-space-3);
+}
+
+.friends-section__header-row .friends-section__title {
+    margin-bottom: 0;
+}
+
+.friends-section--requests .friends-section__title {
+    color: var(--rs-primary);
+}
+
+.friends-section__badge {
+    background: var(--rs-primary);
+    color: #fff;
+    border-radius: var(--rs-radius-full);
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: var(--rs-font-size-xs);
+    font-weight: var(--rs-font-weight-bold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Friend request card */
+.friend-request-card {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3);
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-md);
+    margin-bottom: var(--rs-space-2);
+    transition: border-color var(--rs-motion-fast) var(--rs-easing);
+}
+
+.friend-request-card:last-child {
+    margin-bottom: 0;
+}
+
+.friend-request-card:hover {
+    border-color: var(--rs-primary);
+}
+
+.friend-request-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rs-radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--rs-surface-elevated);
+    border: 1px solid var(--rs-border);
+}
+
+.friend-request-card__avatar--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--rs-primary);
+    color: #fff;
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-lg);
+}
+
+.friend-request-card__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.friend-request-card__name {
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.friend-request-card__username {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+}
+
+.friend-request-card__actions {
+    display: flex;
+    gap: var(--rs-space-2);
+    flex-shrink: 0;
+}
+
+/* Request action buttons */
+.friend-request-btn--accept {
+    padding: var(--rs-space-2) var(--rs-space-3);
+    border-radius: var(--rs-radius-sm);
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-semibold);
+    background: var(--rs-success);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    min-height: 36px;
+    min-width: 72px;
+    transition: background var(--rs-motion-fast) var(--rs-easing),
+                opacity var(--rs-motion-fast) var(--rs-easing);
+}
+
+.friend-request-btn--accept:hover {
+    background: #059669;
+}
+
+.friend-request-btn--accept:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.friend-request-btn--reject {
+    padding: var(--rs-space-2) var(--rs-space-3);
+    border-radius: var(--rs-radius-sm);
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-semibold);
+    background: transparent;
+    color: var(--rs-error);
+    border: 1px solid var(--rs-error);
+    cursor: pointer;
+    min-height: 36px;
+    min-width: 72px;
+    transition: background var(--rs-motion-fast) var(--rs-easing),
+                color var(--rs-motion-fast) var(--rs-easing),
+                opacity var(--rs-motion-fast) var(--rs-easing);
+}
+
+.friend-request-btn--reject:hover {
+    background: var(--rs-error);
+    color: #fff;
+}
+
+.friend-request-btn--reject:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Incoming requests section border separator */
+.friends-section--requests {
+    margin-bottom: var(--rs-space-6);
+    padding-bottom: var(--rs-space-4);
+    border-bottom: 2px solid var(--rs-border);
+}
+
+/* Responsive: incoming request list as 2-column grid on tablet+ */
+@media (min-width: 768px) {
+    #incoming-requests-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+    }
+}
+
+/* ========================================
+   v3.3: Messages Page — Thread Item Styles (TREQ-003)
+   Used by messages.js loadThreadList()
+   ======================================== */
+
+/* Thread item container — Discord DM-style */
+.thread-item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-3) var(--rs-space-4);
+    cursor: pointer;
+    border-radius: var(--rs-radius-md);
+    transition: background var(--rs-motion-fast) var(--rs-easing);
+    min-height: 64px;
+}
+
+.thread-item:hover {
+    background: var(--rs-surface-elevated);
+}
+
+.thread-item--active {
+    background: var(--rs-primary-light);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.thread-item--unread {
+    background: rgba(124, 58, 237, 0.05);
+    border-left: 3px solid var(--rs-primary);
+}
+
+/* Avatar wrapper with online dot */
+.thread-item__avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+}
+
+.thread-item__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rs-radius-full);
+    object-fit: cover;
+}
+
+.thread-item__online-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--rs-success);
+    border: 2px solid var(--rs-surface);
+    display: none;
+}
+
+.thread-item--online .thread-item__online-dot {
+    display: block;
+}
+
+/* Info area: name + preview */
+.thread-item__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.thread-item__name {
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.thread-item__preview {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.thread-item__preview--playing {
+    color: var(--rs-secondary);
+}
+
+/* Meta area: time + unread badge */
+.thread-item__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--rs-space-1);
+    flex-shrink: 0;
+    min-width: 40px;
+}
+
+.thread-item__time {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-dim);
+    white-space: nowrap;
+}
+
+.thread-item__unread-badge {
+    background: var(--rs-primary);
+    color: #fff;
+    border-radius: var(--rs-radius-full);
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: var(--rs-font-size-xs);
+    font-weight: var(--rs-font-weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 /* Purple glowing unread badge */
 .bottom-nav__unread-badge {
@@ -4715,11 +5016,16 @@ ul, ol {
    v3.1: Dashboard — Podium Top 3 + Clean List View
    ======================================== */
 
-/* Podium layout for top 3 artists */
+/* === TREQ-004: Podium layout for top 3 artists === */
+/* #1: centered above, spans full width, TALLEST */
+/* #2: left column below, medium height */
+/* #3: right column below, SHORTEST height */
 .artist-list--podium {
     display: grid;
-    grid-template-columns: 1fr 1.2fr 1fr;
-    grid-template-areas: "second first third";
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "first first"
+        "second third";
     gap: var(--rs-space-3);
     align-items: end;
     margin-bottom: var(--rs-space-6);
@@ -4730,11 +5036,11 @@ ul, ol {
     text-align: center;
     padding: var(--rs-space-4) var(--rs-space-3);
     border-radius: var(--rs-radius-lg);
-    min-height: 180px;
     position: relative;
     overflow: visible;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 /* Album art thumbnail for top 3 */
@@ -4778,19 +5084,24 @@ ul, ol {
     grid-area: first;
     background: linear-gradient(to bottom, rgba(245, 158, 11, 0.1), transparent);
     border: 1px solid var(--rs-rank-gold);
-    min-height: 210px;
+    min-height: 220px;
+    justify-self: center;
+    max-width: 360px;
+    width: 100%;
 }
 
 .artist-list--podium .artist-item:nth-child(2) {
     grid-area: second;
     background: linear-gradient(to bottom, rgba(148, 163, 184, 0.08), transparent);
     border: 1px solid var(--rs-rank-silver);
+    min-height: 160px;
 }
 
 .artist-list--podium .artist-item:nth-child(3) {
     grid-area: third;
     background: linear-gradient(to bottom, rgba(180, 83, 9, 0.08), transparent);
     border: 1px solid var(--rs-rank-bronze);
+    min-height: 120px;
 }
 
 /* Hollow rank numbers for podium */
@@ -5030,12 +5341,17 @@ ul, ol {
 }
 
 /* ========================================
-   v3.1: Profile — Collapsible Edit Form + Discord Layout
+   v3.3: Profile — Collapsible Edit Form (TREQ-005)
    ======================================== */
 
-/* Hide edit form by default — read-only profile view */
-.profile-form--collapsible {
+/* Hide edit form by default — read-only profile view (TREQ-005) */
+#profile-form {
     display: none;
+}
+
+/* Show form when JS adds visible class (Edit button click) */
+#profile-form.profile-form--visible {
+    display: block;
 }
 
 /* Edit Details toggle bar */
@@ -5047,22 +5363,55 @@ ul, ol {
     border-top: 1px solid var(--rs-border);
 }
 
+/* Edit button */
 .profile-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rs-space-2);
+    border-radius: var(--rs-radius-md);
+    font-weight: var(--rs-font-weight-semibold);
+    font-size: var(--rs-font-size-base);
+    font-family: inherit;
     cursor: pointer;
+    border: none;
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--rs-space-2) var(--rs-space-5);
+    background: var(--rs-primary);
+    color: #fff;
     user-select: none;
 }
 
-/* Show form when checkbox is checked */
-.profile-edit-toggle:checked ~ .profile-edit-bar {
-    display: none;
+.profile-edit-btn:hover {
+    background: var(--rs-primary-hover);
 }
 
-.profile-edit-toggle:checked ~ .profile-form--collapsible {
-    display: block;
+.profile-edit-btn:active {
+    transform: scale(0.98);
 }
 
-.profile-edit-toggle:checked ~ .profile-form--collapsible #profile-save-container .rs-btn--primary {
-    background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary));
+/* Form container styling when visible */
+#profile-form.profile-form--visible {
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-5);
+    margin-top: var(--rs-space-4);
+    box-shadow: var(--rs-shadow-md);
+    animation: profileFormSlideIn var(--rs-motion-normal) var(--rs-easing);
+}
+
+@keyframes profileFormSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-form--collapsible.profile-form--visible .profile-form-wrapper {
+        animation: none;
+    }
 }
 
 /* Discord-style profile: sections as cards with borders */

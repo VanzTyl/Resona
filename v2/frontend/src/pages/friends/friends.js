@@ -120,8 +120,31 @@ function createFriendsPageStructure() {
     // --- Incoming requests section ---
     const incomingSection = document.createElement('section');
     incomingSection.id = 'incoming-requests-section';
-    incomingSection.className = 'friends-section';
+    incomingSection.className = 'friends-section friends-section--requests';
     incomingSection.style.display = 'none';
+
+    // Header row with title + badge
+    var headerRow = document.createElement('div');
+    headerRow.className = 'friends-section__header-row';
+
+    var incomingTitle = document.createElement('h2');
+    incomingTitle.className = 'friends-section__title';
+    incomingTitle.textContent = 'Incoming Requests';
+    headerRow.appendChild(incomingTitle);
+
+    var badge = document.createElement('span');
+    badge.className = 'friends-section__badge';
+    badge.id = 'incoming-requests-count';
+    badge.style.display = 'none';
+    headerRow.appendChild(badge);
+
+    incomingSection.appendChild(headerRow);
+
+    // List container for request cards
+    var listContainer = document.createElement('div');
+    listContainer.id = 'incoming-requests-list';
+    incomingSection.appendChild(listContainer);
+
     main.appendChild(incomingSection);
 
     // --- Friends list section ---
@@ -262,8 +285,41 @@ async function loadIncomingRequests() {
     try {
         const requests = await apiGet('/api/friends/requests/pending');
 
-        while (section.firstChild !== null) {
-            section.removeChild(section.firstChild);
+        // Find or create the list container and header
+        var listContainer = document.getElementById('incoming-requests-list');
+        if (listContainer === null) {
+            // Create the container structure if it doesn't exist (from HTML template)
+            var headerRow = document.createElement('div');
+            headerRow.className = 'friends-section__header-row';
+
+            var header = document.createElement('h2');
+            header.className = 'friends-section__title';
+            header.textContent = 'Incoming Requests';
+            headerRow.appendChild(header);
+
+            var badge = document.createElement('span');
+            badge.className = 'friends-section__badge';
+            badge.id = 'incoming-requests-count';
+            headerRow.appendChild(badge);
+
+            listContainer = document.createElement('div');
+            listContainer.id = 'incoming-requests-list';
+
+            // Clear section and rebuild
+            while (section.firstChild !== null) {
+                section.removeChild(section.firstChild);
+            }
+            section.appendChild(headerRow);
+            section.appendChild(listContainer);
+        }
+
+        var headerRow = section.querySelector('.friends-section__header-row');
+        var headerEl = headerRow ? headerRow.querySelector('.friends-section__title') : null;
+        var badgeEl = document.getElementById('incoming-requests-count');
+
+        // Clear list only, keep header
+        while (listContainer.firstChild !== null) {
+            listContainer.removeChild(listContainer.firstChild);
         }
 
         if (requests.length === 0) {
@@ -273,63 +329,70 @@ async function loadIncomingRequests() {
 
         section.style.display = '';
 
-        // Section header.
-        const header = document.createElement('h2');
-        header.className = 'friends-section__title';
-        header.textContent = 'Incoming Requests (' + requests.length + ')';
-        section.appendChild(header);
+        // Update header count
+        if (headerEl !== null) {
+            headerEl.textContent = 'Incoming Requests (' + requests.length + ')';
+        }
+        if (badgeEl !== null) {
+            badgeEl.textContent = requests.length;
+            badgeEl.style.display = '';
+        }
 
         requests.forEach(function (req) {
             const item = document.createElement('div');
-            item.className = 'search-result-item';
+            item.className = 'friend-request-card';
 
-            const avatar = document.createElement('img');
-            avatar.className = 'search-result-item__avatar';
-            avatar.src = req.avatarUrl || 'assets/default-avatar.svg';
-            avatar.alt = '';
-            item.appendChild(avatar);
+            // Avatar
+            var avatarEl;
+            if (req.avatarUrl) {
+                avatarEl = document.createElement('img');
+                avatarEl.className = 'friend-request-card__avatar';
+                avatarEl.src = req.avatarUrl;
+                avatarEl.alt = '';
+            } else {
+                avatarEl = document.createElement('div');
+                avatarEl.className = 'friend-request-card__avatar friend-request-card__avatar--fallback';
+                avatarEl.textContent = (req.displayName || '?').charAt(0).toUpperCase();
+            }
+            item.appendChild(avatarEl);
 
             const info = document.createElement('div');
-            info.className = 'search-result-item__info';
+            info.className = 'friend-request-card__info';
 
             const name = document.createElement('div');
-            name.className = 'search-result-item__name';
+            name.className = 'friend-request-card__name';
             name.textContent = req.displayName;
             info.appendChild(name);
 
             const username = document.createElement('div');
-            username.className = 'search-result-item__username';
+            username.className = 'friend-request-card__username';
             username.textContent = '@' + req.username;
             info.appendChild(username);
 
             item.appendChild(info);
 
-            // Action buttons container.
+            // Action buttons container
             const actions = document.createElement('div');
-            actions.className = 'search-result-item__actions';
+            actions.className = 'friend-request-card__actions';
 
-            const acceptBtn = createButton({
-                label: 'Accept',
-                variant: 'primary',
-                size: 'small',
-                onClick: function () {
-                    acceptRequest(req.id, item);
-                },
+            const acceptBtn = document.createElement('button');
+            acceptBtn.className = 'friend-request-btn--accept';
+            acceptBtn.textContent = 'Accept';
+            acceptBtn.addEventListener('click', function () {
+                acceptRequest(req.id, item);
             });
             actions.appendChild(acceptBtn);
 
-            const rejectBtn = createButton({
-                label: 'Reject',
-                variant: 'secondary',
-                size: 'small',
-                onClick: function () {
-                    rejectRequest(req.id, item);
-                },
+            const rejectBtn = document.createElement('button');
+            rejectBtn.className = 'friend-request-btn--reject';
+            rejectBtn.textContent = 'Reject';
+            rejectBtn.addEventListener('click', function () {
+                rejectRequest(req.id, item);
             });
             actions.appendChild(rejectBtn);
 
             item.appendChild(actions);
-            section.appendChild(item);
+            listContainer.appendChild(item);
         });
     } catch (_error) {
         // Silently hide section on error.
