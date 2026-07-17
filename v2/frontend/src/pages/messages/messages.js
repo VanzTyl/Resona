@@ -219,7 +219,7 @@ async function loadThreadList() {
             }
 
             threadItem.addEventListener('click', function () {
-                loadChatThread(friend.id, friend.displayName);
+                loadChatThread(friend.id, friend.displayName, friend.avatarUrl);
             });
 
             threadListEl.appendChild(threadItem);
@@ -271,14 +271,32 @@ function navigateToChat(friendId, friendName) {
 }
 
 /**
+ * Show the thread list (mobile back navigation).
+ *
+ * @returns {void}
+ */
+function showThreadList() {
+    var chatPane = document.getElementById('messages-chat-pane');
+    var threadList = document.getElementById('messages-thread-list');
+
+    if (chatPane !== null) {
+        chatPane.style.display = 'none';
+    }
+    if (threadList !== null) {
+        threadList.style.display = '';
+    }
+}
+
+/**
  * Load a chat thread with a specific friend.
  * Fetches thread ID and messages, populates the chat pane.
  *
  * @param {number} friendId - The friend's user ID.
  * @param {string} friendName - The friend's display name.
+ * @param {string} [friendAvatarUrl] - The friend's avatar URL (v3.1).
  * @returns {Promise<void>}
  */
-async function loadChatThread(friendId, friendName) {
+async function loadChatThread(friendId, friendName, friendAvatarUrl) {
     var threadList = document.getElementById('messages-thread-list');
     var emptyState = document.getElementById('messages-empty-state');
     var chatPane = document.getElementById('messages-chat-pane');
@@ -315,7 +333,36 @@ async function loadChatThread(friendId, friendName) {
     }
 
     chatPane.style.display = '';
-    chatHeader.textContent = friendName;
+
+    // v3.1: Build chat header with back button + avatar + name
+    chatHeader.innerHTML = '';
+    chatHeader.style.display = 'flex';
+    chatHeader.style.alignItems = 'center';
+    chatHeader.style.gap = '12px';
+
+    // Back button (arrow) — returns to thread list
+    var backBtn = document.createElement('button');
+    backBtn.className = 'chat-header__back-btn';
+    backBtn.setAttribute('aria-label', 'Back to conversations');
+    backBtn.innerHTML = '<span data-lucide="arrow-left" class="rs-icon" style="width: 20px; height: 20px;"></span>';
+    backBtn.addEventListener('click', function () {
+        showThreadList();
+    });
+    chatHeader.appendChild(backBtn);
+
+    // Friend's avatar
+    var headerAvatar = document.createElement('img');
+    headerAvatar.className = 'chat-header__avatar';
+    headerAvatar.src = friendAvatarUrl || 'assets/default-avatar.svg';
+    headerAvatar.alt = friendName;
+    headerAvatar.loading = 'lazy';
+    chatHeader.appendChild(headerAvatar);
+
+    // Friend's name
+    var headerName = document.createElement('span');
+    headerName.className = 'chat-header__name';
+    headerName.textContent = friendName;
+    chatHeader.appendChild(headerName);
 
     // Show loading in chat thread.
     while (chatThread.firstChild !== null) {
@@ -365,7 +412,7 @@ async function loadChatThread(friendId, friendName) {
                 initIcons();
             }
 
-            setupChatSendHandler(null, friendId, friendName);
+            setupChatSendHandler(null, friendId, friendName, friendAvatarUrl);
 
             return;
         }
@@ -402,7 +449,7 @@ async function loadChatThread(friendId, friendName) {
         chatThread.scrollTop = chatThread.scrollHeight;
 
         // Wire up send handler.
-        setupChatSendHandler(currentThreadId, friendId, friendName);
+        setupChatSendHandler(currentThreadId, friendId, friendName, friendAvatarUrl);
 
         if (typeof initIcons === 'function') {
             initIcons();
@@ -572,7 +619,7 @@ function getCurrentUserId() {
  * @param {string} friendName - The friend's display name.
  * @returns {void}
  */
-function setupChatSendHandler(threadId, friendId, friendName) {
+function setupChatSendHandler(threadId, friendId, friendName, friendAvatarUrl) {
     var sendBtn = document.getElementById('chat-send-btn');
     var inputField = document.getElementById('chat-input-field');
 
@@ -614,7 +661,7 @@ function setupChatSendHandler(threadId, friendId, friendName) {
             await apiPost('/api/messages/send', payload);
 
             newInputField.value = '';
-            await loadChatThread(friendId, friendName);
+            await loadChatThread(friendId, friendName, friendAvatarUrl);
         } catch (error) {
             showToast({
                 message: 'Failed to send message: ' + (error.message || 'Unknown error'),

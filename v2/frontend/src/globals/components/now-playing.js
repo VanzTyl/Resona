@@ -81,6 +81,11 @@ function showNowPlaying(trackData) {
         '    <div class="now-playing__artist">' + escapeHtml((trackData.artists || []).join(', ')) + '</div>' +
         '</div>' +
         '<div class="now-playing__indicator"></div>';
+
+    // v3.1: Also update sidebar now-playing section (desktop)
+    if (typeof updateSidebarNowPlaying === 'function') {
+        updateSidebarNowPlaying(trackData);
+    }
 }
 
 /**
@@ -93,6 +98,11 @@ function hideNowPlaying() {
 
     if (bar !== null) {
         bar.classList.add('now-playing--hidden');
+    }
+
+    // v3.1: Also hide sidebar now-playing section
+    if (typeof updateSidebarNowPlaying === 'function') {
+        updateSidebarNowPlaying(null);
     }
 }
 

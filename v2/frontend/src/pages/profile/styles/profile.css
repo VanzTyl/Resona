@@ -1,61 +1,63 @@
 /* ========================================
    Profile Page Styles
-   Extracted from style.css (lines 1050-1259)
+   v3.1: Discord-style profile layout + collapsible edit form
    ======================================== */
 
-/* ----- Profile Page ----- */
-
-/* Profile header - centered layout */
-.profile-header {
-    display: flex;
-    flex-direction: column;
+/* ----- Discord-style Profile Header ----- */
+#profile-header {
+    display: flex !important;
+    flex-direction: row !important;
     align-items: center;
-    gap: var(--rs-space-2);
-    padding: var(--rs-space-4) 0 var(--rs-space-6);
-    text-align: center;
+    gap: var(--rs-space-5);
+    padding: var(--rs-space-5);
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    margin-bottom: var(--rs-space-3);
+    text-align: left;
 }
 
-.profile-header__avatar {
-    width: 96px;
-    height: 96px;
+#profile-header .profile-header__avatar {
+    width: 80px;
+    height: 80px;
     border-radius: var(--rs-radius-full);
     object-fit: cover;
     border: 3px solid var(--rs-primary);
-    margin-bottom: var(--rs-space-1);
+    flex-shrink: 0;
+    margin: 0;
+    animation: rs-avatar-ring-pulse 3s ease-in-out infinite;
 }
 
-.profile-header__name {
+#profile-header .profile-header__name {
     font-size: var(--rs-font-size-2xl);
     font-weight: var(--rs-font-weight-bold);
     line-height: 1.2;
-}
-
-.profile-header__username {
-    font-size: var(--rs-font-size-base);
-    color: var(--rs-text-muted);
-}
-
-.profile-header__bio {
-    font-size: var(--rs-font-size-base);
-    color: var(--rs-text-muted);
-    max-width: 400px;
-    line-height: 1.5;
-    margin-top: var(--rs-space-1);
-}
-
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--rs-space-3);
     margin: 0;
 }
 
-.profile-section {
-    margin: var(--rs-space-3) 0;
+#profile-header .profile-header__username {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    margin-top: 2px;
+}
+
+#profile-header .profile-header__bio {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    line-height: 1.5;
+    margin-top: var(--rs-space-2);
+    max-width: 100%;
+}
+
+/* ----- Discord-style Section Cards ----- */
+#profile-content .profile-section,
+#profile-content .tags-card,
+#profile-content .about-section {
     background: var(--rs-surface);
     border: 1px solid var(--rs-border);
     border-radius: var(--rs-radius-lg);
     padding: var(--rs-space-4);
+    margin: var(--rs-space-3) 0;
 }
 
 .profile-section__title {
@@ -65,19 +67,44 @@
     color: var(--rs-text);
 }
 
-.tags-card {
+#profile-content .about-section {
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    line-height: 1.6;
+}
+
+/* Stats: horizontal inline badges */
+.stats-row {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--rs-space-2);
-    background: var(--rs-surface);
-    border: 1px solid var(--rs-border);
-    border-radius: var(--rs-radius-lg);
-    padding: var(--rs-space-4);
+    gap: 0;
     margin: var(--rs-space-3) 0;
 }
 
-.tags-card:empty {
-    display: none;
+.stats-row .stat-card {
+    flex: 1;
+    padding: var(--rs-space-3);
+    border: none;
+    background: transparent;
+    text-align: center;
+    position: relative;
+}
+
+.stats-row .stat-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: var(--rs-border);
+}
+
+/* Tags section */
+.tags-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rs-space-1);
+    margin: var(--rs-space-2) 0;
 }
 
 #profile-interests-tags:empty,
@@ -85,11 +112,72 @@
     display: none;
 }
 
-/* ----- Profile Form ----- */
+.tag {
+    display: inline-flex;
+    padding: 2px 10px;
+    border-radius: var(--rs-radius-full);
+    font-size: var(--rs-font-size-sm);
+    background: var(--rs-primary-light);
+    color: var(--rs-primary);
+    margin: 2px;
+}
+
+.tag--genre {
+    background: rgba(244, 114, 182, 0.15);
+    color: var(--rs-secondary);
+}
+
+/* Artist list in profile */
+#profile-top-artists .artist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-2);
+    border-radius: var(--rs-radius-md);
+}
+
+/* ----- Edit Toggle (Checkbox Hack) ----- */
+.profile-edit-toggle {
+    display: none !important;
+}
+
+.profile-edit-bar {
+    display: flex;
+    justify-content: stretch;
+    padding: var(--rs-space-4) 0;
+    margin-top: var(--rs-space-3);
+    border-top: 1px solid var(--rs-border);
+}
+
+.profile-edit-btn {
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    padding: var(--rs-space-3);
+    font-size: var(--rs-font-size-base);
+}
+
+/* Collapsible form: hidden by default */
+.profile-form--collapsible {
+    display: none !important;
+}
+
+/* Show form when checkbox is checked */
+.profile-edit-toggle:checked ~ .profile-edit-bar {
+    display: none !important;
+}
+
+.profile-edit-toggle:checked ~ .profile-form--collapsible {
+    display: block !important;
+}
+
+/* ----- Collapsible Form Layout ----- */
 .profile-form {
     display: flex;
     flex-direction: column;
     gap: var(--rs-space-4);
+    margin-top: var(--rs-space-4);
 }
 
 .form-group {
@@ -139,38 +227,7 @@
     margin-top: 2px;
 }
 
-.tags-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--rs-space-1);
-    margin: var(--rs-space-2) 0;
-}
-
-.tag {
-    display: inline-flex;
-    padding: 2px 10px;
-    border-radius: var(--rs-radius-full);
-    font-size: var(--rs-font-size-sm);
-    background: var(--rs-primary-light);
-    color: var(--rs-primary);
-    margin: 2px;
-}
-
-.tag--genre {
-    background: rgba(244, 114, 182, 0.15);
-    color: var(--rs-secondary);
-}
-
-.about-section {
-    font-size: var(--rs-font-size-base);
-    color: var(--rs-text-muted);
-    line-height: 1.6;
-    margin: var(--rs-space-3) 0;
-    padding: var(--rs-space-3);
-    background: var(--rs-surface);
-    border-radius: var(--rs-radius-md);
-}
-
+/* Privacy selector (inside form) */
 .privacy-selector {
     display: flex;
     flex-direction: column;
@@ -202,4 +259,50 @@
     accent-color: var(--rs-primary);
     width: 18px;
     height: 18px;
+}
+
+/* Save button */
+#profile-save-container .rs-btn--primary {
+    background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary));
+    border: none;
+    font-size: var(--rs-font-size-md);
+    padding: var(--rs-space-3) var(--rs-space-6);
+    min-height: 52px;
+    width: 100%;
+}
+
+/* Logout button */
+#profile-logout-container .rs-btn {
+    background: transparent;
+    color: var(--rs-error);
+    font-size: var(--rs-font-size-sm);
+    border: none;
+    padding: var(--rs-space-2) var(--rs-space-4);
+}
+
+#profile-logout-container .rs-btn:hover {
+    color: #dc2626;
+    text-decoration: underline;
+}
+
+/* ========================================
+   v3.1: Responsive adjustments
+   ======================================== */
+
+@media (min-width: 768px) {
+    #profile-header .profile-header__avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    #profile-header .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    #profile-header .profile-header__avatar {
+        width: 120px;
+        height: 120px;
+    }
 }

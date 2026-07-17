@@ -129,6 +129,19 @@ function renderDesktopSidebar(activeRoute) {
     userInfo.appendChild(userDetails);
     userSection.appendChild(userInfo);
 
+    // v3.1: Now-playing section in sidebar
+    var nowPlayingSection = document.createElement('div');
+    nowPlayingSection.className = 'desktop-sidebar__now-playing desktop-sidebar__now-playing--hidden';
+    nowPlayingSection.id = 'sidebar-now-playing';
+    nowPlayingSection.innerHTML =
+        '<img class="desktop-sidebar__now-playing-art" id="sidebar-now-playing-art" src="assets/default-album.svg" alt="" loading="lazy" />' +
+        '<div class="desktop-sidebar__now-playing-info">' +
+        '    <div class="desktop-sidebar__now-playing-track" id="sidebar-now-playing-track">Unknown Track</div>' +
+        '    <div class="desktop-sidebar__now-playing-artist" id="sidebar-now-playing-artist">Unknown Artist</div>' +
+        '</div>' +
+        '<div class="desktop-sidebar__now-playing-indicator"></div>';
+    userSection.appendChild(nowPlayingSection);
+
     sidebar.appendChild(userSection);
 
     // Actions row.
@@ -264,5 +277,43 @@ async function loadSidebarUserProfile(avatarEl, userInfoEl) {
         }
     } catch (_e) {
         // Non-blocking.
+    }
+}
+
+/**
+ * Update the sidebar now-playing section with current track data.
+ * Called by now-playing.js showNowPlaying/hideNowPlaying.
+ *
+ * @param {object|null} trackData - Track data object or null to hide.
+ * @returns {void}
+ */
+function updateSidebarNowPlaying(trackData) {
+    var section = document.getElementById('sidebar-now-playing');
+
+    if (section === null) {
+        return;
+    }
+
+    if (trackData === null) {
+        section.classList.add('desktop-sidebar__now-playing--hidden');
+        return;
+    }
+
+    section.classList.remove('desktop-sidebar__now-playing--hidden');
+
+    var artEl = document.getElementById('sidebar-now-playing-art');
+    if (artEl !== null) {
+        artEl.src = trackData.albumArt || 'assets/default-album.svg';
+    }
+
+    var trackEl = document.getElementById('sidebar-now-playing-track');
+    if (trackEl !== null) {
+        trackEl.textContent = trackData.trackName || 'Unknown Track';
+    }
+
+    var artistEl = document.getElementById('sidebar-now-playing-artist');
+    if (artistEl !== null) {
+        var artists = trackData.artists || [];
+        artistEl.textContent = artists.join(', ') || 'Unknown Artist';
     }
 }

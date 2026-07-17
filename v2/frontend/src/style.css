@@ -2455,6 +2455,11 @@ ul, ol {
         display: none;
     }
 
+    /* v3.1: Bottom now-playing bar hidden on desktop — sidebar handles it */
+    .now-playing {
+        display: none;
+    }
+
     /* ================================
        Login / Callback / Onboarding
        ================================ */
@@ -4260,56 +4265,110 @@ ul, ol {
    v3.1: Messages Responsive — Discord Layout
    ======================================== */
 
-/* Mobile (< 768px): Chat pane covers full screen, like Facebook Messenger */
+/* Mobile (< 768px): Chat pane replaces thread list in-flow — nav stays visible */
 @media (max-width: 767px) {
     #messages-content {
         position: relative;
+        display: block;
+        height: auto;
+        overflow: visible;
     }
 
     #messages-thread-list {
         display: block;
     }
 
+    /* Chat pane replaces thread list — NOT fixed, stays in flow */
     #messages-chat-pane {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: var(--rs-z-overlay);
-        background: var(--rs-background);
+        display: flex !important;
+        flex-direction: column;
+        min-height: 0;
     }
 
     #messages-chat-pane[style*="display: none"] {
         display: none !important;
     }
 
-    /* Hide thread list when chat is open on mobile */
-    #messages-chat-pane:not([style*="display: none"]) ~ #messages-thread-list {
-        display: none;
+    /* Chat header with back button + avatar + name */
+    #messages-chat-header {
+        display: flex;
+        align-items: center;
+        gap: var(--rs-space-3);
+        padding: var(--rs-space-3) var(--rs-space-4);
+        border-bottom: 1px solid var(--rs-border);
+        background: var(--rs-surface);
+        min-height: 56px;
+        position: sticky;
+        top: 0;
+        z-index: var(--rs-z-sticky);
     }
 
-    /* Back button for mobile chat */
-    #messages-chat-header::before {
-        content: '\2190';
-        margin-right: var(--rs-space-3);
+    .chat-header__back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: transparent;
+        color: var(--rs-text);
         cursor: pointer;
-        font-size: var(--rs-font-size-xl);
-        color: var(--rs-text-muted);
+        border-radius: var(--rs-radius-full);
+        flex-shrink: 0;
     }
 
+    .chat-header__back-btn:hover {
+        background: var(--rs-surface-elevated);
+    }
+
+    .chat-header__avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid var(--rs-primary);
+    }
+
+    .chat-header__name {
+        font-size: var(--rs-font-size-md);
+        font-weight: var(--rs-font-weight-semibold);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Page keeps space for bottom nav and now-playing bar */
     #page-messages.page--active {
-        padding-bottom: 0;
+        padding-bottom: calc(var(--rs-nav-height) + var(--rs-space-16));
+        min-height: 100dvh;
     }
 
     #page-messages .page__header {
         display: none;
     }
 
-    #messages-content {
-        height: 100dvh;
-        display: block;
-        overflow: hidden;
+    /* Chat thread scrollable area */
+    #messages-chat-thread {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 200px;
+    }
+
+    /* Chat input stays above bottom nav */
+    #messages-chat-input.chat-input {
+        position: sticky;
+        bottom: 0;
+        z-index: var(--rs-z-sticky);
+        background: var(--rs-glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid var(--rs-glass-border);
+        padding: var(--rs-space-3) var(--rs-space-4);
+        gap: var(--rs-space-2);
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -4415,9 +4474,67 @@ ul, ol {
 
 /* Hide now playing bar when messages open on mobile */
 @media (max-width: 767px) {
-    #page-messages.page--active ~ .now-playing {
+    #page-messages.page--active ~ .now-playing,
+    #page-messages.page--active + .now-playing {
         display: none;
     }
+}
+
+/* ========================================
+   v3.1: Sidebar Now Playing Section
+   ======================================== */
+
+.desktop-sidebar__now-playing {
+    padding: var(--rs-space-3) var(--rs-space-4);
+    border-top: 1px solid var(--rs-glass-border);
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    min-height: 48px;
+}
+
+.desktop-sidebar__now-playing--hidden {
+    display: none;
+}
+
+.desktop-sidebar__now-playing-art {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--rs-radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.desktop-sidebar__now-playing-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.desktop-sidebar__now-playing-track {
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--rs-text);
+}
+
+.desktop-sidebar__now-playing-artist {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.desktop-sidebar__now-playing-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rs-success);
+    animation: rs-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 /* ========================================
@@ -4593,7 +4710,19 @@ ul, ol {
     flex-shrink: 0;
     margin-bottom: var(--rs-space-2);
     border: 2px solid var(--rs-border);
-    background: var(--rs-surface-elevated);
+    background: linear-gradient(135deg, var(--rs-surface-elevated), var(--rs-border));
+    display: block;
+}
+
+.artist-item__art:not([src]),
+.artist-item__art[src=""] {
+    /* No image URL — show a CSS gradient placeholder with the rank color */
+    display: block;
+}
+
+/* Placeholder uses a pseudo-element for a nice visual */
+.artist-item__art:not([src])::after {
+    display: none;
 }
 
 .artist-list--podium .artist-item:nth-child(1) .artist-item__art {
