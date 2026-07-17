@@ -474,6 +474,7 @@ ul, ol {
     color: var(--rs-secondary);
 }
 
+/* v3.1 Fix B: Overlap badge repositioned to top-right of card via absolute positioning */
 .feed-card__overlap {
     display: inline-flex;
     align-items: center;
@@ -483,7 +484,19 @@ ul, ol {
     font-size: var(--rs-font-size-sm);
     font-weight: var(--rs-font-weight-medium);
     color: var(--rs-primary);
-    margin-top: var(--rs-space-1);
+    margin-top: 0;
+    position: absolute;
+    top: var(--rs-space-3);
+    right: var(--rs-space-3);
+    z-index: 3;
+}
+
+/* On cards with album art (dark overlay header), ensure badge contrast */
+.feed-card.has-art .feed-card__overlap {
+    background: rgba(124, 58, 237, 0.25);
+    color: #fff;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 /* Feed: reaction count inline with emoji row (v3.1: side-by-side layout) */
@@ -3846,6 +3859,7 @@ ul, ol {
 
 /* Zone 2: Card category accent borders (v3.1: removed weekly_top) */
 .feed-card {
+    position: relative;
     border-left: 3px solid transparent;
     transition: border-left-color var(--rs-motion-normal) var(--rs-easing),
                 box-shadow var(--rs-motion-slow) var(--rs-easing),
@@ -3902,38 +3916,36 @@ ul, ol {
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Floating reaction bar on desktop hover (v3.1: side-by-side layout) */
+/* v3.1 Fix A: Reactions permanently visible at all viewports — removed hover-to-reveal */
 @media (min-width: 1024px) and (hover: hover) {
     .feed-card__reactions {
-        position: absolute;
-        bottom: -20px;
-        left: var(--rs-space-4);
-        right: var(--rs-space-4);
-        opacity: 0;
-        transform: translateY(0);
-        transition: all var(--rs-motion-normal) var(--rs-easing);
-        background: var(--rs-glass-bg);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid var(--rs-glass-border);
-        border-radius: var(--rs-radius-md);
-        padding: var(--rs-space-2) var(--rs-space-3);
-        z-index: 2;
+        position: static;
+        opacity: 1;
+        transform: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        border-top: 1px solid var(--rs-border);
+        border-radius: 0;
+        padding: var(--rs-space-3) var(--rs-space-4);
+        z-index: auto;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
         gap: var(--rs-space-2);
+        transition: none;
     }
 
     .feed-card .feed-card__reactions {
-        padding: var(--rs-space-2) var(--rs-space-3);
-        border-top: none;
+        padding: var(--rs-space-3) var(--rs-space-4);
+        border-top: 1px solid var(--rs-border);
     }
 
     .feed-card:hover .feed-card__reactions {
         opacity: 1;
-        transform: translateY(-8px);
+        transform: none;
     }
 }
 
