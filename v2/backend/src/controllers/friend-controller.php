@@ -146,10 +146,15 @@ function handleRespondToRequest(array $params): void
         ? FRIEND_STATUS_ACCEPTED
         : FRIEND_STATUS_REJECTED;
 
-    dbExecute(
+    $affected = dbExecute(
         'UPDATE friendships SET status = :status, updated_at = NOW() WHERE id = :id',
         [':status' => $newStatus, ':id' => $requestId]
     );
+
+    if ($affected === 0) {
+        sendJson(['success' => false, 'error' => 'Failed to update friend request status'], HTTP_INTERNAL_SERVER_ERROR);
+        return;
+    }
 
     sendJson([
         'success' => true,
@@ -178,20 +183,24 @@ function handleListFriends(array $params): void
 
     try {
         // Query 1: Fetch friends — uses UNION instead of CASE in JOIN, no subqueries in ON clause
+        // NOTE: Uses unique named parameters (:userId1, :userId2) to avoid HY093 with
+        // PDO native prepares (ATTR_EMULATE_PREPARES = false), which can fail when
+        // the same named parameter appears multiple times in SQL but only once in bind.
         $friends = dbQuery(
             "SELECT u.id, u.username, u.display_name AS displayName, u.avatar_url AS avatarUrl
              FROM (
                  SELECT receiver_id AS friend_id FROM friendships
-                 WHERE sender_id = :userId AND status = :status
+                 WHERE sender_id = :userId1 AND status = :status
                  UNION
                  SELECT sender_id AS friend_id FROM friendships
-                 WHERE receiver_id = :userId AND status = :status
+                 WHERE receiver_id = :userId2 AND status = :status
              ) AS f
              JOIN users u ON u.id = f.friend_id
              ORDER BY u.display_name ASC
              LIMIT " . (int)$limit . " OFFSET " . (int)$offset,
             [
-                ':userId' => $userId,
+                ':userId1' => $userId,
+                ':userId2' => $userId,
                 ':status' => FRIEND_STATUS_ACCEPTED,
             ]
         );

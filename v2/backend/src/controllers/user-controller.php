@@ -256,13 +256,21 @@ function handleUpdateProfile(array $params): void
     $usernameChanged = false;
 
     foreach ($fieldDefs as [$dbCol, $bodyKey, $validator, $transform]) {
-        if (!isset($body[$bodyKey])) {
+        // Build a fallback chain: try the camelCase bodyKey, then the snake_case dbCol,
+        // then a direct key derived from the dbCol (mirrors onboarding-controller pattern).
+        $rawValue = $body[$bodyKey] ?? $body[$dbCol] ?? null;
+
+        if ($rawValue === null) {
             continue;
         }
 
-        $value = trim((string) $body[$bodyKey]);
+        $value = trim((string) $rawValue);
 
+        // Allow empty strings to clear fields by setting them to NULL.
+        // The frontend always sends bio, interests, favoriteGenres, aboutMe
+        // even when empty; without this they can never be cleared.
         if ($value === '') {
+            $updateFields[] = "{$dbCol} = NULL";
             continue;
         }
 

@@ -293,6 +293,24 @@ async function handleReaction(cardId, emoji) {
             type: 'success',
             duration: 2000,
         });
+
+        var cardEl = document.querySelector('[data-card-id="' + cardId + '"]');
+        if (cardEl !== null) {
+            var countBadge = cardEl.querySelector('.feed-card__reaction-count');
+            if (countBadge !== null) {
+                var match = countBadge.textContent.match(/(\d+)/);
+                var currentCount = match !== null ? parseInt(match[1], 10) : 0;
+                countBadge.textContent = (currentCount + 1) + ' reactions';
+            }
+
+            var emojiBtns = cardEl.querySelectorAll('.feed-card__emoji-btn');
+            emojiBtns.forEach(function (btn) {
+                var iconEl = btn.querySelector('[data-lucide]');
+                if (iconEl !== null && iconEl.getAttribute('data-lucide') === emoji) {
+                    btn.classList.add('feed-card__emoji-btn--active');
+                }
+            });
+        }
     } catch (error) {
         showToast({
             message: 'Failed to add reaction: ' + error.message,

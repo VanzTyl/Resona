@@ -153,6 +153,12 @@
     transform: scale(1.4);
 }
 
+.feed-card__emoji-btn--active {
+    background: var(--rs-primary);
+    color: #fff;
+    border-radius: var(--rs-radius-sm);
+}
+
 .feed-card__reaction-count {
     font-size: var(--rs-font-size-xs);
     color: var(--rs-text-dim);
