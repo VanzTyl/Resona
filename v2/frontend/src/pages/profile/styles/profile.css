@@ -175,13 +175,44 @@
     background: var(--rs-surface-elevated);
 }
 
+/* v3.1 Fix I: When form is visible, render as centered modal overlay with backdrop */
+.profile-form--visible {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - var(--rs-space-8));
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: var(--rs-z-modal);
+    background: var(--rs-surface);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-6);
+    box-shadow: var(--rs-shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--rs-space-4);
+}
+
+/* Modal backdrop — fullscreen dark overlay behind the modal */
+.profile-form--visible::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+    pointer-events: all;
+}
+
+/* Light mode backdrop */
+[data-theme="light"] .profile-form--visible::before {
+    background: rgba(0, 0, 0, 0.4);
+}
+
 /* Collapsible form: hidden by default */
 .profile-form--collapsible {
     display: none;
-}
-
-.profile-form--visible {
-    display: block;
 }
 
 /* ----- Collapsible Form Layout ----- */

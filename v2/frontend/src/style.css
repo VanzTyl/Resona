@@ -4382,6 +4382,16 @@ ul, ol {
         display: flex;
         align-items: center;
     }
+
+    /* v3.1 Fix D: Hide thread list when chat pane is visible on mobile — CSS-only via :has() */
+    #messages-content:has(#messages-chat-pane:not([style*="display: none"])) #messages-thread-list {
+        display: none;
+    }
+
+    /* v3.1 Fix E: Force chat pane to be the scroll container by constraining page height */
+    #page-messages.page--active {
+        overflow: hidden;
+    }
 }
 
 /* Tablet (768px – 1023px): Split pane with thread list */
@@ -4460,6 +4470,20 @@ ul, ol {
     #messages-chat-pane {
         display: flex !important;
         min-width: 0;
+    }
+
+    /* v3.1 Fix C: Desktop chat-header sizing — smaller icon, avatar, and name */
+    #messages-chat-header .chat-header__back-btn .rs-icon {
+        --rs-icon-size: 18px;
+    }
+
+    #messages-chat-header .chat-header__avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    #messages-chat-header .chat-header__name {
+        font-size: var(--rs-font-size-base);
     }
 
     .message {
