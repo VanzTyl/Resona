@@ -230,6 +230,7 @@ function handleListFriends(array $params): void
             $placeholders = implode(',', array_fill(0, count($friendIds), '?'));
             $params = array_merge(
                 [$userId, $userId, $userId, $userId],
+                $friendIds,
                 $friendIds
             );
 

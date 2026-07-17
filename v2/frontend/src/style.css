@@ -1820,7 +1820,7 @@ ul, ol {
     }
 
     /* Messages: split-pane on tablet too */
-    #page-messages {
+    #page-messages.page--active {
         display: flex;
         flex-direction: column;
         height: calc(100dvh - var(--rs-nav-height));
@@ -2214,7 +2214,7 @@ ul, ol {
     /* ================================
        Messages (split-pane)
        ================================ */
-    #page-messages {
+    #page-messages.page--active {
         display: flex;
         flex-direction: column;
         height: 100dvh;
