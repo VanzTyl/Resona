@@ -1243,7 +1243,7 @@ ul, ol {
 .tag {
     display: inline-flex;
     padding: 2px 10px;
-    border-radius: var(--rs-radius-full);
+    border-radius: var(--rs-radius-sm);
     font-size: var(--rs-font-size-sm);
     background: var(--rs-primary-light);
     color: var(--rs-primary);
