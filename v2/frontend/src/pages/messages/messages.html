@@ -8,27 +8,36 @@
     <link rel="stylesheet" href="styles/messages.css">
 </head>
 <body>
+    <!-- v3.0: 'The Listening Lounge' — intimate music chat experience -->
     <div id="page-messages" class="page page--active">
         <header class="page__header">
             <h1 class="page__title">Messages</h1>
         </header>
         <main class="page__content" id="messages-content">
-            <!-- Thread list will be appended here by messages.js -->
+            <!-- Thread List -->
             <div id="messages-thread-list"></div>
-            <!-- Empty state -->
+
+            <!-- Empty State -->
             <div id="messages-empty-state" class="empty-state">
-                <div class="empty-state__icon" data-lucide="message-circle"></div>
-                <h2 class="empty-state__title">No conversations yet</h2>
-                <p class="empty-state__text">React to a friend's music to start a conversation!</p>
+                <div class="empty-state__illustration messages-empty-illustration">
+                    <div class="messages-empty-illustration__vinyl"></div>
+                    <div class="messages-empty-illustration__bubble"></div>
+                </div>
+                <h2 class="empty-state__title">Your conversations live here</h2>
+                <p class="empty-state__text">React to a friend's music to start chatting!</p>
             </div>
-            <!-- Chat pane for desktop split view -->
+
+            <!-- Chat Pane -->
             <div id="messages-chat-pane" style="display: none;">
-                <div id="messages-chat-header" class="page__header"></div>
+                <div id="messages-chat-header" class="page__header messages-chat-header">
+                    <!-- JS sets textContent to friend name -->
+                </div>
                 <div id="messages-chat-thread" class="chat-thread"></div>
                 <div id="messages-chat-input" class="chat-input">
                     <textarea class="chat-input__field" id="chat-input-field"
                               placeholder="Type a message..." rows="1"></textarea>
-                    <button class="rs-btn rs-btn--primary" id="chat-send-btn" aria-label="Send message">
+                    <button class="rs-btn rs-btn--primary rs-btn--icon-circle" id="chat-send-btn"
+                            aria-label="Send message">
                         <span data-lucide="send" class="rs-icon"></span>
                     </button>
                 </div>

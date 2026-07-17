@@ -8,12 +8,15 @@
     <link rel="stylesheet" href="styles/dashboard.css">
 </head>
 <body>
+    <!-- v3.0: 'Your Soundprint' — visual fingerprint of listening identity -->
     <div id="page-dashboard" class="page page--active">
         <header class="page__header">
-            <h1 class="page__title">Dashboard</h1>
+            <div class="page__header-brand">
+                <h1 class="page__title">Your Soundprint</h1>
+            </div>
         </header>
         <main class="page__content" id="dashboard-content">
-            <!-- Stats grid skeleton (visible before JS loads) -->
+            <!-- Hero Stats Grid -->
             <div id="dashboard-stats-grid" class="stats-grid">
                 <div class="stat-card">
                     <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 40%; margin: 0 auto;"></div>
@@ -32,10 +35,20 @@
                     <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 60%; margin: 8px auto 0;"></div>
                 </div>
             </div>
-            <!-- Period filter container -->
+
+            <!-- Listening Clock (v3.0 NEW: CSS conic-gradient radial chart) -->
+            <div class="listening-clock">
+                <div class="listening-clock__title">Listening Clock</div>
+                <div class="listening-clock__chart" aria-label="24-hour listening activity distribution">
+                    <div class="listening-clock__center"></div>
+                </div>
+            </div>
+
+            <!-- Period Filter -->
             <div id="dashboard-period-filter" class="period-filter"></div>
-            <!-- Top artists section -->
-            <h2 class="page__title" style="margin-bottom: 12px;">Top Artists</h2>
+
+            <!-- Top Artists — 'Your Headliners' -->
+            <h2 class="dashboard-section-title">Your Headliners</h2>
             <div id="dashboard-artist-list" class="artist-list">
                 <div class="artist-item">
                     <div class="rs-skeleton__item rs-skeleton__item--text" style="width: 24px;"></div>

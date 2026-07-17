@@ -8,16 +8,56 @@
     <link rel="stylesheet" href="styles/login.css">
 </head>
 <body>
-    <!-- v2.2: Page with atmospheric background, glassmorphism card wrapper -->
+    <!-- v3.0: 'The Listening Room' — immersive animated login experience -->
     <div id="page-login" class="page page--centered page--active">
-        <div class="login-card__wrapper">
-            <div class="login-page">
-                <div class="login-page__logo" data-lucide="music" style="width: 64px; height: 64px; color: var(--rs-primary);"></div>
-                <h1 class="login-page__title">Resona</h1>
+        <div class="login-hero">
+            <!-- Scrolling activity marquee -->
+            <div class="login-hero__marquee">
+                <div class="login-hero__marquee-track">
+                    <span class="login-hero__marquee-item">Sarah is listening to Tame Impala</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Marcus just discovered Khruangbin</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Elena is vibing to Glass Animals</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">James added Radiohead to his rotation</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Liam shared a Mac DeMarco track</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Zoe is discovering Fleetwood Mac</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Alex is lost in Bon Iver's new album</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Maya can't stop playing The Strokes</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Sarah is listening to Tame Impala</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Marcus just discovered Khruangbin</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">Elena is vibing to Glass Animals</span>
+                    <span class="login-hero__marquee-item">&bull;</span>
+                    <span class="login-hero__marquee-item">James added Radiohead to his rotation</span>
+                </div>
+            </div>
+            <!-- Glassmorphism hero card -->
+            <div class="login-hero__card">
+                <div class="login-hero__brand">
+                    <div class="login-hero__soundwave" aria-label="Resona sound wave logo">
+                        <span class="login-hero__soundwave-bar"></span>
+                        <span class="login-hero__soundwave-bar"></span>
+                        <span class="login-hero__soundwave-bar"></span>
+                        <span class="login-hero__soundwave-bar"></span>
+                        <span class="login-hero__soundwave-bar"></span>
+                    </div>
+                    <h1 class="login-page__title">Resona</h1>
+                </div>
                 <p class="login-page__subtitle">Music is the conversation — not the destination. Connect your Spotify to see what your friends are listening to right now.</p>
                 <div id="login-btn-container">
                     <!-- Login button will be appended here by login.js -->
                 </div>
+            </div>
+            <div class="login-hero__footer">
+                <span class="login-hero__version">v3.0</span>
             </div>
         </div>
     </div>

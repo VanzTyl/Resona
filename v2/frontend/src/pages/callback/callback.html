@@ -7,17 +7,30 @@
     <link rel="stylesheet" href="../../style.css">
 </head>
 <body>
+    <!-- v3.0: 'The Portal' — transitional OAuth callback experience -->
     <div id="page-callback" class="page page--centered page--active">
-        <div class="login-page" id="callback-content">
+        <div class="callback-portal">
             <!-- Loading state -->
             <div id="callback-loading">
-                <div class="app-loading__spinner"></div>
-                <p class="login-page__subtitle">Connecting your Spotify account...</p>
+                <div class="callback-portal__rings">
+                    <div class="callback-portal__ring callback-portal__ring--outer"></div>
+                    <div class="callback-portal__ring callback-portal__ring--mid"></div>
+                    <div class="callback-portal__ring callback-portal__ring--inner"></div>
+                    <div class="callback-portal__spotify-icon"></div>
+                </div>
+                <div class="callback-portal__messages">
+                    <p class="callback-portal__msg callback-portal__msg--1">Connecting your Spotify account...</p>
+                    <p class="callback-portal__msg callback-portal__msg--2">Syncing your music library...</p>
+                    <p class="callback-portal__msg callback-portal__msg--3">Almost there...</p>
+                </div>
             </div>
             <!-- Error state -->
             <div id="callback-error" style="display: none;">
-                <div data-lucide="alert-circle" style="width: 64px; height: 64px; color: var(--rs-error); margin: 0 auto;"></div>
-                <h1 class="login-page__title">Connection Failed</h1>
+                <div class="callback-portal__error-icon">
+                    <span class="callback-portal__error-note"></span>
+                    <span class="callback-portal__error-note callback-portal__error-note--broken"></span>
+                </div>
+                <h1 class="login-page__title">That didn't resonate</h1>
                 <p class="login-page__subtitle" id="callback-error-message"></p>
                 <div id="callback-retry-container"></div>
             </div>

@@ -3225,3 +3225,1761 @@ ul, ol {
 #login-btn-container .rs-btn--primary {
     gap: var(--rs-space-3);
 }
+
+/* ========================================
+   v3.0: Resona UI Overhaul — Design System
+   ======================================== */
+
+/* ----- v3.0 Extended Design Tokens ----- */
+:root {
+    /* Card category accent colors */
+    --rs-card-accent-live: #10b981;
+    --rs-card-accent-top: #d97706;
+    --rs-card-accent-shared: #7c3aed;
+
+    /* Genre colors for tag pills */
+    --rs-genre-rock: #7c3aed;
+    --rs-genre-electronic: #06b6d4;
+    --rs-genre-hiphop: #d97706;
+    --rs-genre-jazz: #14b8a6;
+    --rs-genre-pop: #ec4899;
+
+    /* Rank colors */
+    --rs-rank-gold: #f59e0b;
+    --rs-rank-silver: #94a3b8;
+    --rs-rank-bronze: #b45309;
+
+    /* Extended shadows & glows */
+    --rs-button-glow: 0 0 24px rgba(124, 58, 237, 0.25);
+    --rs-avatar-ring: rgba(124, 58, 237, 0.4);
+
+    /* Extended motion durations */
+    --rs-motion-marquee: 30s;
+    --rs-motion-ring-outer: 3s;
+    --rs-motion-ring-mid: 2.4s;
+    --rs-motion-ring-inner: 1.8s;
+    --rs-motion-heartbeat: 8s;
+    --rs-motion-gradient-mesh: 20s;
+
+    /* Avatar sizes */
+    --rs-avatar-xl: 144px;
+}
+
+[data-theme="light"] {
+    --rs-card-accent-live: #059669;
+    --rs-card-accent-top: #b45309;
+    --rs-card-accent-shared: #6d28d9;
+
+    --rs-genre-rock: #7c3aed;
+    --rs-genre-electronic: #0891b2;
+    --rs-genre-hiphop: #d97706;
+    --rs-genre-jazz: #0d9488;
+    --rs-genre-pop: #db2777;
+
+    --rs-rank-gold: #d97706;
+    --rs-rank-silver: #6b7280;
+    --rs-rank-bronze: #92400e;
+
+    --rs-button-glow: 0 0 24px rgba(124, 58, 237, 0.15);
+    --rs-avatar-ring: rgba(124, 58, 237, 0.25);
+}
+
+/* ========================================
+   v3.0: New Keyframe Animations
+   ======================================== */
+
+/* Login: animated gradient mesh background */
+@keyframes rs-gradient-mesh {
+    0%   { background-position: 0% 50%, 100% 50%, 50% 0%; }
+    50%  { background-position: 100% 50%, 0% 50%, 50% 100%; }
+    100% { background-position: 0% 50%, 100% 50%, 50% 0%; }
+}
+
+/* Login: waveform rings pulsing outward */
+@keyframes rs-waveform-ring {
+    0%   { transform: scale(0.8); opacity: 0.6; }
+    50%  { transform: scale(1.1); opacity: 0.2; }
+    100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* Login: CSS sound wave icon — bar bounce */
+@keyframes rs-soundwave-bar {
+    0%, 100% { transform: scaleY(0.3); }
+    50%      { transform: scaleY(1); }
+}
+
+/* Login: activity marquee scroll */
+@keyframes rs-marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Login: button glow pulse */
+@keyframes rs-button-glow-pulse {
+    0%, 100% { box-shadow: var(--rs-button-glow); }
+    50%      { box-shadow: 0 0 36px rgba(124, 58, 237, 0.4); }
+}
+
+/* Callback: concentric ring spins */
+@keyframes rs-callback-ring-outer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes rs-callback-ring-mid {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes rs-callback-ring-inner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Callback: cycling messages */
+@keyframes rs-message-cycle {
+    0%, 27%  { opacity: 1; }
+    33%, 94% { opacity: 0; }
+    100%     { opacity: 1; }
+}
+
+/* Feed: vinyl record spin */
+@keyframes rs-vinyl-spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Friends: doorway welcome animation */
+@keyframes rs-doorway-welcome {
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0; }
+}
+
+/* Profile: avatar double ring pulse */
+@keyframes rs-avatar-ring-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px var(--rs-background), 0 0 0 6px var(--rs-primary), 0 0 20px var(--rs-avatar-ring); }
+    50%      { box-shadow: 0 0 0 4px var(--rs-background), 0 0 0 6px var(--rs-primary), 0 0 32px var(--rs-avatar-ring); }
+}
+
+/* Dashboard: listening clock current hour pulse */
+@keyframes rs-clock-pulse {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+}
+
+/* Onboarding: confetti particle fall */
+@keyframes rs-confetti-fall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+}
+
+/* Feed: reaction bar float-up on hover */
+@keyframes rs-reaction-float {
+    0%   { transform: translateY(0); opacity: 0; }
+    100% { transform: translateY(-8px); opacity: 1; }
+}
+
+/* Friends: staggered search result entrance */
+@keyframes rs-stagger-fade-up {
+    0%   { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ========================================
+   v3.0: Shared Utility Classes & Patterns
+   ======================================== */
+
+/* Mini sound wave in page headers */
+.page__header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+}
+
+.page__header-logo {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
+}
+
+.page__header-logo-bar {
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--rs-primary);
+}
+
+.page__header-logo-bar:nth-child(1) { height: 8px; }
+.page__header-logo-bar:nth-child(2) { height: 16px; }
+.page__header-logo-bar:nth-child(3) { height: 12px; }
+
+/* Dashboard section title */
+.dashboard-section-title {
+    font-size: var(--rs-font-size-lg);
+    font-weight: var(--rs-font-weight-semibold);
+    margin-bottom: var(--rs-space-3);
+    color: var(--rs-text);
+}
+
+/* ========================================
+   v3.0: Login Page — 'The Listening Room'
+   ======================================== */
+
+/* Full-viewport hero wrapper */
+.login-hero {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rs-space-6);
+    padding: var(--rs-space-6) var(--rs-space-4);
+    position: relative;
+    overflow: hidden;
+    /* Animated gradient mesh background */
+    background:
+        radial-gradient(circle 400px at 20% 30%, rgba(124, 58, 237, 0.12), transparent),
+        radial-gradient(circle 350px at 80% 60%, rgba(244, 114, 182, 0.08), transparent),
+        radial-gradient(circle 300px at 50% 40%, rgba(6, 182, 212, 0.06), transparent);
+    background-size: 200% 200%;
+    animation: rs-gradient-mesh var(--rs-motion-gradient-mesh) ease-in-out infinite alternate;
+}
+
+/* Waveform rings (::before on login-hero) */
+.login-hero::before,
+.login-hero::after {
+    content: '';
+    position: absolute;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.login-hero::before {
+    width: 300px;
+    height: 300px;
+    animation: rs-waveform-ring var(--rs-motion-heartbeat) ease-in-out infinite;
+}
+
+.login-hero::after {
+    width: 450px;
+    height: 450px;
+    animation: rs-waveform-ring var(--rs-motion-heartbeat) ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+/* Scrolling activity marquee */
+.login-hero__marquee {
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+    position: relative;
+    z-index: var(--rs-z-base);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.login-hero__marquee-track {
+    display: flex;
+    gap: var(--rs-space-6);
+    white-space: nowrap;
+    animation: rs-marquee var(--rs-motion-marquee) linear infinite;
+    width: max-content;
+}
+
+.login-hero__marquee-item {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+    flex-shrink: 0;
+}
+
+/* Glassmorphism hero card */
+.login-hero__card {
+    background: var(--rs-glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--rs-glass-border-strong);
+    border-radius: var(--rs-radius-lg);
+    box-shadow: var(--rs-glass-shadow), 0 0 40px rgba(124, 58, 237, 0.08);
+    padding: var(--rs-space-10) var(--rs-space-6);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rs-space-6);
+    z-index: var(--rs-z-base);
+    position: relative;
+}
+
+/* Brand section with sound wave icon */
+.login-hero__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rs-space-3);
+}
+
+/* CSS-only animated sound wave icon */
+.login-hero__soundwave {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    cursor: pointer;
+    transition: gap var(--rs-motion-normal) var(--rs-easing);
+}
+
+.login-hero__soundwave:hover {
+    gap: 5px;
+}
+
+.login-hero__soundwave-bar {
+    display: block;
+    width: 5px;
+    border-radius: 3px;
+    background: var(--rs-primary);
+    animation: rs-soundwave-bar 1.2s ease-in-out infinite;
+}
+
+.login-hero__soundwave-bar:nth-child(1) { height: 16px; animation-delay: 0s; }
+.login-hero__soundwave-bar:nth-child(2) { height: 28px; animation-delay: 0.15s; }
+.login-hero__soundwave-bar:nth-child(3) { height: 40px; animation-delay: 0.3s; }
+.login-hero__soundwave-bar:nth-child(4) { height: 28px; animation-delay: 0.45s; }
+.login-hero__soundwave-bar:nth-child(5) { height: 16px; animation-delay: 0.6s; }
+
+/* Title inside hero card */
+.login-hero__card .login-page__title {
+    font-size: var(--rs-font-size-3xl);
+    margin: 0;
+}
+
+/* Subtitle inside hero card */
+.login-hero__card .login-page__subtitle {
+    max-width: 340px;
+    line-height: 1.7;
+}
+
+/* Spotify connect button glow */
+#page-login #login-btn-container .rs-btn--primary {
+    transition: all var(--rs-motion-normal) var(--rs-easing);
+    animation: rs-button-glow-pulse 3s ease-in-out infinite;
+    padding: var(--rs-space-3) var(--rs-space-8);
+    font-size: var(--rs-font-size-md);
+    border-radius: var(--rs-radius-full);
+    min-height: 52px;
+}
+
+#page-login #login-btn-container .rs-btn--primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(124, 58, 237, 0.35);
+    animation: none;
+}
+
+/* Footer */
+.login-hero__footer {
+    z-index: var(--rs-z-base);
+}
+
+.login-hero__version {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-dim);
+}
+
+/* ========================================
+   v3.0: Callback Page — 'The Portal'
+   ======================================== */
+
+.callback-portal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rs-space-8);
+    padding: var(--rs-space-6) var(--rs-space-4);
+    min-height: 100dvh;
+    text-align: center;
+}
+
+/* Inverted gradient background for portal */
+#page-callback.page--centered {
+    background:
+        radial-gradient(circle 400px at 50% 40%, rgba(244, 114, 182, 0.08), transparent),
+        radial-gradient(circle 350px at 30% 60%, rgba(124, 58, 237, 0.1), transparent),
+        radial-gradient(circle 300px at 70% 30%, rgba(6, 182, 212, 0.06), transparent);
+}
+
+/* Concentric rings container */
+.callback-portal__rings {
+    position: relative;
+    width: 160px;
+    height: 160px;
+}
+
+.callback-portal__ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.callback-portal__ring--outer {
+    width: 160px;
+    height: 160px;
+    border-color: rgba(124, 58, 237, 0.3);
+    border-top-color: var(--rs-primary);
+    animation: rs-callback-ring-outer var(--rs-motion-ring-outer) linear infinite;
+}
+
+.callback-portal__ring--mid {
+    width: 120px;
+    height: 120px;
+    border-color: rgba(244, 114, 182, 0.3);
+    border-right-color: var(--rs-secondary);
+    animation: rs-callback-ring-mid var(--rs-motion-ring-mid) linear infinite;
+}
+
+.callback-portal__ring--inner {
+    width: 80px;
+    height: 80px;
+    border-color: rgba(6, 182, 212, 0.3);
+    border-bottom-color: #06b6d4;
+    animation: rs-callback-ring-inner var(--rs-motion-ring-inner) linear infinite;
+}
+
+/* Central Spotify icon (CSS mask) */
+.callback-portal__spotify-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    background-color: var(--rs-primary);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.878zm1.225-2.72c-.227.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.85-.107-.975-.522-.125-.413.107-.85.522-.975 3.67-1.114 8.243-.573 11.347 1.33.37.227.49.707.26 1.073zm.106-2.833C14.384 8.71 8.535 8.514 5.16 9.538c-.517.157-1.066-.135-1.224-.653-.157-.518.135-1.067.653-1.224 3.883-1.178 10.344-.954 14.417 1.463.465.276.617.873.342 1.338-.276.466-.874.618-1.34.342z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.878zm1.225-2.72c-.227.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.85-.107-.975-.522-.125-.413.107-.85.522-.975 3.67-1.114 8.243-.573 11.347 1.33.37.227.49.707.26 1.073zm.106-2.833C14.384 8.71 8.535 8.514 5.16 9.538c-.517.157-1.066-.135-1.224-.653-.157-.518.135-1.067.653-1.224 3.883-1.178 10.344-.954 14.417 1.463.465.276.617.873.342 1.338-.276.466-.874.618-1.34.342z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+/* Cycling messages */
+.callback-portal__messages {
+    position: relative;
+    height: 24px;
+    overflow: hidden;
+}
+
+.callback-portal__msg {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+    animation: rs-message-cycle 7.5s infinite;
+}
+
+.callback-portal__msg--1 { animation-delay: 0s; }
+.callback-portal__msg--2 { animation-delay: 2.5s; }
+.callback-portal__msg--3 { animation-delay: 5s; }
+
+/* Error state — broken music note CSS art */
+.callback-portal__error-icon {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 auto var(--rs-space-4);
+}
+
+.callback-portal__error-note {
+    display: block;
+    width: 12px;
+    height: 48px;
+    background: var(--rs-error);
+    border-radius: 0 0 4px 4px;
+    position: relative;
+}
+
+.callback-portal__error-note::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 0;
+    width: 18px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--rs-error);
+}
+
+.callback-portal__error-note--broken {
+    height: 32px;
+    transform: rotate(20deg) translateY(8px);
+    opacity: 0.7;
+}
+
+/* ========================================
+   v3.0: Feed Page — 'The Living Feed'
+   ======================================== */
+
+/* Zone 1: Now Playing Strip */
+.feed-now-playing-strip {
+    position: relative;
+    margin-bottom: var(--rs-space-4);
+    padding: var(--rs-space-2) 0;
+    background: linear-gradient(
+        to right,
+        rgba(124, 58, 237, 0.03),
+        rgba(16, 185, 129, 0.03),
+        rgba(124, 58, 237, 0.03)
+    );
+    border-radius: var(--rs-radius-lg);
+}
+
+.feed-now-playing-strip__track {
+    display: flex;
+    gap: var(--rs-space-3);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: var(--rs-space-1) var(--rs-space-2);
+}
+
+.feed-now-playing-strip__track::-webkit-scrollbar {
+    display: none;
+}
+
+/* Gradient fade edges on now-playing strip */
+.feed-now-playing-strip__fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    z-index: 1;
+    pointer-events: none;
+    display: none;
+}
+
+.feed-now-playing-strip__fade--left {
+    left: 0;
+    background: linear-gradient(to right, var(--rs-background), transparent);
+}
+
+.feed-now-playing-strip__fade--right {
+    right: 0;
+    background: linear-gradient(to left, var(--rs-background), transparent);
+}
+
+/* Vinyl-style album art for now-playing items */
+.now-playing-friends__item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-2) var(--rs-space-3);
+    flex-shrink: 0;
+    min-width: 200px;
+    max-width: 260px;
+    transition: border-color var(--rs-motion-normal) var(--rs-easing);
+}
+
+.now-playing-friends__item:hover {
+    border-color: var(--rs-card-accent-live);
+}
+
+.now-playing-friends__item .now-playing-friends__art {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--rs-border);
+}
+
+.now-playing-friends__item .now-playing-friends__tag {
+    animation: rs-pulse 2s ease-in-out infinite;
+}
+
+/* Zone 2: Card category accent borders */
+.feed-card {
+    border-left: 3px solid transparent;
+    transition: border-left-color var(--rs-motion-normal) var(--rs-easing),
+                box-shadow var(--rs-motion-slow) var(--rs-easing),
+                transform var(--rs-motion-slow) var(--rs-easing);
+}
+
+.feed-card[data-card-type="now_playing"] {
+    border-left-color: var(--rs-card-accent-live);
+}
+
+.feed-card[data-card-type="weekly_top"] {
+    border-left-color: var(--rs-card-accent-top);
+}
+
+.feed-card[data-card-type="shared_artist"] {
+    border-left-color: var(--rs-card-accent-shared);
+}
+
+/* 16:9 album art */
+.feed-card__art {
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+}
+
+.feed-card__album-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Card header overlay on album art (when art is present) */
+.feed-card.has-art .feed-card__header {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--rs-space-6) var(--rs-space-4) var(--rs-space-3);
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+    z-index: 1;
+}
+
+.feed-card.has-art .feed-card__display-name {
+    color: #fff;
+}
+
+.feed-card.has-art .feed-card__username {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Floating reaction bar on desktop hover */
+@media (min-width: 1024px) and (hover: hover) {
+    .feed-card__reactions {
+        position: absolute;
+        bottom: -20px;
+        left: var(--rs-space-4);
+        right: var(--rs-space-4);
+        opacity: 0;
+        transform: translateY(0);
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+        background: var(--rs-glass-bg);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid var(--rs-glass-border);
+        border-radius: var(--rs-radius-md);
+        padding: var(--rs-space-2) var(--rs-space-3);
+        z-index: 2;
+    }
+
+    .feed-card:hover .feed-card__reactions {
+        opacity: 1;
+        transform: translateY(-8px);
+    }
+}
+
+/* Feed empty state — vinyl CSS illustration */
+.feed-empty-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--rs-space-4);
+}
+
+.feed-empty-illustration__vinyl {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center,
+            var(--rs-surface) 18%,
+            var(--rs-border) 20%,
+            var(--rs-surface) 22%,
+            var(--rs-border) 24%,
+            var(--rs-primary) 26%,
+            transparent 28%
+        );
+    opacity: 0.5;
+}
+
+/* ========================================
+   v3.0: Friends Page — 'The Connection Hub'
+   ======================================== */
+
+/* Hero search input */
+.friends-search-hero {
+    position: relative;
+}
+
+.friends-search-hero__input-wrapper {
+    position: relative;
+}
+
+.friends-search-hero__input-wrapper::before {
+    content: '';
+    position: absolute;
+    left: var(--rs-space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: var(--rs-text-dim);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.friends-search-hero__input-wrapper .search-input {
+    padding-left: var(--rs-space-12);
+    font-size: var(--rs-font-size-lg);
+    min-height: 52px;
+    border-radius: var(--rs-radius-lg);
+    transition: border-color var(--rs-motion-normal) var(--rs-easing),
+                box-shadow var(--rs-motion-normal) var(--rs-easing);
+}
+
+.friends-search-hero__input-wrapper .search-input:focus {
+    border-color: var(--rs-primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Suggestion area */
+.friends-search-hero__suggestions {
+    padding: var(--rs-space-3) 0;
+}
+
+.friends-search-hero__hint {
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-dim);
+}
+
+/* Doorway-style incoming request cards */
+#incoming-requests-section .search-result-item {
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-4);
+    background: var(--rs-surface);
+    transition: border-color var(--rs-motion-normal) var(--rs-easing),
+                box-shadow var(--rs-motion-normal) var(--rs-easing);
+}
+
+#incoming-requests-section .search-result-item:hover {
+    border-color: var(--rs-glass-border-strong);
+    box-shadow: var(--rs-shadow-md);
+}
+
+#incoming-requests-section .search-result-item__avatar {
+    width: 56px;
+    height: 56px;
+    border: 3px solid var(--rs-glass-border-strong);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Green Accept / Ghost Reject buttons for requests */
+#incoming-requests-section .search-result-item__actions .rs-btn--primary {
+    background: var(--rs-success);
+}
+
+#incoming-requests-section .search-result-item__actions .rs-btn--primary:hover {
+    background: #059669;
+}
+
+#incoming-requests-section .search-result-item__actions .rs-btn--ghost {
+    border: 1px solid var(--rs-border);
+}
+
+/* Circular friend discs with green now-playing ring */
+#friends-list-section .search-result-item__avatar {
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color var(--rs-motion-normal) var(--rs-easing);
+}
+
+#friends-list-section .search-result-item--playing .search-result-item__avatar {
+    border-color: var(--rs-success);
+    box-shadow: 0 0 0 3px var(--rs-success);
+}
+
+/* Staggered search result animation */
+#search-results .search-result-item {
+    animation: rs-stagger-fade-up var(--rs-motion-normal) var(--rs-easing) both;
+}
+
+#search-results .search-result-item:nth-child(1) { animation-delay: 0ms; }
+#search-results .search-result-item:nth-child(2) { animation-delay: 50ms; }
+#search-results .search-result-item:nth-child(3) { animation-delay: 100ms; }
+#search-results .search-result-item:nth-child(4) { animation-delay: 150ms; }
+#search-results .search-result-item:nth-child(5) { animation-delay: 200ms; }
+#search-results .search-result-item:nth-child(6) { animation-delay: 250ms; }
+#search-results .search-result-item:nth-child(7) { animation-delay: 300ms; }
+#search-results .search-result-item:nth-child(8) { animation-delay: 350ms; }
+#search-results .search-result-item:nth-child(9) { animation-delay: 400ms; }
+#search-results .search-result-item:nth-child(10) { animation-delay: 450ms; }
+
+/* ========================================
+   v3.0: Messages Page — 'The Listening Lounge'
+   ======================================== */
+
+/* Purple glowing unread badge */
+.bottom-nav__unread-badge {
+    background: var(--rs-primary);
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.5);
+}
+
+/* Message bubble tails */
+.message--sent .message__bubble {
+    position: relative;
+}
+
+.message--sent .message__bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid var(--rs-primary);
+    border-top: 8px solid transparent;
+    border-bottom: 0 solid transparent;
+}
+
+.message--received .message__bubble {
+    position: relative;
+}
+
+.message--received .message__bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-right: 8px solid var(--rs-surface);
+    border-top: 8px solid transparent;
+    border-bottom: 0 solid transparent;
+}
+
+/* Auto-message treatment */
+.message--auto .message__bubble {
+    border-left: 3px solid var(--rs-accent);
+    background: var(--rs-surface-elevated);
+    font-style: italic;
+    padding-left: var(--rs-space-3);
+}
+
+/* Glassmorphism chat input */
+#messages-chat-input.chat-input {
+    background: var(--rs-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--rs-glass-border);
+    padding: var(--rs-space-3) var(--rs-space-4);
+    gap: var(--rs-space-3);
+}
+
+/* Circular send button */
+.rs-btn--icon-circle {
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow var(--rs-motion-normal) var(--rs-easing);
+}
+
+#chat-send-btn.rs-btn--icon-circle {
+    background: var(--rs-primary);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+#chat-send-btn.rs-btn--icon-circle:hover {
+    box-shadow: var(--rs-button-glow);
+    background: var(--rs-primary-hover);
+}
+
+/* Timestamp dividers in chat thread */
+.chat-thread .chat-timestamp-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    color: var(--rs-text-dim);
+    font-size: var(--rs-font-size-xs);
+    padding: var(--rs-space-2) 0;
+}
+
+.chat-timestamp-divider::before,
+.chat-timestamp-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rs-border);
+}
+
+/* Messages empty state — vinyl + chat bubble CSS art */
+.messages-empty-illustration {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-bottom: var(--rs-space-4);
+}
+
+.messages-empty-illustration__vinyl {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center,
+            var(--rs-surface) 20%,
+            var(--rs-border) 22%,
+            var(--rs-primary) 24%,
+            transparent 26%
+        );
+    opacity: 0.5;
+}
+
+.messages-empty-illustration__bubble {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 28px;
+    background: var(--rs-primary);
+    border-radius: 14px 14px 14px 4px;
+    opacity: 0.8;
+}
+
+/* ========================================
+   v3.0: Dashboard Page — 'Your Soundprint'
+   ======================================== */
+
+/* Stat card icons via mask-image (positioned with ::before) */
+.stat-card--tracks::before,
+.stat-card--artists::before,
+.stat-card--minutes::before,
+.stat-card--days::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 28px;
+    margin: 0 auto var(--rs-space-2);
+    background-color: var(--rs-primary);
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+/* Stat card background patterns */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    pointer-events: none;
+}
+
+.stat-card:nth-child(1)::after {
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px, var(--rs-primary) 3px, var(--rs-primary) 4px
+    );
+}
+
+.stat-card:nth-child(2)::after {
+    background: radial-gradient(circle, var(--rs-primary) 1px, transparent 1px);
+    background-size: 8px 8px;
+}
+
+.stat-card:nth-child(3)::after {
+    background: repeating-conic-gradient(var(--rs-primary) 0% 5%, transparent 5% 10%);
+    background-size: 20px 20px;
+}
+
+.stat-card:nth-child(4)::after {
+    background: repeating-linear-gradient(
+        90deg, transparent, transparent 6px, var(--rs-primary) 6px, var(--rs-primary) 7px
+    );
+}
+
+/* Listening Clock — CSS conic-gradient radial chart */
+.listening-clock {
+    margin-bottom: var(--rs-space-6);
+    background: var(--rs-surface);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-4);
+    border: 1px solid var(--rs-border);
+}
+
+.listening-clock__title {
+    font-size: var(--rs-font-size-base);
+    font-weight: var(--rs-font-weight-medium);
+    color: var(--rs-text-muted);
+    margin-bottom: var(--rs-space-3);
+    text-align: center;
+}
+
+.listening-clock__chart {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background: conic-gradient(
+        rgba(124, 58, 237, 0.1) 0deg 15deg,
+        rgba(124, 58, 237, 0.15) 15deg 30deg,
+        rgba(124, 58, 237, 0.1) 30deg 45deg,
+        rgba(124, 58, 237, 0.2) 45deg 60deg,
+        rgba(124, 58, 237, 0.1) 60deg 75deg,
+        rgba(124, 58, 237, 0.25) 75deg 90deg,
+        rgba(124, 58, 237, 0.1) 90deg 105deg,
+        rgba(124, 58, 237, 0.3) 105deg 120deg,
+        rgba(124, 58, 237, 0.15) 120deg 135deg,
+        rgba(124, 58, 237, 0.1) 135deg 150deg,
+        rgba(124, 58, 237, 0.2) 150deg 165deg,
+        rgba(124, 58, 237, 0.1) 165deg 180deg,
+        rgba(124, 58, 237, 0.3) 180deg 195deg,
+        rgba(124, 58, 237, 0.1) 195deg 210deg,
+        rgba(124, 58, 237, 0.2) 210deg 225deg,
+        rgba(124, 58, 237, 0.1) 225deg 240deg,
+        rgba(124, 58, 237, 0.15) 240deg 255deg,
+        rgba(124, 58, 237, 0.1) 255deg 270deg,
+        rgba(124, 58, 237, 0.4) 270deg 285deg,
+        rgba(124, 58, 237, 0.1) 285deg 300deg,
+        rgba(124, 58, 237, 0.2) 300deg 315deg,
+        rgba(124, 58, 237, 0.1) 315deg 330deg,
+        rgba(124, 58, 237, 0.15) 330deg 345deg,
+        rgba(124, 58, 237, 0.1) 345deg 360deg
+    );
+    position: relative;
+}
+
+.listening-clock__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--rs-surface);
+}
+
+/* Sliding period filter indicator */
+.period-filter {
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.period-filter::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    background: var(--rs-primary);
+    border-radius: var(--rs-radius-full);
+    transition: left var(--rs-motion-normal) var(--rs-easing),
+                width var(--rs-motion-normal) var(--rs-easing);
+}
+
+/* Podium layout for top 3 artists (applied via JS-created classes) */
+.artist-list--podium {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    grid-template-areas: "second first third";
+    gap: var(--rs-space-2);
+    align-items: end;
+    margin-bottom: var(--rs-space-4);
+}
+
+.artist-list--podium .artist-item {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--rs-space-4) var(--rs-space-2);
+    border-radius: var(--rs-radius-lg);
+    min-height: 140px;
+}
+
+.artist-list--podium .artist-item:nth-child(1) {
+    grid-area: first;
+    background: linear-gradient(to bottom, rgba(245, 158, 11, 0.08), transparent);
+    border: 1px solid var(--rs-rank-gold);
+    min-height: 170px;
+}
+
+.artist-list--podium .artist-item:nth-child(2) {
+    grid-area: second;
+    background: linear-gradient(to bottom, rgba(148, 163, 184, 0.06), transparent);
+    border: 1px solid var(--rs-rank-silver);
+}
+
+.artist-list--podium .artist-item:nth-child(3) {
+    grid-area: third;
+    background: linear-gradient(to bottom, rgba(180, 83, 9, 0.06), transparent);
+    border: 1px solid var(--rs-rank-bronze);
+}
+
+/* Hollow rank numbers for top 3 */
+.artist-list--podium .artist-item__rank {
+    font-size: var(--rs-font-size-3xl);
+    font-weight: var(--rs-font-weight-bold);
+    -webkit-text-stroke: 1px var(--rs-primary);
+    color: transparent;
+    width: auto;
+}
+
+.artist-list--podium .artist-item:nth-child(1) .artist-item__rank {
+    -webkit-text-stroke-color: var(--rs-rank-gold);
+}
+
+.artist-list--podium .artist-item:nth-child(2) .artist-item__rank {
+    -webkit-text-stroke-color: var(--rs-rank-silver);
+}
+
+.artist-list--podium .artist-item:nth-child(3) .artist-item__rank {
+    -webkit-text-stroke-color: var(--rs-rank-bronze);
+}
+
+/* ========================================
+   v3.0: Profile Page — 'The Identity Card'
+   ======================================== */
+
+/* Large avatar with double ring treatment */
+.profile-header__avatar {
+    width: var(--rs-avatar-xl);
+    height: var(--rs-avatar-xl);
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+        0 0 0 4px var(--rs-background),
+        0 0 0 6px var(--rs-primary),
+        0 0 24px var(--rs-avatar-ring);
+    margin-bottom: var(--rs-space-2);
+    animation: rs-avatar-ring-pulse 3s ease-in-out infinite;
+}
+
+/* Genre aura gradient behind avatar */
+#profile-header {
+    position: relative;
+}
+
+#profile-header::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.12), transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Stat badges with icon separators */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+}
+
+.stats-row .stat-card {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: var(--rs-space-3);
+}
+
+.stats-row .stat-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background: var(--rs-border);
+}
+
+/* Genre-colored tag pills */
+.tag--genre.tag--rock        { background: rgba(124, 58, 237, 0.15); color: var(--rs-genre-rock); }
+.tag--genre.tag--electronic  { background: rgba(6, 182, 212, 0.15);  color: var(--rs-genre-electronic); }
+.tag--genre.tag--hiphop      { background: rgba(217, 119, 6, 0.15);  color: var(--rs-genre-hiphop); }
+.tag--genre.tag--jazz        { background: rgba(20, 184, 166, 0.15); color: var(--rs-genre-jazz); }
+.tag--genre.tag--pop         { background: rgba(236, 72, 153, 0.15); color: var(--rs-genre-pop); }
+.tag--genre.tag--other,
+.tag--genre:not(.tag--rock):not(.tag--electronic):not(.tag--hiphop):not(.tag--jazz):not(.tag--pop) {
+    background: var(--rs-primary-light);
+    color: var(--rs-primary);
+}
+
+/* Artist progress bars */
+.artist-item--with-progress {
+    position: relative;
+}
+
+.artist-item--with-progress::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--rs-primary);
+    border-radius: var(--rs-radius-full);
+    opacity: 0.3;
+}
+
+/* Floating form labels */
+.form-group {
+    position: relative;
+}
+
+.form-group__label {
+    position: absolute;
+    top: var(--rs-space-3);
+    left: var(--rs-space-3);
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-dim);
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+    pointer-events: none;
+    transform-origin: left top;
+}
+
+.form-group__input:focus + .form-group__label,
+.form-group__input:not(:placeholder-shown) + .form-group__label {
+    top: -8px;
+    left: 0;
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-primary);
+    transform: none;
+    background: var(--rs-background);
+    padding: 0 var(--rs-space-1);
+}
+
+/* Gradient save button */
+#profile-save-container .rs-btn--primary {
+    background: linear-gradient(135deg, var(--rs-primary), var(--rs-secondary));
+    border: none;
+    font-size: var(--rs-font-size-md);
+    padding: var(--rs-space-3) var(--rs-space-6);
+    min-height: 52px;
+    transition: opacity var(--rs-motion-normal) var(--rs-easing),
+                box-shadow var(--rs-motion-normal) var(--rs-easing);
+}
+
+#profile-save-container .rs-btn--primary:hover {
+    opacity: 0.9;
+    box-shadow: var(--rs-button-glow);
+}
+
+/* Logout as text link */
+#profile-logout-container .rs-btn {
+    background: transparent;
+    color: var(--rs-error);
+    font-size: var(--rs-font-size-sm);
+    border: none;
+    padding: var(--rs-space-2) var(--rs-space-4);
+    transition: color var(--rs-motion-fast) var(--rs-easing);
+}
+
+#profile-logout-container .rs-btn:hover {
+    color: #dc2626;
+    text-decoration: underline;
+    background: transparent;
+}
+
+/* ========================================
+   v3.0: Onboarding Page — 'Your Musical Identity Tour'
+   ======================================== */
+
+/* Journey line progress indicator */
+.onboarding__progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: var(--rs-space-6);
+}
+
+.onboarding__station {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.onboarding__station-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--rs-border);
+    color: var(--rs-text-dim);
+    font-size: 10px;
+    font-weight: var(--rs-font-weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--rs-motion-normal) var(--rs-easing);
+}
+
+.onboarding__station-dot--active {
+    background: var(--rs-primary);
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
+.onboarding__station-dot--completed {
+    background: var(--rs-success);
+    color: #fff;
+}
+
+/* Tooltip-like alt text for checkmark */
+.onboarding__station-dot--completed::before {
+    content: '\2713';
+}
+
+/* Connecting lines between stations */
+.onboarding__station-line {
+    width: 40px;
+    height: 2px;
+    background: var(--rs-border);
+    margin: 0 var(--rs-space-1);
+    transition: background var(--rs-motion-normal) var(--rs-easing);
+}
+
+.onboarding__station-line--completed {
+    background: var(--rs-success);
+}
+
+/* Backward compatibility: existing .onboarding__step-dot gets enhanced */
+.onboarding__step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--rs-border);
+    transition: all var(--rs-motion-normal) var(--rs-easing);
+}
+
+.onboarding__step-dot--active {
+    background: var(--rs-primary);
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+
+.onboarding__step-dot--completed {
+    background: var(--rs-success);
+}
+
+/* Avatar placeholder (step 1) */
+.onboarding-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px dashed var(--rs-border);
+    margin: 0 auto var(--rs-space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.onboarding-avatar-placeholder::after {
+    content: '';
+    width: 32px;
+    height: 32px;
+    background-color: var(--rs-text-dim);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E");
+    mask-size: contain;
+    -webkit-mask-size: contain;
+}
+
+/* Genre suggestion chips */
+.genre-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--rs-space-1) var(--rs-space-3);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-full);
+    font-size: var(--rs-font-size-sm);
+    color: var(--rs-text-muted);
+    cursor: pointer;
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+    margin: 2px;
+}
+
+.genre-chip:hover {
+    border-color: var(--rs-primary);
+    color: var(--rs-primary);
+    background: var(--rs-primary-light);
+}
+
+/* Privacy selector cards — enhanced for onboarding step 3 */
+.privacy-option {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    padding: var(--rs-space-4);
+    border-radius: var(--rs-radius-md);
+    border: 1px solid var(--rs-border);
+    cursor: pointer;
+    transition: all var(--rs-motion-fast) var(--rs-easing);
+}
+
+.privacy-option:hover {
+    border-color: var(--rs-primary);
+}
+
+.privacy-option--selected {
+    border-color: var(--rs-primary);
+    background: var(--rs-primary-light);
+    box-shadow: 0 0 0 1px var(--rs-primary);
+}
+
+/* Celebration step (step 4) — confetti particles */
+.onboarding-celebration {
+    position: relative;
+    overflow: hidden;
+    padding: var(--rs-space-8) var(--rs-space-4);
+}
+
+.onboarding-celebration__bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.1), transparent 60%);
+    animation: rs-pulse 2s ease-in-out infinite;
+    z-index: 0;
+}
+
+/* Confetti particle — base */
+.onboarding-confetti {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    z-index: 1;
+    animation: rs-confetti-fall 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.onboarding-confetti:nth-child(1)  { left: 10%; top: -10px; background: var(--rs-primary); animation-delay: 0s; }
+.onboarding-confetti:nth-child(2)  { left: 25%; top: -10px; background: var(--rs-secondary); animation-delay: 0.5s; }
+.onboarding-confetti:nth-child(3)  { left: 40%; top: -10px; background: var(--rs-success); animation-delay: 1s; }
+.onboarding-confetti:nth-child(4)  { left: 55%; top: -10px; background: var(--rs-accent); animation-delay: 0.3s; }
+.onboarding-confetti:nth-child(5)  { left: 70%; top: -10px; background: var(--rs-primary); animation-delay: 0.8s; }
+.onboarding-confetti:nth-child(6)  { left: 85%; top: -10px; background: var(--rs-secondary); animation-delay: 1.2s; }
+.onboarding-confetti:nth-child(7)  { left: 15%; top: -10px; background: var(--rs-info); animation-delay: 1.5s; }
+.onboarding-confetti:nth-child(8)  { left: 50%; top: -10px; background: var(--rs-success); animation-delay: 2s; }
+.onboarding-confetti:nth-child(9)  { left: 75%; top: -10px; background: var(--rs-primary); animation-delay: 0.6s; }
+.onboarding-confetti:nth-child(10) { left: 35%; top: -10px; background: var(--rs-accent); animation-delay: 1.3s; }
+
+/* Summary card (step 4) */
+.onboarding-summary {
+    position: relative;
+    z-index: 2;
+    background: var(--rs-glass-bg);
+    backdrop-filter: blur(var(--rs-glass-blur));
+    -webkit-backdrop-filter: blur(var(--rs-glass-blur));
+    border: 1px solid var(--rs-glass-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-6);
+    text-align: center;
+    box-shadow: var(--rs-glass-shadow);
+}
+
+/* ========================================
+   v3.0: Light Mode Overrides
+   ======================================== */
+
+[data-theme="light"] .login-hero {
+    background:
+        radial-gradient(circle 400px at 20% 30%, rgba(124, 58, 237, 0.06), transparent),
+        radial-gradient(circle 350px at 80% 60%, rgba(244, 114, 182, 0.04), transparent),
+        radial-gradient(circle 300px at 50% 40%, rgba(6, 182, 212, 0.03), transparent);
+}
+
+[data-theme="light"] .login-hero::before,
+[data-theme="light"] .login-hero::after {
+    border-color: rgba(124, 58, 237, 0.12);
+}
+
+[data-theme="light"] .login-hero__card {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="light"] #page-callback.page--centered {
+    background:
+        radial-gradient(circle 400px at 50% 40%, rgba(244, 114, 182, 0.04), transparent),
+        radial-gradient(circle 350px at 30% 60%, rgba(124, 58, 237, 0.05), transparent);
+}
+
+[data-theme="light"] .feed-now-playing-strip {
+    background: linear-gradient(
+        to right, rgba(124, 58, 237, 0.02), rgba(16, 185, 129, 0.02), rgba(124, 58, 237, 0.02)
+    );
+}
+
+[data-theme="light"] .feed-card.has-art .feed-card__header {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+}
+
+[data-theme="light"] .message--sent .message__bubble::after {
+    border-left-color: var(--rs-primary);
+}
+
+[data-theme="light"] .artist-list--podium .artist-item:nth-child(1) {
+    background: linear-gradient(to bottom, rgba(217, 119, 6, 0.05), transparent);
+}
+
+[data-theme="light"] .artist-list--podium .artist-item:nth-child(2) {
+    background: linear-gradient(to bottom, rgba(107, 114, 128, 0.04), transparent);
+}
+
+[data-theme="light"] .artist-list--podium .artist-item:nth-child(3) {
+    background: linear-gradient(to bottom, rgba(146, 64, 14, 0.04), transparent);
+}
+
+[data-theme="light"] .onboarding-summary {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="light"] #messages-chat-input.chat-input {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="light"] .listening-clock__center {
+    background: var(--rs-surface);
+}
+
+[data-theme="light"] .feed-card__reactions {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="light"] #profile-header::before {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.08), transparent 70%);
+}
+
+[data-theme="light"] .form-group__input:not(:placeholder-shown) + .form-group__label {
+    background: var(--rs-background);
+}
+
+/* ========================================
+   v3.0: Login Page Desktop Centering Fix
+   ======================================== */
+
+/* Ensure centered pages (login, callback, onboarding) fill the full viewport
+   and properly center their content on desktop. Override the sidebar
+   margin-left: 240px that applies to .page at 1024px+. */
+@media (min-width: 1024px) {
+    #page-login,
+    #page-callback,
+    #page-onboarding {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .login-hero {
+        width: 100%;
+        max-width: 100%;
+        padding: var(--rs-space-6) var(--rs-space-4);
+    }
+
+    .login-hero__card {
+        width: 100%;
+        max-width: 440px;
+        margin: 0 auto;
+    }
+
+    .login-hero__marquee {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+/* ========================================
+   v3.0: Responsive — Feed Page
+   ======================================== */
+
+/* Tablet + Desktop: show fade edges on now-playing strip */
+@media (min-width: 768px) {
+    .feed-now-playing-strip__fade {
+        display: block;
+    }
+
+    .feed-now-playing-strip__track {
+        padding: var(--rs-space-1) var(--rs-space-10);
+    }
+
+    .dashboard-section-title {
+        font-size: var(--rs-font-size-xl);
+    }
+}
+
+/* Desktop: larger page header brand */
+@media (min-width: 1024px) {
+    .page__header-brand {
+        gap: var(--rs-space-4);
+    }
+
+    .page__header-logo {
+        height: 24px;
+    }
+
+    .page__header-logo-bar {
+        width: 4px;
+    }
+
+    .page__header-logo-bar:nth-child(1) { height: 10px; }
+    .page__header-logo-bar:nth-child(2) { height: 20px; }
+    .page__header-logo-bar:nth-child(3) { height: 15px; }
+
+    /* Login hero wider on desktop */
+    .login-hero__card {
+        max-width: 440px;
+        padding: var(--rs-space-12) var(--rs-space-8);
+    }
+
+    .login-hero::before {
+        width: 500px;
+        height: 500px;
+    }
+
+    .login-hero::after {
+        width: 700px;
+        height: 700px;
+    }
+
+    /* Profile avatar larger on desktop */
+    .profile-header__avatar {
+        width: var(--rs-avatar-xl);
+        height: var(--rs-avatar-xl);
+    }
+
+    /* Dashboard clock larger on desktop */
+    .listening-clock__chart {
+        width: 220px;
+        height: 220px;
+    }
+
+    .listening-clock__center {
+        width: 120px;
+        height: 120px;
+    }
+
+    /* Onboarding wider */
+    .onboarding {
+        max-width: 460px;
+    }
+}
+
+/* Wide desktop */
+@media (min-width: 1400px) {
+    .login-hero__card {
+        max-width: 480px;
+    }
+
+    .callback-portal__ring--outer {
+        width: 200px;
+        height: 200px;
+    }
+
+    .callback-portal__ring--mid {
+        width: 150px;
+        height: 150px;
+    }
+
+    .callback-portal__ring--inner {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* ========================================
+   v3.0: Reduced Motion (Accessibility)
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .login-hero {
+        animation: none;
+    }
+
+    .login-hero::before,
+    .login-hero::after {
+        animation: none;
+        display: none;
+    }
+
+    .login-hero__marquee-track {
+        animation: none;
+    }
+
+    .login-hero__soundwave-bar {
+        animation: none;
+    }
+
+    .callback-portal__ring--outer,
+    .callback-portal__ring--mid,
+    .callback-portal__ring--inner {
+        animation: none;
+    }
+
+    .callback-portal__msg {
+        animation: none;
+        position: static;
+    }
+    .callback-portal__msg--2,
+    .callback-portal__msg--3 {
+        display: none;
+    }
+
+    .profile-header__avatar {
+        animation: none;
+    }
+
+    #search-results .search-result-item {
+        animation: none;
+    }
+
+    .onboarding-confetti {
+        animation: none;
+        display: none;
+    }
+
+    .onboarding-celebration__bg {
+        animation: none;
+    }
+
+    .feed-card__reactions {
+        transition: none;
+    }
+}
+

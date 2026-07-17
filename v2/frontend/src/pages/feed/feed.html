@@ -8,14 +8,30 @@
     <link rel="stylesheet" href="styles/feed.css">
 </head>
 <body>
+    <!-- v3.0: 'The Living Feed' — vibrant three-zone music community feed -->
     <div id="page-feed" class="page page--active">
         <header class="page__header">
-            <h1 class="page__title">Feed</h1>
+            <div class="page__header-brand">
+                <span class="page__header-logo" aria-hidden="true">
+                    <span class="page__header-logo-bar"></span>
+                    <span class="page__header-logo-bar"></span>
+                    <span class="page__header-logo-bar"></span>
+                </span>
+                <h1 class="page__title">Feed</h1>
+            </div>
         </header>
         <main class="page__content" id="feed-content">
-            <!-- Feed cards will be appended here by feed.js -->
+            <!-- Zone 1: Now Playing Strip -->
+            <div id="feed-now-playing" class="feed-now-playing-strip" style="display: none;">
+                <div class="feed-now-playing-strip__fade feed-now-playing-strip__fade--left"></div>
+                <div class="feed-now-playing-strip__track" id="feed-now-playing-track">
+                    <!-- JS populates .now-playing-friends__item elements -->
+                </div>
+                <div class="feed-now-playing-strip__fade feed-now-playing-strip__fade--right"></div>
+            </div>
+
+            <!-- Zone 2: Feed Cards -->
             <div id="feed-container"></div>
-            <!-- Skeleton loading state (visible before JS executes) -->
             <div id="feed-skeleton-container" class="rs-skeleton">
                 <div class="feed-card feed-card--skeleton">
                     <div class="feed-card__header">
@@ -60,15 +76,20 @@
                     </div>
                 </div>
             </div>
-            <!-- Empty state (visible when no feed data) -->
+
+            <!-- Zone 3: Empty State -->
             <div id="feed-empty-state" class="empty-state" style="display: none;">
-                <div class="empty-state__icon" data-lucide="music"></div>
-                <h2 class="empty-state__title">No activity yet</h2>
-                <p class="empty-state__text">Add friends to see what they're listening to!</p>
+                <div class="empty-state__illustration feed-empty-illustration">
+                    <div class="feed-empty-illustration__vinyl"></div>
+                </div>
+                <h2 class="empty-state__title">Your feed is quiet</h2>
+                <p class="empty-state__text">Add friends to fill it with music</p>
             </div>
-            <!-- Discover section placeholder -->
+
+            <!-- Zone 4: Discover -->
             <div id="feed-discover-section" style="display: none;"></div>
-            <!-- Infinite scroll sentinel -->
+
+            <!-- Sentinel -->
             <div id="feed-sentinel" style="height: 1px;"></div>
         </main>
     </div>

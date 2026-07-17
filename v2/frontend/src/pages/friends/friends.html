@@ -8,31 +8,33 @@
     <link rel="stylesheet" href="styles/friends.css">
 </head>
 <body>
+    <!-- v3.0: 'The Connection Hub' — dynamic social discovery experience -->
     <div id="page-friends" class="page page--active">
         <header class="page__header">
-            <h1 class="page__title">Find Friends</h1>
+            <h1 class="page__title">Friends</h1>
         </header>
         <main class="page__content">
-            <!-- Search section -->
-            <section class="friends-section">
+            <!-- Search Section — 'The Spotlight' -->
+            <section class="friends-section friends-search-hero">
                 <h2 class="friends-section__title">Find People</h2>
-                <input type="text" id="friend-search-input" class="search-input"
-                       placeholder="Search by username..." autocomplete="off" />
-                <div id="search-results" style="margin-top: 12px;">
-                    <div class="empty-state" id="search-empty-state">
-                        <div class="empty-state__icon" data-lucide="search"></div>
-                        <h2 class="empty-state__title">Search for friends</h2>
-                        <p class="empty-state__text">Type a username above to find music lovers to connect with.</p>
-                    </div>
+                <div class="friends-search-hero__input-wrapper">
+                    <input type="text" id="friend-search-input" class="search-input"
+                           placeholder="Search by username..." autocomplete="off" />
                 </div>
+                <div class="friends-search-hero__suggestions">
+                    <p class="friends-search-hero__hint">Try searching for music lovers...</p>
+                </div>
+                <div id="search-results" style="margin-top: 12px;"></div>
             </section>
 
-            <!-- Incoming requests section (hidden by default, shown by friends.js) -->
+            <!-- Incoming Requests Section — 'Knocking' -->
             <section id="incoming-requests-section" class="friends-section" style="display: none;">
+                <!-- JS populates with search-result-item elements + Accept/Reject -->
             </section>
 
-            <!-- Friends list section -->
+            <!-- Friends List Section — 'Your Circle' -->
             <section id="friends-list-section" class="friends-section">
+                <!-- JS populates with friend discs -->
             </section>
         </main>
     </div>
