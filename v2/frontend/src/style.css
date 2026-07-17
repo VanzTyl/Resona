@@ -2517,3 +2517,711 @@ ul, ol {
 [data-theme="light"] .desktop-sidebar__theme-btn:hover {
     background: var(--rs-surface-elevated);
 }
+
+/* ========================================
+   v2.2: Glass Design Tokens
+   ======================================== */
+:root {
+    /* Glassmorphism tokens — dark theme */
+    --rs-glass-bg: rgba(26, 26, 46, 0.7);
+    --rs-glass-bg-strong: rgba(26, 26, 46, 0.85);
+    --rs-glass-border: rgba(255, 255, 255, 0.06);
+    --rs-glass-border-strong: rgba(255, 255, 255, 0.1);
+    --rs-glass-blur: 12px;
+    --rs-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --rs-glass-hover-glow: 0 0 24px rgba(124, 58, 237, 0.15);
+    --rs-glass-hover-lift: -4px;
+    /* Card hover tokens */
+    --rs-card-hover-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --rs-card-hover-glow: 0 0 20px rgba(124, 58, 237, 0.1);
+    --rs-card-hover-border: rgba(124, 58, 237, 0.2);
+}
+
+[data-theme="light"] {
+    --rs-glass-bg: rgba(255, 255, 255, 0.7);
+    --rs-glass-bg-strong: rgba(255, 255, 255, 0.85);
+    --rs-glass-border: rgba(0, 0, 0, 0.06);
+    --rs-glass-border-strong: rgba(0, 0, 0, 0.1);
+    --rs-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --rs-glass-hover-glow: 0 0 24px rgba(124, 58, 237, 0.08);
+    --rs-card-hover-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --rs-card-hover-glow: 0 0 20px rgba(124, 58, 237, 0.08);
+    --rs-card-hover-border: rgba(124, 58, 237, 0.15);
+}
+
+/* ========================================
+   v2.2: Tablet-Specific Refinements (768px – 1023px)
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Taller bottom nav with glass background */
+    .bottom-nav {
+        height: 72px;
+        background: var(--rs-glass-bg);
+        backdrop-filter: blur(var(--rs-glass-blur));
+        -webkit-backdrop-filter: blur(var(--rs-glass-blur));
+        border-top: 1px solid var(--rs-glass-border);
+    }
+
+    .bottom-nav__item {
+        flex-direction: row;
+        gap: var(--rs-space-2);
+        font-size: var(--rs-font-size-sm);
+        padding: var(--rs-space-2) var(--rs-space-3);
+    }
+
+    .bottom-nav__icon {
+        font-size: var(--rs-font-size-xl);
+    }
+
+    .bottom-nav__icon .rs-icon {
+        --rs-icon-size: 22px;
+    }
+
+    /* Messages: 240px thread list (adapted from desktop's 320px) */
+    #messages-content {
+        grid-template-columns: 240px 1fr;
+    }
+
+    /* Profile: distinct two-column layout */
+    #profile-content {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header    header"
+            "stats     topartists"
+            "interests topartists"
+            "genres    topartists"
+            "about     topartists"
+            "form      form";
+        gap: var(--rs-space-4);
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    #profile-form {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-4);
+    }
+
+    #profile-form .form-group:nth-child(4),
+    #profile-form .form-group:nth-child(5),
+    #profile-form .form-group:nth-child(8),
+    #profile-form .form-group:nth-child(9),
+    #profile-form .form-group:nth-child(10),
+    #profile-save-container,
+    #profile-logout-container {
+        grid-column: 1 / -1;
+    }
+
+    /* Feed cards: proportionally sized between mobile and desktop */
+    .feed-card {
+        max-width: 340px;
+        justify-self: center;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    #feed-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-4);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    #feed-skeleton-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-4);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Dashboard: 2x2 stats grid, artists in two columns */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-3);
+    }
+
+    #dashboard-artist-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--rs-space-2);
+    }
+
+    /* Slightly larger page content */
+    .page__content {
+        padding: var(--rs-space-5) var(--rs-space-5);
+    }
+
+    .page__header {
+        padding: var(--rs-space-5) var(--rs-space-5) var(--rs-space-3);
+    }
+
+    .page__title {
+        font-size: var(--rs-font-size-xl);
+    }
+
+    /* Toast positioning */
+    .rs-toast-container {
+        max-width: 500px;
+    }
+}
+
+/* ========================================
+   v2.2: Desktop Glassmorphism Identity (>= 1024px)
+   ======================================== */
+@media (min-width: 1024px) {
+    /* --- Sidebar Glassmorphism --- */
+    .desktop-sidebar {
+        background: var(--rs-glass-bg);
+        backdrop-filter: blur(var(--rs-glass-blur));
+        -webkit-backdrop-filter: blur(var(--rs-glass-blur));
+        border-right: 1px solid var(--rs-glass-border);
+        box-shadow: var(--rs-glass-shadow);
+    }
+
+    /* Sidebar brand section refinement */
+    .desktop-sidebar__brand {
+        border-bottom: 1px solid var(--rs-glass-border);
+    }
+
+    /* Sidebar nav item hover refinement */
+    .desktop-sidebar__nav-item {
+        border-left: 3px solid transparent;
+        border-radius: 0 var(--rs-radius-md) var(--rs-radius-md) 0;
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    .desktop-sidebar__nav-item:hover {
+        background: rgba(124, 58, 237, 0.08);
+        color: var(--rs-primary);
+        border-left-color: rgba(124, 58, 237, 0.3);
+    }
+
+    /* Active nav item: left-border accent + background glow */
+    .desktop-sidebar__nav-item--active {
+        background: var(--rs-primary-light);
+        color: var(--rs-primary);
+        border-left: 3px solid var(--rs-primary);
+        box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.08);
+    }
+
+    /* Sidebar user section */
+    .desktop-sidebar__user-section {
+        border-top: 1px solid var(--rs-glass-border);
+    }
+
+    /* Online indicator on sidebar avatar */
+    .desktop-sidebar__user-info {
+        position: relative;
+    }
+
+    .desktop-sidebar__user-avatar {
+        position: relative;
+    }
+
+    .desktop-sidebar__user-avatar::after {
+        content: '';
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
+        background: var(--rs-success);
+        border: 2px solid var(--rs-background);
+        border-radius: var(--rs-radius-full);
+        animation: rs-pulse 3s ease-in-out infinite;
+    }
+
+    /* --- Content Area Spacious Layout --- */
+    .page__content {
+        padding: var(--rs-space-8) var(--rs-space-10);
+        max-width: 960px;
+    }
+
+    .page__header {
+        padding: var(--rs-space-8) var(--rs-space-10) var(--rs-space-5);
+        position: static;
+    }
+
+    .page__title {
+        font-size: var(--rs-font-size-2xl);
+    }
+
+    /* --- Feed Card Desktop Hover Elevation --- */
+    .feed-card {
+        transition: transform var(--rs-motion-slow) var(--rs-easing),
+                    box-shadow var(--rs-motion-slow) var(--rs-easing),
+                    border-color var(--rs-motion-slow) var(--rs-easing);
+        border: 1px solid transparent;
+    }
+
+    .feed-card:hover {
+        transform: translateY(var(--rs-glass-hover-lift));
+        box-shadow: var(--rs-card-hover-shadow), var(--rs-card-hover-glow);
+        border-color: var(--rs-card-hover-border);
+    }
+
+    /* --- Discover Card Desktop Hover --- */
+    .discover-card {
+        transition: transform var(--rs-motion-slow) var(--rs-easing),
+                    box-shadow var(--rs-motion-slow) var(--rs-easing),
+                    border-color var(--rs-motion-slow) var(--rs-easing);
+        border: 1px solid var(--rs-border);
+    }
+
+    .discover-card:hover {
+        transform: translateY(var(--rs-glass-hover-lift));
+        box-shadow: var(--rs-card-hover-shadow), var(--rs-card-hover-glow);
+        border-color: var(--rs-card-hover-border);
+    }
+
+    /* --- Stat Card Hover --- */
+    .stat-card {
+        transition: transform var(--rs-motion-normal) var(--rs-easing),
+                    box-shadow var(--rs-motion-normal) var(--rs-easing),
+                    border-color var(--rs-motion-normal) var(--rs-easing);
+        border: 1px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--rs-glass-shadow);
+        border-color: var(--rs-glass-border-strong);
+    }
+
+    /* --- Artist Item Hover --- */
+    .artist-item {
+        transition: background var(--rs-motion-normal) var(--rs-easing),
+                    border-color var(--rs-motion-normal) var(--rs-easing);
+        border: 1px solid transparent;
+        border-radius: var(--rs-radius-md);
+    }
+
+    .artist-item:hover {
+        background: var(--rs-primary-light);
+        border-color: var(--rs-glass-border-strong);
+    }
+
+    /* --- Search Result Hover --- */
+    .search-result-item {
+        transition: background var(--rs-motion-normal) var(--rs-easing),
+                    border-color var(--rs-motion-normal) var(--rs-easing),
+                    transform var(--rs-motion-normal) var(--rs-easing);
+        border: 1px solid transparent;
+        border-radius: var(--rs-radius-md);
+    }
+
+    .search-result-item:hover {
+        background: var(--rs-primary-light);
+        border-color: var(--rs-glass-border-strong);
+        transform: translateX(2px);
+    }
+
+    /* --- Sidebar Theme Button Hover --- */
+    .desktop-sidebar__theme-btn {
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    .desktop-sidebar__theme-btn:hover {
+        background: var(--rs-primary-light);
+        color: var(--rs-primary);
+    }
+
+    /* --- Sidebar Logout Button Hover --- */
+    .desktop-sidebar__logout-btn {
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    /* --- Feed: wider grid --- */
+    #feed-container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    #feed-skeleton-container {
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+    /* --- Dashboard: wider --- */
+    #dashboard-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .stats-grid {
+        gap: var(--rs-space-4);
+    }
+
+    .stat-card {
+        padding: var(--rs-space-5) var(--rs-space-4);
+    }
+
+    /* --- Profile: wider spacing --- */
+    #profile-content {
+        gap: var(--rs-space-6);
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .profile-header__avatar {
+        width: 128px;
+        height: 128px;
+        border-width: 4px;
+    }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    /* --- Discover: wider --- */
+    .discover-grid {
+        gap: var(--rs-space-4);
+    }
+
+    /* --- Friends: wider --- */
+    #page-friends .page__content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* --- Toast centering --- */
+    .rs-toast-container {
+        max-width: 500px;
+    }
+}
+
+/* ========================================
+   v2.2: Login Page Glassmorphism Polish
+   ======================================== */
+/* Glassmorphism card wrapper for login */
+.login-card__wrapper {
+    background: var(--rs-glass-bg);
+    backdrop-filter: blur(var(--rs-glass-blur));
+    -webkit-backdrop-filter: blur(var(--rs-glass-blur));
+    border: 1px solid var(--rs-glass-border);
+    border-radius: var(--rs-radius-lg);
+    box-shadow: var(--rs-glass-shadow);
+    padding: var(--rs-space-10) var(--rs-space-6);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rs-space-6);
+    animation: rs-scale-in var(--rs-motion-normal) var(--rs-easing);
+}
+
+/* Login page background atmosphere */
+.login-card__background {
+    background: radial-gradient(
+        circle 600px at 50% 30%,
+        rgba(124, 58, 237, 0.06),
+        transparent 70%
+    );
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--rs-space-4);
+}
+
+/* Spotify logo SVG sizing in connect button */
+.login-card__spotify-logo {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card__spotify-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Login page subtitle refinement */
+.login-page__subtitle {
+    max-width: 340px;
+    line-height: 1.7;
+    font-size: var(--rs-font-size-base);
+    color: var(--rs-text-muted);
+}
+
+/* Login page inside the card wrapper — reset inherited styles */
+.login-card__wrapper .login-page {
+    padding: 0;
+    gap: var(--rs-space-5);
+}
+
+.login-card__wrapper .login-page__logo {
+    margin-bottom: 0;
+}
+
+.login-card__wrapper .login-page__title {
+    font-size: var(--rs-font-size-3xl);
+}
+
+/* Desktop: wider login card */
+@media (min-width: 1024px) {
+    .login-card__wrapper {
+        padding: var(--rs-space-12) var(--rs-space-8);
+        max-width: 440px;
+    }
+
+    .login-card__background {
+        background: radial-gradient(
+            circle 800px at 50% 30%,
+            rgba(124, 58, 237, 0.08),
+            transparent 70%
+        );
+    }
+}
+
+/* ========================================
+   v2.2: Micro-Interactions & Polish
+   ======================================== */
+/* Hover transitions on all desktop interactive elements */
+@media (min-width: 1024px) and (hover: hover) {
+    /* Bottom nav items on tablet — subtle hover */
+    .bottom-nav__item {
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    /* Period filter buttons */
+    .period-btn {
+        transition: all var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    .period-btn:hover {
+        border-color: var(--rs-primary);
+        color: var(--rs-primary);
+    }
+
+    /* Card emoji buttons */
+    .feed-card__emoji-btn {
+        transition: transform var(--rs-motion-normal) var(--rs-easing),
+                    background var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    /* Discover card avatar border transition */
+    .discover-card__avatar {
+        transition: border-color var(--rs-motion-normal) var(--rs-easing);
+    }
+
+    .discover-card:hover .discover-card__avatar {
+        border-color: rgba(124, 58, 237, 0.6);
+    }
+}
+
+/* Focus ring extensions for sidebar and login */
+.desktop-sidebar__nav-item:focus-visible {
+    outline: 2px solid var(--rs-primary);
+    outline-offset: -2px;
+}
+
+.desktop-sidebar__theme-btn:focus-visible,
+.desktop-sidebar__logout-btn:focus-visible {
+    outline: 2px solid var(--rs-primary);
+    outline-offset: 2px;
+}
+
+.login-card__wrapper a:focus-visible,
+.login-card__wrapper button:focus-visible {
+    outline: 2px solid var(--rs-primary);
+    outline-offset: 2px;
+    border-radius: var(--rs-radius-sm);
+}
+
+/* Skeleton shimmer refinement */
+.rs-skeleton__item {
+    background: linear-gradient(
+        90deg,
+        var(--rs-surface) 25%,
+        rgba(124, 58, 237, 0.04) 50%,
+        var(--rs-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: rs-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Page transition smoothness guarantee */
+.page--active {
+    animation: rs-fade-in var(--rs-motion-normal) var(--rs-easing);
+}
+
+/* ========================================
+   v2.2: Light Mode Overrides for Glass Effects
+   ======================================== */
+[data-theme="light"] .desktop-sidebar {
+    background: var(--rs-glass-bg);
+    border-right-color: var(--rs-glass-border);
+    box-shadow: var(--rs-glass-shadow);
+}
+
+[data-theme="light"] .desktop-sidebar__nav-item--active {
+    background: var(--rs-primary-light);
+    border-left-color: var(--rs-primary);
+    box-shadow: inset 0 0 20px rgba(124, 58, 237, 0.05);
+}
+
+[data-theme="light"] .desktop-sidebar__user-section {
+    border-top-color: var(--rs-glass-border);
+}
+
+[data-theme="light"] .feed-card:hover {
+    box-shadow: var(--rs-card-hover-shadow), var(--rs-card-hover-glow);
+    border-color: var(--rs-card-hover-border);
+}
+
+[data-theme="light"] .discover-card:hover {
+    box-shadow: var(--rs-card-hover-shadow), var(--rs-card-hover-glow);
+    border-color: var(--rs-card-hover-border);
+}
+
+[data-theme="light"] .stat-card:hover {
+    box-shadow: var(--rs-glass-shadow);
+    border-color: var(--rs-glass-border-strong);
+}
+
+[data-theme="light"] .login-card__wrapper {
+    background: var(--rs-glass-bg);
+    border-color: var(--rs-glass-border);
+    box-shadow: var(--rs-glass-shadow);
+}
+
+[data-theme="light"] .bottom-nav--tablet {
+    background: var(--rs-glass-bg);
+    border-top-color: var(--rs-glass-border);
+}
+
+[data-theme="light"] .desktop-sidebar__user-avatar::after {
+    border-color: var(--rs-background);
+}
+
+/* ========================================
+   v2.2: Wide Desktop Polish (>= 1400px)
+   ======================================== */
+@media (min-width: 1400px) {
+    .page__content {
+        max-width: 1100px;
+    }
+
+    #feed-container {
+        max-width: 1200px;
+    }
+
+    #feed-skeleton-container {
+        max-width: 1100px;
+    }
+
+    .feed-card {
+        max-width: 360px;
+    }
+
+    #dashboard-content {
+        max-width: 960px;
+    }
+
+    #profile-content {
+        max-width: 1000px;
+    }
+
+    #page-friends .page__content {
+        max-width: 960px;
+    }
+
+    .desktop-sidebar {
+        width: 240px;
+    }
+
+    .page {
+        margin-left: 240px;
+    }
+}
+
+/* ========================================
+   v2.2: Login Page SPA Fallback (JS-rendered)
+   ======================================== */
+/* When login.js creates the page structure dynamically (SPA navigation),
+   .login-page is a direct child of .page--centered. Apply glassmorphism directly. */
+.page--centered > .login-page {
+    background: var(--rs-glass-bg);
+    backdrop-filter: blur(var(--rs-glass-blur));
+    -webkit-backdrop-filter: blur(var(--rs-glass-blur));
+    border: 1px solid var(--rs-glass-border);
+    border-radius: var(--rs-radius-lg);
+    box-shadow: var(--rs-glass-shadow);
+    padding: var(--rs-space-10) var(--rs-space-6);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rs-space-6);
+    animation: rs-scale-in var(--rs-motion-normal) var(--rs-easing);
+}
+
+/* Login page atmospheric background (applies to both standalone and SPA) */
+#page-login.page--centered {
+    background: radial-gradient(
+        circle 600px at 50% 30%,
+        rgba(124, 58, 237, 0.06),
+        transparent 70%
+    );
+}
+
+/* Desktop: wider SPA fallback login card */
+@media (min-width: 1024px) {
+    .page--centered > .login-page {
+        padding: var(--rs-space-12) var(--rs-space-8);
+        max-width: 440px;
+    }
+
+    #page-login.page--centered {
+        background: radial-gradient(
+            circle 800px at 50% 30%,
+            rgba(124, 58, 237, 0.08),
+            transparent 70%
+        );
+    }
+}
+
+/* SPA fallback light mode */
+[data-theme="light"] .page--centered > .login-page {
+    background: var(--rs-glass-bg);
+    border-color: var(--rs-glass-border);
+    box-shadow: var(--rs-glass-shadow);
+}
+
+/* ========================================
+   v2.2: Spotify Logo in Connect Button
+   ======================================== */
+/* Injects Spotify SVG logo before button label via pseudo-element */
+#login-btn-container .rs-btn--primary::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background-color: currentColor;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.878zm1.225-2.72c-.227.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.85-.107-.975-.522-.125-.413.107-.85.522-.975 3.67-1.114 8.243-.573 11.347 1.33.37.227.49.707.26 1.073zm.106-2.833C14.384 8.71 8.535 8.514 5.16 9.538c-.517.157-1.066-.135-1.224-.653-.157-.518.135-1.067.653-1.224 3.883-1.178 10.344-.954 14.417 1.463.465.276.617.873.342 1.338-.276.466-.874.618-1.34.342z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.745 3.856-.88 7.15-.5 9.82.113.296.18.387.563.207.878zm1.225-2.72c-.227.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.85-.107-.975-.522-.125-.413.107-.85.522-.975 3.67-1.114 8.243-.573 11.347 1.33.37.227.49.707.26 1.073zm.106-2.833C14.384 8.71 8.535 8.514 5.16 9.538c-.517.157-1.066-.135-1.224-.653-.157-.518.135-1.067.653-1.224 3.883-1.178 10.344-.954 14.417 1.463.465.276.617.873.342 1.338-.276.466-.874.618-1.34.342z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+/* Ensure gap between SVG and text in the Spotify connect button */
+#login-btn-container .rs-btn--primary {
+    gap: var(--rs-space-3);
+}
