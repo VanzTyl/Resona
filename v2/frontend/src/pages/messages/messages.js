@@ -365,6 +365,8 @@ async function loadChatThread(friendId, friendName) {
                 initIcons();
             }
 
+            setupChatSendHandler(null, friendId, friendName);
+
             return;
         }
 
@@ -405,6 +407,47 @@ async function loadChatThread(friendId, friendName) {
         if (typeof initIcons === 'function') {
             initIcons();
         }
+
+        // Start polling for new messages (every 5 seconds).
+        if (window._messagePollInterval) {
+            clearInterval(window._messagePollInterval);
+        }
+
+        window._messagePollInterval = setInterval(async function () {
+            if (currentThreadId === null) {
+                clearInterval(window._messagePollInterval);
+                return;
+            }
+
+            try {
+                var lastMsgId = 0;
+                var lastMsg = chatThread.querySelector('.message:last-child');
+                if (lastMsg !== null) {
+                    var dataId = lastMsg.getAttribute('data-message-id');
+                    if (dataId !== null) {
+                        lastMsgId = parseInt(dataId, 10);
+                    }
+                }
+
+                var newMsgs = await apiGet('/api/messages/' + currentThreadId + '?afterId=' + lastMsgId + '&limit=20');
+
+                var messages = newMsgs.messages !== undefined ? newMsgs.messages : newMsgs;
+
+                if (messages.length > 0) {
+                    messages.forEach(function (msg) {
+                        var msgEl = createMessageElement(msg);
+                        chatThread.appendChild(msgEl);
+                    });
+                    chatThread.scrollTop = chatThread.scrollHeight;
+
+                    if (typeof initIcons === 'function') {
+                        initIcons();
+                    }
+                }
+            } catch (_e) {
+                // Silently retry on next interval.
+            }
+        }, 5000);
     } catch (error) {
         while (chatThread.firstChild !== null) {
             chatThread.removeChild(chatThread.firstChild);
@@ -439,6 +482,10 @@ function createMessageElement(msg) {
     var isOwn = senderId === currentUserId;
 
     msgEl.classList.add('message', isOwn ? 'message--sent' : 'message--received');
+
+    if (msg.id !== undefined) {
+        msgEl.setAttribute('data-message-id', msg.id);
+    }
 
     var bubble = document.createElement('div');
     bubble.className = 'message__bubble';
@@ -554,10 +601,17 @@ function setupChatSendHandler(threadId, friendId, friendName) {
         newSendBtn.disabled = true;
 
         try {
-            await apiPost('/api/messages/send', {
-                threadId: threadId,
+            var payload = {
                 content: content,
-            });
+            };
+
+            if (threadId !== null) {
+                payload.threadId = threadId;
+            } else {
+                payload.friendId = friendId;
+            }
+
+            await apiPost('/api/messages/send', payload);
 
             newInputField.value = '';
             await loadChatThread(friendId, friendName);

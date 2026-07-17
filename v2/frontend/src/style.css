@@ -1418,7 +1418,7 @@ ul, ol {
     gap: var(--rs-space-2);
     margin: 0 auto var(--rs-space-4);
     padding: var(--rs-space-2) 0;
-    max-width: 700px;
+    max-width: 960px;
 }
 
 .now-playing-friends__track-list {
@@ -1812,7 +1812,7 @@ ul, ol {
         margin-top: var(--rs-space-4) !important;
     }
 
-    #pending-requests-section {
+    #incoming-requests-section {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-3);
@@ -1891,9 +1891,27 @@ ul, ol {
 
     /* Profile: wider spacing */
     #profile-content {
-        max-width: 720px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "header header"
+            "stats topartists"
+            "interests topartists"
+            "genres topartists"
+            "about topartists"
+            "form form";
+        gap: var(--rs-space-4);
+        max-width: 960px;
         margin: 0 auto;
     }
+
+    #profile-content > #profile-header { grid-area: header; }
+    #profile-content > #profile-stats-row { grid-area: stats; }
+    #profile-content > #profile-interests-tags { grid-area: interests; }
+    #profile-content > #profile-genre-tags { grid-area: genres; }
+    #profile-content > #profile-about-section { grid-area: about; }
+    #profile-content > #profile-top-artists { grid-area: topartists; }
+    #profile-content > #profile-form-section { grid-area: form; }
 
     .profile-header__name {
         font-size: var(--rs-font-size-3xl);
@@ -2170,7 +2188,7 @@ ul, ol {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-5);
-        max-width: 760px;
+        max-width: 960px;
         margin: 0 auto;
     }
 
@@ -2204,7 +2222,7 @@ ul, ol {
         margin-top: var(--rs-space-5) !important;
     }
 
-    #pending-requests-section {
+    #incoming-requests-section {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: var(--rs-space-4);
@@ -2426,7 +2444,7 @@ ul, ol {
     /* Feed: 3-column grid on wide screens */
     #feed-container {
         grid-template-columns: 1fr 1fr 1fr;
-        max-width: 1100px;
+        max-width: 1200px;
     }
 
     #feed-skeleton-container {
@@ -2455,7 +2473,7 @@ ul, ol {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
-    #pending-requests-section {
+    #incoming-requests-section {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 

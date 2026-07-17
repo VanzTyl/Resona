@@ -136,7 +136,14 @@ function createFeedCard(cardData, onReaction) {
         emojiBtn.setAttribute('aria-label', 'React with ' + iconName);
         emojiBtn.setAttribute('title', 'React with ' + iconName);
 
-        var isReacted = Array.isArray(userReacted) ? userReacted.indexOf(iconName) !== -1 : !!userReacted[iconName];
+        var isReacted = false;
+        if (Array.isArray(userReacted)) {
+            isReacted = userReacted.indexOf(iconName) !== -1;
+        } else if (typeof userReacted === 'object' && userReacted !== null) {
+            isReacted = !!userReacted[iconName];
+        } else if (typeof userReacted === 'boolean') {
+            isReacted = userReacted;
+        }
         if (isReacted) {
             emojiBtn.classList.add('feed-card__emoji-btn--reacted');
         }

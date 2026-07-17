@@ -90,12 +90,13 @@ function handleSendMessage(array $params): void
     $userId = $auth['userId'];
     $body = parseJsonBody();
 
-    $threadId = $body['threadId'] ?? '';
+    $threadId = $body['threadId'] ?? null;
+    $friendId = $body['friendId'] ?? null;
     $content = trim($body['content'] ?? '');
     $messageType = $body['type'] ?? MESSAGE_TYPE_MANUAL;
 
-    if ($threadId === '' || $content === '') {
-        sendJson(['success' => false, 'error' => 'Thread ID and content are required'], HTTP_BAD_REQUEST);
+    if ($content === '') {
+        sendJson(['success' => false, 'error' => 'Message content is required'], HTTP_BAD_REQUEST);
         return;
     }
 
@@ -108,6 +109,32 @@ function handleSendMessage(array $params): void
         $messageType = MESSAGE_TYPE_MANUAL;
     }
 
+    // If no threadId but friendId is provided, create or find the thread
+    if ($threadId === null || $threadId === '') {
+        if ($friendId === null) {
+            sendJson(['success' => false, 'error' => 'Friend ID is required to start a conversation'], HTTP_BAD_REQUEST);
+            return;
+        }
+
+        // Check if thread already exists (race condition guard)
+        $existing = dbQueryOne(
+            'SELECT id FROM chat_threads WHERE (user_id_1 = :uid1 AND user_id_2 = :fid1) OR (user_id_1 = :fid2 AND user_id_2 = :uid2)',
+            [':uid1' => $userId, ':fid1' => $friendId, ':fid2' => $friendId, ':uid2' => $userId]
+        );
+
+        if ($existing !== null) {
+            $threadId = (int)$existing['id'];
+        } else {
+            // Create new thread with consistent user ID ordering
+            dbExecute(
+                'INSERT INTO chat_threads (user_id_1, user_id_2, created_at) VALUES (:u1, :u2, NOW())',
+                [':u1' => min($userId, $friendId), ':u2' => max($userId, $friendId)]
+            );
+            $threadId = (int)dbLastInsertId();
+        }
+    }
+
+    // Validate thread exists and user is a participant
     $thread = dbQueryOne(
         'SELECT id, user_id_1, user_id_2 FROM chat_threads WHERE id = :id',
         [':id' => $threadId]
@@ -126,7 +153,8 @@ function handleSendMessage(array $params): void
         return;
     }
 
-    $messageId = dbExecute(
+    // Insert message
+    dbExecute(
         'INSERT INTO messages (thread_id, sender_id, content, message_type, created_at)
          VALUES (:threadId, :senderId, :content, :msgType, NOW())',
         [
@@ -137,19 +165,16 @@ function handleSendMessage(array $params): void
         ]
     );
 
-    if ($messageId === 0) {
-        sendJson(['success' => false, 'error' => 'Failed to send message'], HTTP_INTERNAL_SERVER_ERROR);
-        return;
-    }
+    $messageId = dbLastInsertId();
 
-    sendJson([
-        'success' => true,
-        'data'    => [
-            'messageId' => dbLastInsertId(),
-            'content'   => $content,
-            'createdAt' => date('Y-m-d H:i:s'),
-        ],
-    ], HTTP_CREATED);
+    // Fetch the full message row to return consistent shape
+    $message = dbQueryOne(
+        'SELECT id, thread_id AS threadId, sender_id AS senderId, content, created_at AS createdAt
+         FROM messages WHERE id = :id',
+        [':id' => $messageId]
+    );
+
+    sendJson(['success' => true, 'data' => $message], HTTP_CREATED);
 }
 
 /**
@@ -169,6 +194,7 @@ function handleGetMessages(array $params): void
     $page = max(1, (int)($_GET['page'] ?? 1));
     $limit = min((int)($_GET['limit'] ?? DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
     $offset = ($page - 1) * $limit;
+    $afterId = isset($_GET['afterId']) ? (int)$_GET['afterId'] : null;
 
     if ($threadId === '') {
         sendJson(['success' => false, 'error' => 'Thread ID is required'], HTTP_BAD_REQUEST);
@@ -194,18 +220,26 @@ function handleGetMessages(array $params): void
     }
 
     try {
-        $messages = dbQuery(
-            "SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
-                    m.content, m.message_type, m.created_at
-             FROM messages m
-             JOIN users u ON u.id = m.sender_id
-             WHERE m.thread_id = :threadId
-             ORDER BY m.created_at DESC
-             LIMIT " . (int)$limit . " OFFSET " . (int)$offset,
-            [
-                ':threadId' => $threadId,
-            ]
-        );
+        $sql = "SELECT m.id, m.sender_id, u.username, u.display_name, u.avatar_url,
+                       m.content, m.message_type, m.created_at
+                FROM messages m
+                JOIN users u ON u.id = m.sender_id
+                WHERE m.thread_id = :threadId";
+
+        $queryParams = [':threadId' => $threadId];
+
+        // When afterId is provided, fetch only newer messages sorted ascending (for polling)
+        if ($afterId !== null && $afterId > 0) {
+            $sql .= " AND m.id > :afterId";
+            $sql .= " ORDER BY m.created_at ASC";
+            $queryParams[':afterId'] = $afterId;
+        } else {
+            $sql .= " ORDER BY m.created_at DESC";
+        }
+
+        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+        $messages = dbQuery($sql, $queryParams);
     } catch (\Throwable $e) {
         sendJson([
             'success' => false,
@@ -214,10 +248,15 @@ function handleGetMessages(array $params): void
         return;
     }
 
+    // Reverse only when sorted DESC (no afterId) to return chronological order
+    if ($afterId === null || $afterId <= 0) {
+        $messages = array_reverse($messages);
+    }
+
     sendJson([
         'success' => true,
         'data'    => [
-            'messages' => array_reverse($messages),
+            'messages' => $messages,
             'page'     => $page,
             'hasMore'  => count($messages) === $limit,
         ],
