@@ -73,6 +73,9 @@ function renderFeedPage() {
             }
         }
 
+        // Load now-playing friends section.
+        loadNowPlayingFriends();
+
         // Fetch feed data.
         loadFeedCards();
     }
@@ -105,6 +108,13 @@ function createFeedPageStructure() {
     const main = document.createElement('main');
     main.className = 'page__content';
     main.id = 'feed-content';
+
+    // Now-playing friends section (hidden by default).
+    const nowPlayingSection = document.createElement('div');
+    nowPlayingSection.id = 'feed-now-playing';
+    nowPlayingSection.className = 'now-playing-friends';
+    nowPlayingSection.style.display = 'none';
+    main.appendChild(nowPlayingSection);
 
     // Feed container (cards go here).
     const feedContainer = document.createElement('div');
@@ -192,6 +202,11 @@ async function loadFeedCards() {
 
         renderFeedCards(data.cards);
 
+        // Start now-playing after feed content is visible.
+        if (typeof startNowPlayingPolling === 'function') {
+            startNowPlayingPolling();
+        }
+
         if (!feedState.hasMore) {
             if (feedState.cards.length === 0) {
                 showEmptyFeed();
@@ -201,6 +216,11 @@ async function loadFeedCards() {
         }
     } catch (error) {
         feedState.isLoading = false;
+
+        // Still start now-playing even if feed fails.
+        if (typeof startNowPlayingPolling === 'function') {
+            startNowPlayingPolling();
+        }
 
         showToast({
             message: 'Failed to load feed: ' + error.message,
@@ -320,12 +340,40 @@ function showEndOfFeed() {
 
     const endMarker = document.createElement('p');
     endMarker.style.textAlign = 'center';
-    endMarker.style.padding = '24px';
+    endMarker.style.padding = '16px 24px 8px';
     endMarker.style.color = 'var(--rs-text-dim)';
     endMarker.style.fontSize = 'var(--rs-font-size-sm)';
     endMarker.textContent = "You're all caught up!";
 
     container.appendChild(endMarker);
+
+    // Refresh button to scroll to top and reload.
+    var refreshWrapper = document.createElement('div');
+    refreshWrapper.style.textAlign = 'center';
+    refreshWrapper.style.padding = '12px 24px 24px';
+
+    var refreshBtn = document.createElement('button');
+    refreshBtn.className = 'rs-btn rs-btn--secondary';
+    refreshBtn.textContent = 'Refresh Feed';
+    refreshBtn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Reload feed cards after a brief delay for scroll to complete.
+        setTimeout(function () {
+            feedState.cursor = null;
+            feedState.hasMore = true;
+            feedState.cards = [];
+
+            while (container.firstChild !== null) {
+                container.removeChild(container.firstChild);
+            }
+
+            loadFeedCards();
+        }, 400);
+    });
+
+    refreshWrapper.appendChild(refreshBtn);
+    container.appendChild(refreshWrapper);
 }
 
 /**
@@ -451,6 +499,96 @@ async function loadDiscoverSection() {
         }
     } catch (_error) {
         // Silently fail — discover section is non-critical.
+    }
+}
+
+/** Load and display friends currently playing in horizontal scroll. */
+async function loadNowPlayingFriends() {
+    var section = document.getElementById('feed-now-playing');
+    if (section === null) { return; }
+
+    try {
+        var friends = await apiGet('/api/friends?limit=50');
+        var nowPlaying = friends.filter(function (f) {
+            return f.is_playing && f.currently_playing_track;
+        });
+
+        if (nowPlaying.length === 0) { section.style.display = 'none'; return; }
+
+        while (section.firstChild !== null) {
+            section.removeChild(section.firstChild);
+        }
+
+        section.style.display = '';
+        section.className = 'now-playing-friends';
+
+        // Left arrow.
+        var leftArrow = document.createElement('button');
+        leftArrow.className = 'now-playing-friends__arrow now-playing-friends__arrow--left';
+        leftArrow.setAttribute('aria-label', 'Scroll left');
+        leftArrow.innerHTML = '&#8249;';
+        section.appendChild(leftArrow);
+
+        // Track list container.
+        var trackList = document.createElement('div');
+        trackList.className = 'now-playing-friends__track-list';
+
+        nowPlaying.forEach(function (friend) {
+            var item = document.createElement('div');
+            item.className = 'now-playing-friends__item';
+
+            var art = document.createElement('img');
+            art.className = 'now-playing-friends__art';
+            art.src = friend.album_art_url || 'assets/default-album.svg';
+            art.alt = '';
+            art.loading = 'lazy';
+            item.appendChild(art);
+
+            var info = document.createElement('div');
+            info.className = 'now-playing-friends__info';
+
+            var nameRow = document.createElement('div');
+            nameRow.className = 'now-playing-friends__name-row';
+
+            var name = document.createElement('span');
+            name.className = 'now-playing-friends__name';
+            name.textContent = friend.display_name;
+            nameRow.appendChild(name);
+
+            var tag = document.createElement('span');
+            tag.className = 'now-playing-friends__tag';
+            tag.textContent = 'Now Playing';
+            nameRow.appendChild(tag);
+
+            info.appendChild(nameRow);
+
+            var track = document.createElement('div');
+            track.className = 'now-playing-friends__track';
+            track.textContent = friend.currently_playing_track;
+            info.appendChild(track);
+
+            item.appendChild(info);
+            trackList.appendChild(item);
+        });
+
+        section.appendChild(trackList);
+
+        // Right arrow.
+        var rightArrow = document.createElement('button');
+        rightArrow.className = 'now-playing-friends__arrow now-playing-friends__arrow--right';
+        rightArrow.setAttribute('aria-label', 'Scroll right');
+        rightArrow.innerHTML = '&#8250;';
+        section.appendChild(rightArrow);
+
+        // Arrow click handlers.
+        leftArrow.addEventListener('click', function () {
+            trackList.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+        rightArrow.addEventListener('click', function () {
+            trackList.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+    } catch (_error) {
+        section.style.display = 'none';
     }
 }
 

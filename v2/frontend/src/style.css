@@ -753,6 +753,9 @@ ul, ol {
 }
 
 /* ----- Messages / Chat ----- */
+/* Note: #page-messages gets padding-bottom: 0 inside tablet/desktop media queries.
+   On mobile, the default .page bottom-nav padding applies. */
+
 .chat-thread {
     display: flex;
     flex-direction: column;
@@ -1028,12 +1031,15 @@ ul, ol {
 }
 
 /* ----- Profile Page ----- */
+
+/* Profile header - centered layout */
 .profile-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--rs-space-3);
-    padding: var(--rs-space-6) 0;
+    gap: var(--rs-space-2);
+    padding: var(--rs-space-4) 0 var(--rs-space-6);
+    text-align: center;
 }
 
 .profile-header__avatar {
@@ -1042,11 +1048,13 @@ ul, ol {
     border-radius: var(--rs-radius-full);
     object-fit: cover;
     border: 3px solid var(--rs-primary);
+    margin-bottom: var(--rs-space-1);
 }
 
 .profile-header__name {
     font-size: var(--rs-font-size-2xl);
     font-weight: var(--rs-font-weight-bold);
+    line-height: 1.2;
 }
 
 .profile-header__username {
@@ -1063,23 +1071,50 @@ ul, ol {
     margin-top: var(--rs-space-1);
 }
 
-/* v1.1: Stats row on profile (REV-003) */
+/* v1.1: Stats row on profile */
 .stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--rs-space-3);
-    margin: var(--rs-space-4) 0;
+    margin: 0;
 }
 
-/* v1.1: Profile section (REV-002, REV-005) */
+/* v1.1: Profile section card */
 .profile-section {
-    margin: var(--rs-space-4) 0;
+    margin: var(--rs-space-3) 0;
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-4);
 }
 
 .profile-section__title {
     font-size: var(--rs-font-size-lg);
     font-weight: var(--rs-font-weight-semibold);
     margin-bottom: var(--rs-space-3);
+    color: var(--rs-text);
+}
+
+/* Tags containers as cards */
+.tags-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rs-space-2);
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-4);
+    margin: var(--rs-space-3) 0;
+}
+
+.tags-card:empty {
+    display: none;
+}
+
+/* Hide empty profile containers so grid layout stays clean */
+#profile-interests-tags:empty,
+#profile-genre-tags:empty {
+    display: none;
 }
 
 /* ----- Profile Form ----- */
@@ -1355,6 +1390,117 @@ ul, ol {
     background: var(--rs-success);
     animation: rs-pulse 2s ease-in-out infinite;
     flex-shrink: 0;
+}
+
+/* ========================================
+   Feed: Now Playing Friends (v2.2)
+   ======================================== */
+.now-playing-friends {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-2);
+    margin: 0 auto var(--rs-space-4);
+    padding: var(--rs-space-2) 0;
+    max-width: 700px;
+}
+
+.now-playing-friends__track-list {
+    display: flex;
+    gap: var(--rs-space-3);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex: 1;
+    padding: var(--rs-space-1) 0;
+}
+
+.now-playing-friends__track-list::-webkit-scrollbar {
+    display: none;
+}
+
+.now-playing-friends__item {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-3);
+    background: var(--rs-surface);
+    border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-lg);
+    padding: var(--rs-space-2) var(--rs-space-3);
+    flex-shrink: 0;
+    min-width: 200px;
+    max-width: 260px;
+}
+
+.now-playing-friends__art {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rs-radius-md);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.now-playing-friends__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.now-playing-friends__name-row {
+    display: flex;
+    align-items: center;
+    gap: var(--rs-space-1);
+}
+
+.now-playing-friends__name {
+    font-size: var(--rs-font-size-sm);
+    font-weight: var(--rs-font-weight-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing-friends__tag {
+    font-size: 10px;
+    font-weight: var(--rs-font-weight-semibold);
+    color: var(--rs-success);
+    background: rgba(34, 197, 94, 0.12);
+    padding: 1px 6px;
+    border-radius: var(--rs-radius-sm);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.now-playing-friends__track {
+    font-size: var(--rs-font-size-xs);
+    color: var(--rs-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing-friends__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    border-radius: var(--rs-radius-full);
+    border: 1px solid var(--rs-border);
+    background: var(--rs-surface);
+    color: var(--rs-text);
+    font-size: var(--rs-font-size-xl);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--rs-motion-fast) var(--rs-easing);
+    line-height: 1;
+}
+
+.now-playing-friends__arrow:hover {
+    background: var(--rs-surface-elevated);
+    border-color: var(--rs-primary);
 }
 
 /* ========================================
@@ -1657,12 +1803,26 @@ ul, ol {
     }
 
     /* Messages: split-pane on tablet too */
+    #page-messages {
+        display: flex;
+        flex-direction: column;
+        height: calc(100dvh - var(--rs-nav-height));
+        overflow: hidden;
+        padding-bottom: 0;
+    }
+
+    #page-messages .page__header {
+        flex-shrink: 0;
+    }
+
     #messages-content {
         display: grid;
         grid-template-columns: 280px 1fr;
         gap: var(--rs-space-4);
-        height: calc(100dvh - var(--rs-space-10));
+        flex: 1;
+        min-height: 0;
         max-width: 100%;
+        padding-top: 0;
     }
 
     #messages-thread-list {
@@ -1714,7 +1874,7 @@ ul, ol {
 
     /* Profile: wider spacing */
     #profile-content {
-        max-width: 700px;
+        max-width: 720px;
         margin: 0 auto;
     }
 
@@ -1725,6 +1885,15 @@ ul, ol {
     .profile-header__avatar {
         width: 120px;
         height: 120px;
+        border-width: 4px;
+    }
+
+    .profile-header__bio {
+        max-width: 500px;
+    }
+
+    .stats-row {
+        gap: var(--rs-space-4);
     }
 
     /* Onboarding: tighter */
@@ -2028,12 +2197,26 @@ ul, ol {
     /* ================================
        Messages (split-pane)
        ================================ */
+    #page-messages {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        overflow: hidden;
+        padding-bottom: 0;
+    }
+
+    #page-messages .page__header {
+        flex-shrink: 0;
+    }
+
     #messages-content {
         display: grid;
         grid-template-columns: 320px 1fr;
         gap: var(--rs-space-5);
-        height: calc(100dvh - var(--rs-space-12));
+        flex: 1;
+        min-height: 0;
         max-width: 100%;
+        padding-top: 0;
     }
 
     #messages-thread-list {
@@ -2090,37 +2273,50 @@ ul, ol {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--rs-space-6);
-        max-width: 860px;
+        max-width: 960px;
         margin: 0 auto;
     }
 
+    /* Header spans full width */
     #profile-header {
         grid-column: 1 / -1;
+        padding: var(--rs-space-6) 0;
     }
 
+    /* Left column: stats, tags, about */
     #profile-stats-row {
-        grid-column: 1 / -1;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
+        grid-column: 1;
     }
 
     #profile-interests-tags {
-        grid-column: 1 / -1;
+        grid-column: 1;
     }
 
     #profile-genre-tags {
-        grid-column: 1 / -1;
+        grid-column: 1;
     }
 
     #profile-about-section {
-        grid-column: 1 / -1;
+        grid-column: 1;
     }
 
+    /* Right column: top artists */
     #profile-top-artists {
-        grid-column: 1 / -1;
+        grid-column: 2;
+        grid-row: 2 / 7;
     }
 
+    .profile-header__avatar {
+        width: 128px;
+        height: 128px;
+        border-width: 4px;
+    }
+
+    .profile-header__name {
+        font-size: var(--rs-font-size-3xl);
+    }
+
+    /* Form spans full width */
     #profile-form {
         grid-column: 1 / -1;
         display: grid;
@@ -2138,15 +2334,6 @@ ul, ol {
     #profile-form .form-group:nth-child(8),
     #profile-form .form-group:nth-child(9) {
         grid-column: 1 / -1;
-    }
-
-    .profile-header__avatar {
-        width: 128px;
-        height: 128px;
-    }
-
-    .profile-header__name {
-        font-size: var(--rs-font-size-3xl);
     }
 
     /* ================================

@@ -185,6 +185,11 @@ async function handleRouteChange() {
     // Update document title.
     document.title = routeConfig.title;
 
+    // Stop now-playing polling on login, callback, and onboarding pages.
+    if (typeof stopNowPlayingPolling === 'function') {
+        stopNowPlayingPolling();
+    }
+
     // Hide app loading if visible.
     const appLoading = document.getElementById('app-loading');
 
@@ -218,6 +223,16 @@ async function handleRouteChange() {
     // Initialize icons after page render (v1.1)
     if (typeof initIcons === 'function') {
         initIcons();
+    }
+
+    // Start now-playing polling for routes that should auto-start.
+    // Feed starts its own polling after loading data.
+    var noAutoStartRoutes = ['/login', '/callback', '/onboarding', '/feed'];
+
+    if (!noAutoStartRoutes.includes(hash)) {
+        if (typeof startNowPlayingPolling === 'function') {
+            startNowPlayingPolling();
+        }
     }
 }
 
@@ -438,14 +453,7 @@ function capitalize(str) {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
         initRouter();
-        // v1.1: Start now-playing polling
-        if (typeof startNowPlayingPolling === 'function') {
-            startNowPlayingPolling();
-        }
     });
 } else {
     initRouter();
-    if (typeof startNowPlayingPolling === 'function') {
-        startNowPlayingPolling();
-    }
 }

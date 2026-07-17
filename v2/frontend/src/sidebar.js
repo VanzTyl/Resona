@@ -184,6 +184,13 @@ function renderDesktopSidebar(activeRoute) {
     logoutBtn.appendChild(logoutLabel);
 
     logoutBtn.addEventListener('click', function () {
+        // Stop now-playing polling immediately on logout
+        if (typeof stopNowPlayingPolling === 'function') {
+            stopNowPlayingPolling();
+        }
+        if (typeof hideNowPlaying === 'function') {
+            hideNowPlaying();
+        }
         clearTokens();
         showToast({
             message: 'Logged out successfully',

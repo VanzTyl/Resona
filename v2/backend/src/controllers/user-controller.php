@@ -273,11 +273,12 @@ function handleSearchUsers(array $params): void
     try {
         $users = dbQuery(
             "SELECT id, username, display_name, avatar_url FROM users
-             WHERE (username LIKE :query OR display_name LIKE :query)
+             WHERE (username LIKE :query1 OR display_name LIKE :query2)
                AND id != :userId
              LIMIT {$limit}",
             [
-                ':query'    => '%' . $query . '%',
+                ':query1'   => '%' . $query . '%',
+                ':query2'   => '%' . $query . '%',
                 ':userId'   => $userId,
             ]
         );

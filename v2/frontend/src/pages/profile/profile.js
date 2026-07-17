@@ -217,6 +217,12 @@ async function loadProfile() {
             }
 
             if (profile.interests) {
+                // Add section title
+                var interestsTitle = document.createElement('h3');
+                interestsTitle.className = 'profile-section__title';
+                interestsTitle.textContent = 'Interests';
+                interestsContainer.appendChild(interestsTitle);
+
                 profile.interests.split(',').filter(function (t) {
                     return t.trim() !== '';
                 }).forEach(function (tag) {
@@ -225,6 +231,8 @@ async function loadProfile() {
                     tagEl.textContent = '#' + tag.trim();
                     interestsContainer.appendChild(tagEl);
                 });
+
+                interestsContainer.className = 'tags-card';
             }
         }
 
@@ -236,6 +244,12 @@ async function loadProfile() {
             }
 
             if (profile.favorite_genres) {
+                // Add section title
+                var genresTitle = document.createElement('h3');
+                genresTitle.className = 'profile-section__title';
+                genresTitle.textContent = 'Favorite Genres';
+                genresContainer.appendChild(genresTitle);
+
                 profile.favorite_genres.split(',').filter(function (t) {
                     return t.trim() !== '';
                 }).forEach(function (tag) {
@@ -244,6 +258,8 @@ async function loadProfile() {
                     tagEl.textContent = tag.trim();
                     genresContainer.appendChild(tagEl);
                 });
+
+                genresContainer.className = 'tags-card';
             }
         }
 
